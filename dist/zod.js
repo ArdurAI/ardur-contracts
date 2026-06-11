@@ -1,10 +1,15 @@
 /**
- * @ardurai/contracts/zod — Tier-2 structural Zod schemas.
+ * @ardurai/contracts/zod — Tier-2 structural Zod schemas + combined parse helpers.
  *
  * Requires the `zod` peer dependency (^3).
  * Import via the subpath so Tier-1-only consumers pull no zod dep:
  *
- *   import { AggregationArtifactSchema } from '@ardurai/contracts/zod';
+ *   import { parseAggregationArtifact } from '@ardurai/contracts/zod';
+ *   const agg = parseAggregationArtifact(JSON.parse(raw));
+ *
+ * The per-stage helpers (parseAggregationArtifact, parseRankingArtifact, etc.) run
+ * Tier-1 (assertCompatibleArtifact) + Tier-2 (Zod) in a single call — this is the
+ * recommended API for engines. Raw schemas are also exported for advanced use.
  *
  * All schemas use .passthrough() on the envelope level to remain forward-compatible
  * with additive revisions — unknown fields are preserved, not stripped.
@@ -14,7 +19,7 @@
  *   on ScoreBreakdown, RankedCluster, Top10Entry, SynthesizedArticle, AggregationData.
  */
 import { z } from 'zod';
-import { SCHEMA_VERSION } from "./index.js";
+import { SCHEMA_VERSION, assertCompatibleArtifact } from "./index.js";
 // ---------------------------------------------------------------------------
 // Shared primitives
 // ---------------------------------------------------------------------------
@@ -184,14 +189,14 @@ export const AggregationArtifactSchema = makeEnvelopeSchema('aggregation', aggre
 // ---------------------------------------------------------------------------
 const scoreBreakdown = z
     .object({
-    interaction: z.number(),
-    credibility: z.number(),
-    corroboration: z.number(),
-    technicalSignificance: z.number().optional(), // rev 3 additive
-    recency: z.number(),
-    diversity: z.number(),
-    total: z.number(),
-    weights: z.record(z.string(), z.number()),
+    interaction: z.number().finite(),
+    credibility: z.number().finite(),
+    corroboration: z.number().finite(),
+    technicalSignificance: z.number().finite().optional(), // rev 3 additive
+    recency: z.number().finite(),
+    diversity: z.number().finite(),
+    total: z.number().finite(), // NaN serialises as null in JSON — both are rejected here
+    weights: z.record(z.string(), z.number().finite()),
 })
     .passthrough();
 const tierHistogram = z
@@ -431,3 +436,29 @@ const articleData = z.object({
     copyrightPolicy,
 });
 export const ArticleArtifactSchema = makeEnvelopeSchema('articles', articleData);
+// ---------------------------------------------------------------------------
+// Combined Tier-1 + Tier-2 parse helpers (recommended engine API)
+// ---------------------------------------------------------------------------
+/**
+ * Run Tier-1 envelope validation (assertCompatibleArtifact) then Tier-2 Zod
+ * structural validation in a single call.
+ *
+ * Throws `SchemaVersionError` on envelope failures (wrong version, stage, missing
+ * required fields). Throws `ZodError` on structural failures inside `data`.
+ *
+ * Usage:
+ *   import { parseArtifact, AggregationArtifactSchema } from '@ardurai/contracts/zod';
+ *   const agg = parseArtifact(raw, 'aggregation', AggregationArtifactSchema);
+ */
+export function parseArtifact(raw, stage, schema) {
+    assertCompatibleArtifact(raw, stage);
+    return schema.parse(raw);
+}
+/** Parse + validate an aggregation artifact (Tier-1 + Tier-2). */
+export const parseAggregationArtifact = (raw) => parseArtifact(raw, 'aggregation', AggregationArtifactSchema);
+/** Parse + validate a ranking artifact (Tier-1 + Tier-2). */
+export const parseRankingArtifact = (raw) => parseArtifact(raw, 'ranking', RankingArtifactSchema);
+/** Parse + validate a top-10 artifact (Tier-1 + Tier-2). */
+export const parseTop10Artifact = (raw) => parseArtifact(raw, 'top10', Top10ArtifactSchema);
+/** Parse + validate an article artifact (Tier-1 + Tier-2). */
+export const parseArticleArtifact = (raw) => parseArtifact(raw, 'articles', ArticleArtifactSchema);

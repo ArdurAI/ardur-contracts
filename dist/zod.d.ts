@@ -1,10 +1,15 @@
 /**
- * @ardurai/contracts/zod — Tier-2 structural Zod schemas.
+ * @ardurai/contracts/zod — Tier-2 structural Zod schemas + combined parse helpers.
  *
  * Requires the `zod` peer dependency (^3).
  * Import via the subpath so Tier-1-only consumers pull no zod dep:
  *
- *   import { AggregationArtifactSchema } from '@ardurai/contracts/zod';
+ *   import { parseAggregationArtifact } from '@ardurai/contracts/zod';
+ *   const agg = parseAggregationArtifact(JSON.parse(raw));
+ *
+ * The per-stage helpers (parseAggregationArtifact, parseRankingArtifact, etc.) run
+ * Tier-1 (assertCompatibleArtifact) + Tier-2 (Zod) in a single call — this is the
+ * recommended API for engines. Raw schemas are also exported for advanced use.
  *
  * All schemas use .passthrough() on the envelope level to remain forward-compatible
  * with additive revisions — unknown fields are preserved, not stripped.
@@ -14,6 +19,7 @@
  *   on ScoreBreakdown, RankedCluster, Top10Entry, SynthesizedArticle, AggregationData.
  */
 import { z } from 'zod';
+import { type PipelineStage } from './index.ts';
 export declare const SourceDocumentSchema: z.ZodObject<{
     id: z.ZodString;
     url: z.ZodString;
@@ -16949,3 +16955,23 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
     }>;
 }, z.ZodTypeAny, "passthrough">>;
 export type ArticleArtifactInput = z.input<typeof ArticleArtifactSchema>;
+/**
+ * Run Tier-1 envelope validation (assertCompatibleArtifact) then Tier-2 Zod
+ * structural validation in a single call.
+ *
+ * Throws `SchemaVersionError` on envelope failures (wrong version, stage, missing
+ * required fields). Throws `ZodError` on structural failures inside `data`.
+ *
+ * Usage:
+ *   import { parseArtifact, AggregationArtifactSchema } from '@ardurai/contracts/zod';
+ *   const agg = parseArtifact(raw, 'aggregation', AggregationArtifactSchema);
+ */
+export declare function parseArtifact<TSchema extends z.ZodTypeAny>(raw: unknown, stage: PipelineStage, schema: TSchema): z.output<TSchema>;
+/** Parse + validate an aggregation artifact (Tier-1 + Tier-2). */
+export declare const parseAggregationArtifact: (raw: unknown) => z.output<typeof AggregationArtifactSchema>;
+/** Parse + validate a ranking artifact (Tier-1 + Tier-2). */
+export declare const parseRankingArtifact: (raw: unknown) => z.output<typeof RankingArtifactSchema>;
+/** Parse + validate a top-10 artifact (Tier-1 + Tier-2). */
+export declare const parseTop10Artifact: (raw: unknown) => z.output<typeof Top10ArtifactSchema>;
+/** Parse + validate an article artifact (Tier-1 + Tier-2). */
+export declare const parseArticleArtifact: (raw: unknown) => z.output<typeof ArticleArtifactSchema>;

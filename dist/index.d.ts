@@ -460,6 +460,11 @@ export interface ArtifactCheck<TStage extends PipelineStage> {
  *   - `raw.schemaVersion` !== SCHEMA_VERSION  (major drift — hard fail)
  *   - `raw.artifact` !== expectedStage        (wrong upstream wired in — hard fail)
  *   - `raw.data` is not a non-null object     (structurally broken envelope)
+ *   - `raw.runId` is not a non-empty string   (required for audit trail)
+ *   - `raw.generatedAt` is not a string       (required for cycle validation)
+ *   - `raw.cycle` is not a non-null object with string id/windowStart/windowEnd
+ *   - `raw.topics` is not an array            (required for stage iteration)
+ *   - `raw.warnings` is not an array          (required for surfacing non-fatal issues)
  *
  * Returns non-fatal warnings when:
  *   - `raw.contractRevision > CONTRACT_REVISION` (forward-compat: additive fields may be ignored)
@@ -468,5 +473,7 @@ export interface ArtifactCheck<TStage extends PipelineStage> {
  *   const { envelope, warnings } = assertCompatibleArtifact(JSON.parse(raw), 'aggregation');
  *   // surface warnings, then:
  *   const agg = envelope as AggregationArtifact;
+ *   // For full structural validation of `data`, follow up with the Tier-2 Zod schemas:
+ *   import { parseAggregationArtifact } from '@ardurai/contracts/zod';
  */
 export declare function assertCompatibleArtifact<TStage extends PipelineStage>(raw: unknown, expectedStage: TStage): ArtifactCheck<TStage>;

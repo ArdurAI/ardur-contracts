@@ -252,6 +252,167 @@ describe('assertCompatibleArtifact — hard failures (SchemaVersionError)', () =
 });
 
 // ---------------------------------------------------------------------------
+// assertCompatibleArtifact — tightened required envelope fields
+// ---------------------------------------------------------------------------
+
+describe('assertCompatibleArtifact — tightened required envelope fields', () => {
+  it('throws when runId is missing', () => {
+    const env = makeEnvelope() as Record<string, unknown>;
+    delete env['runId'];
+    assert.throws(
+      () => assertCompatibleArtifact(env, 'aggregation'),
+      (err: unknown) => err instanceof SchemaVersionError,
+    );
+  });
+
+  it('throws when runId is not a string (number)', () => {
+    assert.throws(
+      () =>
+        assertCompatibleArtifact(makeEnvelope({ runId: 42 as unknown as string }), 'aggregation'),
+      (err: unknown) => err instanceof SchemaVersionError,
+    );
+  });
+
+  it('throws when runId is an empty string', () => {
+    assert.throws(
+      () => assertCompatibleArtifact(makeEnvelope({ runId: '' }), 'aggregation'),
+      (err: unknown) => err instanceof SchemaVersionError,
+    );
+  });
+
+  it('throws when generatedAt is missing', () => {
+    const env = makeEnvelope() as Record<string, unknown>;
+    delete env['generatedAt'];
+    assert.throws(
+      () => assertCompatibleArtifact(env, 'aggregation'),
+      (err: unknown) => err instanceof SchemaVersionError,
+    );
+  });
+
+  it('throws when generatedAt is not a string (number)', () => {
+    assert.throws(
+      () =>
+        assertCompatibleArtifact(
+          makeEnvelope({ generatedAt: 1234567890 as unknown as string }),
+          'aggregation',
+        ),
+      (err: unknown) => err instanceof SchemaVersionError,
+    );
+  });
+
+  it('throws when cycle is missing', () => {
+    const env = makeEnvelope() as Record<string, unknown>;
+    delete env['cycle'];
+    assert.throws(
+      () => assertCompatibleArtifact(env, 'aggregation'),
+      (err: unknown) => err instanceof SchemaVersionError,
+    );
+  });
+
+  it('throws when cycle is null', () => {
+    assert.throws(
+      () =>
+        assertCompatibleArtifact(
+          makeEnvelope({
+            cycle: null as unknown as ArtifactEnvelope<AggregationData>['cycle'],
+          }),
+          'aggregation',
+        ),
+      (err: unknown) => err instanceof SchemaVersionError,
+    );
+  });
+
+  it('throws when cycle.id is missing', () => {
+    assert.throws(
+      () =>
+        assertCompatibleArtifact(
+          makeEnvelope({
+            cycle: {
+              windowStart: '2026-06-11T06:00:00.000Z',
+              windowEnd: '2026-06-11T12:00:00.000Z',
+            } as unknown as ArtifactEnvelope<AggregationData>['cycle'],
+          }),
+          'aggregation',
+        ),
+      (err: unknown) => err instanceof SchemaVersionError,
+    );
+  });
+
+  it('throws when cycle.windowStart is missing', () => {
+    assert.throws(
+      () =>
+        assertCompatibleArtifact(
+          makeEnvelope({
+            cycle: {
+              id: '2026-06-11T06:00:00.000Z',
+              windowEnd: '2026-06-11T12:00:00.000Z',
+            } as unknown as ArtifactEnvelope<AggregationData>['cycle'],
+          }),
+          'aggregation',
+        ),
+      (err: unknown) => err instanceof SchemaVersionError,
+    );
+  });
+
+  it('throws when topics is not an array (object)', () => {
+    assert.throws(
+      () =>
+        assertCompatibleArtifact(
+          makeEnvelope({ topics: {} as unknown as ArtifactEnvelope<AggregationData>['topics'] }),
+          'aggregation',
+        ),
+      (err: unknown) => err instanceof SchemaVersionError,
+    );
+  });
+
+  it('throws when topics is missing', () => {
+    const env = makeEnvelope() as Record<string, unknown>;
+    delete env['topics'];
+    assert.throws(
+      () => assertCompatibleArtifact(env, 'aggregation'),
+      (err: unknown) => err instanceof SchemaVersionError,
+    );
+  });
+
+  it('throws when warnings is not an array (null)', () => {
+    assert.throws(
+      () =>
+        assertCompatibleArtifact(
+          makeEnvelope({
+            warnings: null as unknown as ArtifactEnvelope<AggregationData>['warnings'],
+          }),
+          'aggregation',
+        ),
+      (err: unknown) => err instanceof SchemaVersionError,
+    );
+  });
+
+  it('throws when warnings is missing', () => {
+    const env = makeEnvelope() as Record<string, unknown>;
+    delete env['warnings'];
+    assert.throws(
+      () => assertCompatibleArtifact(env, 'aggregation'),
+      (err: unknown) => err instanceof SchemaVersionError,
+    );
+  });
+
+  it('error detail.expected describes the missing field', () => {
+    const env = makeEnvelope() as Record<string, unknown>;
+    delete env['runId'];
+    try {
+      assertCompatibleArtifact(env, 'aggregation');
+      assert.fail('should have thrown');
+    } catch (err) {
+      assert.ok(err instanceof SchemaVersionError);
+      assert.ok(
+        err.detail.expected.includes('runId'),
+        `expected to mention 'runId', got: "${err.detail.expected}"`,
+      );
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
 // SchemaVersionError
 // ---------------------------------------------------------------------------
 

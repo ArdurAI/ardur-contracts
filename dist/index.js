@@ -89,6 +89,11 @@ export class SchemaVersionError extends Error {
  *   - `raw.schemaVersion` !== SCHEMA_VERSION  (major drift — hard fail)
  *   - `raw.artifact` !== expectedStage        (wrong upstream wired in — hard fail)
  *   - `raw.data` is not a non-null object     (structurally broken envelope)
+ *   - `raw.runId` is not a non-empty string   (required for audit trail)
+ *   - `raw.generatedAt` is not a string       (required for cycle validation)
+ *   - `raw.cycle` is not a non-null object with string id/windowStart/windowEnd
+ *   - `raw.topics` is not an array            (required for stage iteration)
+ *   - `raw.warnings` is not an array          (required for surfacing non-fatal issues)
  *
  * Returns non-fatal warnings when:
  *   - `raw.contractRevision > CONTRACT_REVISION` (forward-compat: additive fields may be ignored)
@@ -97,6 +102,8 @@ export class SchemaVersionError extends Error {
  *   const { envelope, warnings } = assertCompatibleArtifact(JSON.parse(raw), 'aggregation');
  *   // surface warnings, then:
  *   const agg = envelope as AggregationArtifact;
+ *   // For full structural validation of `data`, follow up with the Tier-2 Zod schemas:
+ *   import { parseAggregationArtifact } from '@ardurai/contracts/zod';
  */
 export function assertCompatibleArtifact(raw, expectedStage) {
     if (typeof raw !== 'object' || raw === null) {
@@ -125,6 +132,51 @@ export function assertCompatibleArtifact(raw, expectedStage) {
         throw new SchemaVersionError({
             expected: 'non-null object at .data',
             received: env.data,
+            stage: expectedStage,
+        });
+    }
+    if (typeof env.runId !== 'string' || env.runId === '') {
+        throw new SchemaVersionError({
+            expected: 'non-empty string at .runId',
+            received: env.runId,
+            stage: expectedStage,
+        });
+    }
+    if (typeof env.generatedAt !== 'string') {
+        throw new SchemaVersionError({
+            expected: 'string at .generatedAt',
+            received: env.generatedAt,
+            stage: expectedStage,
+        });
+    }
+    if (typeof env.cycle !== 'object' || env.cycle === null) {
+        throw new SchemaVersionError({
+            expected: 'non-null object at .cycle',
+            received: env.cycle,
+            stage: expectedStage,
+        });
+    }
+    const cycle = env.cycle;
+    if (typeof cycle['id'] !== 'string' ||
+        typeof cycle['windowStart'] !== 'string' ||
+        typeof cycle['windowEnd'] !== 'string') {
+        throw new SchemaVersionError({
+            expected: 'string id/windowStart/windowEnd at .cycle',
+            received: env.cycle,
+            stage: expectedStage,
+        });
+    }
+    if (!Array.isArray(env.topics)) {
+        throw new SchemaVersionError({
+            expected: 'array at .topics',
+            received: env.topics,
+            stage: expectedStage,
+        });
+    }
+    if (!Array.isArray(env.warnings)) {
+        throw new SchemaVersionError({
+            expected: 'array at .warnings',
+            received: env.warnings,
             stage: expectedStage,
         });
     }

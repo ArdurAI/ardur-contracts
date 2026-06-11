@@ -16,8 +16,13 @@ import {
   GifBlockSchema,
   EmbedBlockSchema,
   ArticleBlockSchema,
+  parseArtifact,
+  parseAggregationArtifact,
+  parseRankingArtifact,
+  parseTop10Artifact,
+  parseArticleArtifact,
 } from './zod.ts';
-import { SCHEMA_VERSION } from './index.ts';
+import { SCHEMA_VERSION, SchemaVersionError } from './index.ts';
 
 // ---------------------------------------------------------------------------
 // Minimal valid fixture factories
@@ -1300,5 +1305,275 @@ describe('ArticleArtifactSchema — rev 3 additive fields', () => {
       }),
     );
     assert.ok(!result.success);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Tier-2 NaN and garbage-input rejection — scoreBreakdown
+// ---------------------------------------------------------------------------
+
+describe('Tier-2 NaN rejection — scoreBreakdown / RankingArtifactSchema', () => {
+  const baseScore = {
+    interaction: 0.8,
+    credibility: 0.9,
+    corroboration: 0.75,
+    recency: 0.7,
+    diversity: 0.85,
+    total: 0.8,
+    weights: {},
+  };
+  const baseCluster = {
+    clusterId: 'c-1',
+    topic: 'ai',
+    topicLabel: 'AI',
+    headline: 'headline',
+    rank: 1,
+    score: baseScore,
+    sourceQuality: 'corroborated',
+    confidence: 'high',
+    verification: 'multi-source',
+    sourceCount: 3,
+    distinctDomains: 3,
+    tierHistogram: {},
+    memberIds: ['i-1'],
+    earliestPublishedAt: '2026-06-11T03:00:00.000Z',
+    latestPublishedAt: '2026-06-11T05:00:00.000Z',
+    auditId: 'audit-1',
+  };
+
+  it('rejects NaN in score.total (the core ranking NaN bug)', () => {
+    const result = RankingArtifactSchema.safeParse(
+      makeRankingArtifact({
+        data: {
+          rankedByTopic: { ai: [{ ...baseCluster, score: { ...baseScore, total: NaN } }] },
+          audit: [],
+          weightProfile: 'balanced@v1',
+        },
+      }),
+    );
+    assert.ok(!result.success, 'NaN total should be rejected');
+  });
+
+  it('rejects null in score.total (JSON-serialised NaN → null)', () => {
+    const result = RankingArtifactSchema.safeParse(
+      makeRankingArtifact({
+        data: {
+          rankedByTopic: { ai: [{ ...baseCluster, score: { ...baseScore, total: null } }] },
+          audit: [],
+          weightProfile: 'balanced@v1',
+        },
+      }),
+    );
+    assert.ok(!result.success, 'null total (JSON-serialised NaN) should be rejected');
+  });
+
+  it('rejects NaN in score.interaction', () => {
+    const result = RankingArtifactSchema.safeParse(
+      makeRankingArtifact({
+        data: {
+          rankedByTopic: { ai: [{ ...baseCluster, score: { ...baseScore, interaction: NaN } }] },
+          audit: [],
+          weightProfile: 'balanced@v1',
+        },
+      }),
+    );
+    assert.ok(!result.success, 'NaN interaction should be rejected');
+  });
+
+  it('rejects NaN in score.credibility', () => {
+    const result = RankingArtifactSchema.safeParse(
+      makeRankingArtifact({
+        data: {
+          rankedByTopic: { ai: [{ ...baseCluster, score: { ...baseScore, credibility: NaN } }] },
+          audit: [],
+          weightProfile: 'balanced@v1',
+        },
+      }),
+    );
+    assert.ok(!result.success, 'NaN credibility should be rejected');
+  });
+
+  it('rejects Infinity in score.total (overflow guard)', () => {
+    const result = RankingArtifactSchema.safeParse(
+      makeRankingArtifact({
+        data: {
+          rankedByTopic: { ai: [{ ...baseCluster, score: { ...baseScore, total: Infinity } }] },
+          audit: [],
+          weightProfile: 'balanced@v1',
+        },
+      }),
+    );
+    assert.ok(!result.success, 'Infinity total should be rejected');
+  });
+
+  it('accepts a valid score with all finite numbers', () => {
+    const result = RankingArtifactSchema.safeParse(
+      makeRankingArtifact({
+        data: {
+          rankedByTopic: { ai: [baseCluster] },
+          audit: [],
+          weightProfile: 'balanced@v1',
+        },
+      }),
+    );
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Tier-2 NaN rejection — ExtractedFactSchema (corroboration)
+// ---------------------------------------------------------------------------
+
+describe('ExtractedFactSchema — NaN corroboration rejection', () => {
+  const validProvenance = {
+    sourceDocId: 'doc-1',
+    sourceDomain: 'reuters.com',
+    url: 'https://reuters.com/article',
+  };
+
+  it('rejects NaN corroboration', () => {
+    const result = ExtractedFactSchema.safeParse({
+      id: 'fact-1',
+      topic: 'ai',
+      clusterId: 'c-1',
+      statement: 'AI improved.',
+      entities: [],
+      provenance: [validProvenance],
+      corroboration: NaN,
+      confidence: 'high',
+      extractedBy: {
+        provider: 'deterministic',
+        model: 'd@v1',
+        status: 'fallback',
+        generatedAt: '2026-06-11T06:00:00.000Z',
+      },
+    });
+    assert.ok(!result.success, 'NaN corroboration should be rejected');
+  });
+
+  it('rejects corroboration = 0 (must be >= 1)', () => {
+    const result = ExtractedFactSchema.safeParse({
+      id: 'fact-1',
+      topic: 'ai',
+      clusterId: 'c-1',
+      statement: 'AI improved.',
+      entities: [],
+      provenance: [validProvenance],
+      corroboration: 0,
+      confidence: 'high',
+      extractedBy: {
+        provider: 'deterministic',
+        model: 'd@v1',
+        status: 'fallback',
+        generatedAt: '2026-06-11T06:00:00.000Z',
+      },
+    });
+    assert.ok(!result.success, 'corroboration=0 should be rejected (min 1)');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// parseArtifact + per-stage helpers
+// ---------------------------------------------------------------------------
+
+describe('parseArtifact generic helper', () => {
+  it('returns parsed artifact on valid aggregation input', () => {
+    const raw = makeAggArtifact();
+    const result = parseArtifact(raw, 'aggregation', AggregationArtifactSchema);
+    assert.strictEqual(result.artifact, 'aggregation');
+    assert.strictEqual(result.schemaVersion, SCHEMA_VERSION);
+  });
+
+  it('throws SchemaVersionError on malformed envelope (wrong schemaVersion)', () => {
+    const raw = makeAggArtifact({ schemaVersion: 'ardur-content-pipeline/v2' });
+    assert.throws(
+      () => parseArtifact(raw, 'aggregation', AggregationArtifactSchema),
+      (err: unknown) => err instanceof SchemaVersionError,
+    );
+  });
+
+  it('throws on valid envelope but structurally malformed data (not SchemaVersionError)', () => {
+    const raw = makeAggArtifact({ data: { itemsByTopic: 'not-an-object' } });
+    let threw = false;
+    try {
+      parseArtifact(raw, 'aggregation', AggregationArtifactSchema);
+    } catch (err) {
+      threw = true;
+      assert.ok(
+        !(err instanceof SchemaVersionError),
+        'should throw ZodError, not SchemaVersionError',
+      );
+    }
+    assert.ok(threw, 'should have thrown');
+  });
+});
+
+describe('per-stage convenience parsers', () => {
+  it('parseAggregationArtifact returns a valid aggregation artifact', () => {
+    const result = parseAggregationArtifact(makeAggArtifact());
+    assert.strictEqual(result.artifact, 'aggregation');
+  });
+
+  it('parseRankingArtifact returns a valid ranking artifact', () => {
+    const result = parseRankingArtifact(makeRankingArtifact());
+    assert.strictEqual(result.artifact, 'ranking');
+  });
+
+  it('parseTop10Artifact returns a valid top10 artifact', () => {
+    const result = parseTop10Artifact(makeTop10Artifact());
+    assert.strictEqual(result.artifact, 'top10');
+  });
+
+  it('parseArticleArtifact returns a valid article artifact', () => {
+    const result = parseArticleArtifact(makeArticleArtifact());
+    assert.strictEqual(result.artifact, 'articles');
+  });
+
+  it('parseAggregationArtifact throws SchemaVersionError on wrong stage', () => {
+    assert.throws(
+      () => parseAggregationArtifact(makeRankingArtifact()),
+      (err: unknown) => err instanceof SchemaVersionError,
+    );
+  });
+
+  it('parseRankingArtifact throws on NaN score.total (Zod layer)', () => {
+    const badScore = {
+      interaction: 0.8,
+      credibility: 0.9,
+      corroboration: 0.75,
+      recency: 0.7,
+      diversity: 0.85,
+      total: NaN,
+      weights: {},
+    };
+    const raw = makeRankingArtifact({
+      data: {
+        rankedByTopic: {
+          ai: [
+            {
+              clusterId: 'c-1',
+              topic: 'ai',
+              topicLabel: 'AI',
+              headline: 'h',
+              rank: 1,
+              score: badScore,
+              sourceQuality: 'corroborated',
+              confidence: 'high',
+              verification: 'multi-source',
+              sourceCount: 1,
+              distinctDomains: 1,
+              tierHistogram: {},
+              memberIds: [],
+              earliestPublishedAt: '2026-06-11T03:00:00.000Z',
+              latestPublishedAt: '2026-06-11T05:00:00.000Z',
+              auditId: 'a-1',
+            },
+          ],
+        },
+        audit: [],
+        weightProfile: 'balanced@v1',
+      },
+    });
+    assert.throws(() => parseRankingArtifact(raw), 'NaN score.total must throw');
   });
 });

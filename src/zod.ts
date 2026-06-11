@@ -1,10 +1,15 @@
 /**
- * @ardurai/contracts/zod — Tier-2 structural Zod schemas.
+ * @ardurai/contracts/zod — Tier-2 structural Zod schemas + combined parse helpers.
  *
  * Requires the `zod` peer dependency (^3).
  * Import via the subpath so Tier-1-only consumers pull no zod dep:
  *
- *   import { AggregationArtifactSchema } from '@ardurai/contracts/zod';
+ *   import { parseAggregationArtifact } from '@ardurai/contracts/zod';
+ *   const agg = parseAggregationArtifact(JSON.parse(raw));
+ *
+ * The per-stage helpers (parseAggregationArtifact, parseRankingArtifact, etc.) run
+ * Tier-1 (assertCompatibleArtifact) + Tier-2 (Zod) in a single call — this is the
+ * recommended API for engines. Raw schemas are also exported for advanced use.
  *
  * All schemas use .passthrough() on the envelope level to remain forward-compatible
  * with additive revisions — unknown fields are preserved, not stripped.
@@ -15,7 +20,7 @@
  */
 
 import { z } from 'zod';
-import { SCHEMA_VERSION } from './index.ts';
+import { SCHEMA_VERSION, assertCompatibleArtifact, type PipelineStage } from './index.ts';
 
 // ---------------------------------------------------------------------------
 // Shared primitives
@@ -216,14 +221,14 @@ export type AggregationArtifactInput = z.input<typeof AggregationArtifactSchema>
 
 const scoreBreakdown = z
   .object({
-    interaction: z.number(),
-    credibility: z.number(),
-    corroboration: z.number(),
-    technicalSignificance: z.number().optional(), // rev 3 additive
-    recency: z.number(),
-    diversity: z.number(),
-    total: z.number(),
-    weights: z.record(z.string(), z.number()),
+    interaction: z.number().finite(),
+    credibility: z.number().finite(),
+    corroboration: z.number().finite(),
+    technicalSignificance: z.number().finite().optional(), // rev 3 additive
+    recency: z.number().finite(),
+    diversity: z.number().finite(),
+    total: z.number().finite(), // NaN serialises as null in JSON — both are rejected here
+    weights: z.record(z.string(), z.number().finite()),
   })
   .passthrough();
 
@@ -499,3 +504,45 @@ const articleData = z.object({
 
 export const ArticleArtifactSchema = makeEnvelopeSchema('articles', articleData);
 export type ArticleArtifactInput = z.input<typeof ArticleArtifactSchema>;
+
+// ---------------------------------------------------------------------------
+// Combined Tier-1 + Tier-2 parse helpers (recommended engine API)
+// ---------------------------------------------------------------------------
+
+/**
+ * Run Tier-1 envelope validation (assertCompatibleArtifact) then Tier-2 Zod
+ * structural validation in a single call.
+ *
+ * Throws `SchemaVersionError` on envelope failures (wrong version, stage, missing
+ * required fields). Throws `ZodError` on structural failures inside `data`.
+ *
+ * Usage:
+ *   import { parseArtifact, AggregationArtifactSchema } from '@ardurai/contracts/zod';
+ *   const agg = parseArtifact(raw, 'aggregation', AggregationArtifactSchema);
+ */
+export function parseArtifact<TSchema extends z.ZodTypeAny>(
+  raw: unknown,
+  stage: PipelineStage,
+  schema: TSchema,
+): z.output<TSchema> {
+  assertCompatibleArtifact(raw, stage);
+  return schema.parse(raw);
+}
+
+/** Parse + validate an aggregation artifact (Tier-1 + Tier-2). */
+export const parseAggregationArtifact = (
+  raw: unknown,
+): z.output<typeof AggregationArtifactSchema> =>
+  parseArtifact(raw, 'aggregation', AggregationArtifactSchema);
+
+/** Parse + validate a ranking artifact (Tier-1 + Tier-2). */
+export const parseRankingArtifact = (raw: unknown): z.output<typeof RankingArtifactSchema> =>
+  parseArtifact(raw, 'ranking', RankingArtifactSchema);
+
+/** Parse + validate a top-10 artifact (Tier-1 + Tier-2). */
+export const parseTop10Artifact = (raw: unknown): z.output<typeof Top10ArtifactSchema> =>
+  parseArtifact(raw, 'top10', Top10ArtifactSchema);
+
+/** Parse + validate an article artifact (Tier-1 + Tier-2). */
+export const parseArticleArtifact = (raw: unknown): z.output<typeof ArticleArtifactSchema> =>
+  parseArtifact(raw, 'articles', ArticleArtifactSchema);
