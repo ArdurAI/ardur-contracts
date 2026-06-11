@@ -2,7 +2,9 @@
  * @ardurai/contracts — Shared wire contract for the Ardur AI content pipeline.
  *
  * Schema:           ardur-content-pipeline/v1
- * Contract revision: 2  (rev 2 ratifies `claims?` on AggregatedItem)
+ * Contract revision: 3  (rev 3 adds fact/provenance layer, visual ArticleBlock union,
+ *                        uncapped source set, ScoreBreakdown.technicalSignificance,
+ *                        RankedCluster.gateStatus/references, ClaimProvenance)
  *
  * The four engines exchange data through typed, versioned envelopes:
  *   ardur-news-aggregator → ardur-ranking-engine → ardur-top10-engine → ardur-article-synthesizer
@@ -12,10 +14,13 @@
  *   - No PII: no user/session/device ids, IPs, emails, cookies, UTMs, or referrers.
  *     Interaction metrics are aggregate-only.
  *   - Copyright-safe: items carry metadata-derived hints and links, never
- *     reproduced article bodies.
+ *     reproduced article bodies. Facts carry original-expression statements +
+ *     short quotes (<25 words) + canonical links only.
  *   - GATE BEFORE STAMP: always call assertCompatibleArtifact(raw, stage) on every
  *     inbound artifact BEFORE casting to a stage type. Re-stamping without gating
  *     silently launders incompatible upstream artifacts.
+ *   - Renderer rule: unknown ArticleBlock.type ⇒ skip (or render a link-out fallback),
+ *     never throw.
  *
  * Usage:
  *   import { assertCompatibleArtifact, SCHEMA_VERSION } from '@ardurai/contracts';
@@ -32,8 +37,12 @@ export const SCHEMA_VERSION = 'ardur-content-pipeline/v1';
  *
  * Rev 1: baseline schema (all fields except `claims?`)
  * Rev 2: ratifies `claims?` on AggregatedItem (additive; absent == rev 1 producer)
+ * Rev 3: ExtractedFact + FactProvenance + SourceDocument (fact/provenance layer);
+ *        visual ArticleBlock union (chart/image/gif/embed); TextBlock named export;
+ *        ScoreBreakdown.technicalSignificance?; RankedCluster.references?/sourceDocIds?/gateStatus?;
+ *        Top10Entry.sourceDocIds?; ClaimProvenance + SynthesizedArticle.claims?/facts?/editorialStatus?
  */
-export const CONTRACT_REVISION = 2;
+export const CONTRACT_REVISION = 3;
 // ---------------------------------------------------------------------------
 // Cross-stage constants
 // ---------------------------------------------------------------------------

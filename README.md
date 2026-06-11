@@ -9,7 +9,7 @@ ardur-news-aggregator → ardur-ranking-engine → ardur-top10-engine → ardur-
 ```
 
 **Schema:** `ardur-content-pipeline/v1`  
-**Contract revision:** `2` (rev 2 ratifies `claims?` on `AggregatedItem`)  
+**Contract revision:** `3` (rev 3 adds fact/provenance layer, visual blocks, uncapped sources)  
 **npm:** `@ardurai/contracts`
 
 ---
@@ -47,6 +47,9 @@ Requires `zod ^3` peer dependency. Provides full structural Zod schemas:
 - `RankingArtifactSchema`
 - `Top10ArtifactSchema`
 - `ArticleArtifactSchema`
+- `SourceDocumentSchema`, `FactProvenanceSchema`, `ExtractedFactSchema` (rev 3)
+- `MediaProvenanceSchema`, `ClaimProvenanceSchema` (rev 3)
+- `TextBlockSchema`, `ChartBlockSchema`, `ImageBlockSchema`, `GifBlockSchema`, `EmbedBlockSchema`, `ArticleBlockSchema` (rev 3)
 
 ---
 
@@ -117,7 +120,7 @@ context for logging.
 | Export | Value | Description |
 |--------|-------|-------------|
 | `SCHEMA_VERSION` | `'ardur-content-pipeline/v1'` | Major compatibility key. Hard-fail gate if mismatched. |
-| `CONTRACT_REVISION` | `2` | Monotonic additive counter. Rev 2 ratifies `claims?`. |
+| `CONTRACT_REVISION` | `3` | Monotonic additive counter. Rev 3 adds fact/provenance + visual blocks. |
 | `CYCLE_INTERVAL_MS` | `21600000` | 6-hour cycle length in milliseconds. |
 | `FORBIDDEN_METRIC_KEY_FRAGMENTS` | `readonly string[]` | Privacy guard: reject metric keys containing these substrings. |
 
@@ -140,9 +143,27 @@ All pipeline-stage types are exported from the main entry:
 | `AggregatedItem.claims?` | Named entities/labels — additive field (rev 2) |
 | `Cluster` | Topic cluster of related items |
 | `RankedCluster` | Cluster with 5-signal score breakdown |
+| `RankedCluster.references?` | Uncapped resolved `SourceRef[]` from the ranking engine (rev 3) |
+| `RankedCluster.gateStatus?` | `'auto' \| 'flagged' \| 'hold'` editorial gate classification (rev 3) |
 | `Top10Entry` | Ranked entry with delta from previous cycle |
+| `Top10Entry.sourceDocIds?` | Full provenance `SourceDocument` ID set (rev 3) |
 | `SynthesizedArticle` | Copyright-safe synthesized article |
+| `SynthesizedArticle.editorialStatus?` | `'published' \| 'held' \| 'draft'` — absent = published (rev 3) |
+| `SynthesizedArticle.claims?` | Per-sentence `ClaimProvenance[]` from the provenance gate (rev 3) |
 | `CopyrightPolicy` | Policy constants enforcing copyright safety |
+| `SourceDocument` | Fetched article metadata; body lives in the private ETL store only (rev 3) |
+| `FactProvenance` | Per-source attribution for an extracted fact (rev 3) |
+| `ExtractedFact` | Atomic, original-expression fact with provenance and optional quantity (rev 3) |
+| `TextBlock` | Text-only render block (paragraph/heading/list/quote/callout) |
+| `ChartBlock` | Chart from real `ExtractedFact.quantity` values — no invented numbers (rev 3) |
+| `ImageBlock` | Image block with `MediaProvenance` — generated or openly-licensed only (rev 3) |
+| `GifBlock` | GIF/animation block with `MediaProvenance` (rev 3) |
+| `EmbedBlock` | Allowlisted-provider embed (rev 3) |
+| `ArticleBlock` | Union of all five block types; unknown `type` → skip/fallback, never throw |
+| `ClaimProvenance` | Sentence→fact mapping produced by the provenance gate (rev 3) |
+| `MediaProvenance` | License/origin record for generated or openly-licensed media (rev 3) |
+| `ExtractionStatus` | `'full' \| 'snippet' \| 'failed'` ETL extraction result (rev 3) |
+| `AccessPolicy` | `'allowed' \| 'paywalled' \| 'robots-disallowed' \| 'tos-restricted'` (rev 3) |
 
 ---
 
@@ -157,7 +178,7 @@ Major version is locked to the `schemaVersion` major line:
 
 **Release cadence:**
 - **Additive field** (new optional key) → `MINOR` bump + `CONTRACT_REVISION++`  
-  e.g. `claims?` added → `1.1.0`, `CONTRACT_REVISION = 2`
+  e.g. `claims?` added → `1.1.0`, `CONTRACT_REVISION = 2`; rev 3 types → `1.2.0`, `CONTRACT_REVISION = 3`
 - **Breaking change** → `MAJOR` bump + `SCHEMA_VERSION` → `v2`  
   The gate fails loud on any un-upgraded consumer.
 - **Doc / no-shape change** → `PATCH` bump

@@ -8,6 +8,10 @@
  *
  * All schemas use .passthrough() on the envelope level to remain forward-compatible
  * with additive revisions — unknown fields are preserved, not stripped.
+ *
+ * Rev 3 additions: SourceDocumentSchema, FactProvenanceSchema, ExtractedFactSchema,
+ *   MediaProvenanceSchema, ClaimProvenanceSchema; updated block union; optional fields
+ *   on ScoreBreakdown, RankedCluster, Top10Entry, SynthesizedArticle, AggregationData.
  */
 import { z } from 'zod';
 import { SCHEMA_VERSION } from "./index.js";
@@ -121,24 +125,75 @@ const sourceCoverage = z.object({
     distinctDomains: z.number(),
     degraded: z.boolean(),
 });
-const aggregationData = z.object({
+// Rev 3 — read/extract layer
+const extractionStatus = z.enum(['full', 'snippet', 'failed']);
+const accessPolicy = z.enum(['allowed', 'paywalled', 'robots-disallowed', 'tos-restricted']);
+export const SourceDocumentSchema = z.object({
+    id: z.string(),
+    url: z.string(),
+    source: z.string(),
+    sourceDomain: z.string(),
+    tier: sourceTier,
+    title: z.string(),
+    publishedAt: z.string(),
+    fetchedAt: z.string(),
+    extraction: extractionStatus,
+    accessPolicy: accessPolicy,
+    wordCount: z.number().nullable(),
+    lang: z.string().nullable(),
+    contentHash: z.string(),
+});
+export const FactProvenanceSchema = z.object({
+    sourceDocId: z.string(),
+    sourceDomain: z.string(),
+    url: z.string(),
+    quote: z.string().optional(),
+});
+export const ExtractedFactSchema = z.object({
+    id: z.string(),
+    topic: z.string(),
+    clusterId: z.string(),
+    statement: z.string(),
+    quantity: z
+        .object({
+        metric: z.string(),
+        value: z.number(),
+        unit: z.string().optional(),
+        asOf: z.string().optional(),
+    })
+        .optional(),
+    entities: z.array(z.string()),
+    provenance: z.array(FactProvenanceSchema).min(1),
+    corroboration: z.number().int().min(1),
+    confidence,
+    extractedBy: providerMeta,
+});
+const aggregationData = z
+    .object({
     itemsByTopic: z.record(z.string(), z.array(aggregatedItem)),
     clustersByTopic: z.record(z.string(), z.array(cluster)),
     coverageByTopic: z.record(z.string(), sourceCoverage),
-});
+    // Rev 3 additive fields
+    documentsByTopic: z.record(z.string(), z.array(SourceDocumentSchema)).optional(),
+    factsByCluster: z.record(z.string(), z.array(ExtractedFactSchema)).optional(),
+})
+    .passthrough();
 export const AggregationArtifactSchema = makeEnvelopeSchema('aggregation', aggregationData);
 // ---------------------------------------------------------------------------
 // Stage 2 — RankingArtifact
 // ---------------------------------------------------------------------------
-const scoreBreakdown = z.object({
+const scoreBreakdown = z
+    .object({
     interaction: z.number(),
     credibility: z.number(),
+    corroboration: z.number(),
+    technicalSignificance: z.number().optional(), // rev 3 additive
     recency: z.number(),
     diversity: z.number(),
-    corroboration: z.number(),
     total: z.number(),
     weights: z.record(z.string(), z.number()),
-});
+})
+    .passthrough();
 const tierHistogram = z
     .object({
     primary: z.number().optional(),
@@ -148,6 +203,14 @@ const tierHistogram = z
     'security-news': z.number().optional(),
 })
     .passthrough();
+const sourceRef = z.object({
+    source: z.string(),
+    sourceDomain: z.string(),
+    tier: sourceTier,
+    url: z.string(),
+    title: z.string(),
+    publishedAt: z.string(),
+});
 const rankedCluster = z
     .object({
     clusterId: z.string(),
@@ -166,6 +229,10 @@ const rankedCluster = z
     earliestPublishedAt: z.string(),
     latestPublishedAt: z.string(),
     auditId: z.string(),
+    // Rev 3 additive fields
+    references: z.array(sourceRef).optional(),
+    sourceDocIds: z.array(z.string()).optional(),
+    gateStatus: z.enum(['auto', 'flagged', 'hold']).optional(),
 })
     .passthrough();
 const auditEntry = z.object({
@@ -188,14 +255,6 @@ export const RankingArtifactSchema = makeEnvelopeSchema('ranking', rankingData);
 // ---------------------------------------------------------------------------
 // Stage 3 — Top10Artifact
 // ---------------------------------------------------------------------------
-const sourceRef = z.object({
-    source: z.string(),
-    sourceDomain: z.string(),
-    tier: sourceTier,
-    url: z.string(),
-    title: z.string(),
-    publishedAt: z.string(),
-});
 const top10Entry = z
     .object({
     rank: z.number().int().min(1).max(10),
@@ -212,6 +271,8 @@ const top10Entry = z
         movement: z.enum(['new', 'up', 'down', 'same']),
     }),
     carriedOver: z.boolean(),
+    // Rev 3 additive field
+    sourceDocIds: z.array(z.string()).optional(),
 })
     .passthrough();
 const stabilityReport = z.object({
@@ -230,7 +291,15 @@ export const Top10ArtifactSchema = makeEnvelopeSchema('top10', top10Data);
 // ---------------------------------------------------------------------------
 // Stage 4 — ArticleArtifact
 // ---------------------------------------------------------------------------
-const articleBlock = z
+// Rev 3 — visual render blocks
+export const MediaProvenanceSchema = z.object({
+    origin: z.enum(['generated', 'openly-licensed']),
+    license: z.string().optional(),
+    creator: z.string().optional(),
+    sourceUrl: z.string().optional(),
+});
+// Individual block schemas (exported for renderer use)
+export const TextBlockSchema = z
     .object({
     type: z.enum(['paragraph', 'heading', 'list', 'quote', 'callout']),
     text: z.string().optional(),
@@ -243,6 +312,72 @@ const articleBlock = z
         .optional(),
 })
     .passthrough();
+export const ChartBlockSchema = z
+    .object({
+    type: z.literal('chart'),
+    chartType: z.enum(['bar', 'line', 'area', 'scatter', 'pie']),
+    title: z.string(),
+    series: z.array(z.object({
+        label: z.string(),
+        value: z.number(),
+        unit: z.string().optional(),
+    })),
+    factIds: z.array(z.string()),
+    caption: z.string().optional(),
+    attribution: z.object({
+        sources: z.array(z.object({ source: z.string(), url: z.string() })),
+    }),
+})
+    .passthrough();
+export const ImageBlockSchema = z
+    .object({
+    type: z.literal('image'),
+    src: z.string(),
+    alt: z.string(),
+    caption: z.string().optional(),
+    media: MediaProvenanceSchema,
+})
+    .passthrough();
+export const GifBlockSchema = z
+    .object({
+    type: z.literal('gif'),
+    src: z.string(),
+    alt: z.string(),
+    poster: z.string().optional(),
+    media: MediaProvenanceSchema,
+})
+    .passthrough();
+export const EmbedBlockSchema = z
+    .object({
+    type: z.literal('embed'),
+    provider: z.string(),
+    url: z.string(),
+    title: z.string().optional(),
+})
+    .passthrough();
+// Catch-all for forward-compat unknown block types (renderer must skip, never throw)
+const unknownBlockSchema = z.object({ type: z.string() }).passthrough();
+/**
+ * ArticleBlock union — tries each specific variant in order; unknown types fall
+ * through to the catch-all so they are preserved rather than rejected.
+ */
+export const ArticleBlockSchema = z.union([
+    TextBlockSchema,
+    ChartBlockSchema,
+    ImageBlockSchema,
+    GifBlockSchema,
+    EmbedBlockSchema,
+    unknownBlockSchema,
+]);
+// Rev 3 — claim provenance
+export const ClaimProvenanceSchema = z.object({
+    blockIndex: z.number().int().min(0),
+    text: z.string(),
+    isEditorial: z.boolean(),
+    factIds: z.array(z.string()),
+    corroboration: z.number().int().min(0),
+    confidence,
+});
 const articleReference = z.object({
     source: z.string(),
     sourceDomain: z.string(),
@@ -259,7 +394,7 @@ const synthesizedArticle = z
     topicLabel: z.string(),
     headline: z.string(),
     dek: z.string(),
-    body: z.array(articleBlock),
+    body: z.array(ArticleBlockSchema),
     keyPoints: z.array(z.string()),
     whyItMatters: z.string(),
     readerAction: z.string(),
@@ -278,6 +413,10 @@ const synthesizedArticle = z
     wordCount: z.number(),
     readingTimeMinutes: z.number(),
     generatedAt: z.string(),
+    // Rev 3 additive fields
+    editorialStatus: z.enum(['published', 'held', 'draft']).optional(),
+    facts: z.array(ExtractedFactSchema).optional(),
+    claims: z.array(ClaimProvenanceSchema).optional(),
 })
     .passthrough();
 const copyrightPolicy = z.object({

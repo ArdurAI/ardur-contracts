@@ -8,8 +8,188 @@
  *
  * All schemas use .passthrough() on the envelope level to remain forward-compatible
  * with additive revisions — unknown fields are preserved, not stripped.
+ *
+ * Rev 3 additions: SourceDocumentSchema, FactProvenanceSchema, ExtractedFactSchema,
+ *   MediaProvenanceSchema, ClaimProvenanceSchema; updated block union; optional fields
+ *   on ScoreBreakdown, RankedCluster, Top10Entry, SynthesizedArticle, AggregationData.
  */
 import { z } from 'zod';
+export declare const SourceDocumentSchema: z.ZodObject<{
+    id: z.ZodString;
+    url: z.ZodString;
+    source: z.ZodString;
+    sourceDomain: z.ZodString;
+    tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+    title: z.ZodString;
+    publishedAt: z.ZodString;
+    fetchedAt: z.ZodString;
+    extraction: z.ZodEnum<["full", "snippet", "failed"]>;
+    accessPolicy: z.ZodEnum<["allowed", "paywalled", "robots-disallowed", "tos-restricted"]>;
+    wordCount: z.ZodNullable<z.ZodNumber>;
+    lang: z.ZodNullable<z.ZodString>;
+    contentHash: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    id: string;
+    title: string;
+    source: string;
+    sourceDomain: string;
+    url: string;
+    tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+    publishedAt: string;
+    fetchedAt: string;
+    extraction: "full" | "snippet" | "failed";
+    accessPolicy: "allowed" | "paywalled" | "robots-disallowed" | "tos-restricted";
+    wordCount: number | null;
+    lang: string | null;
+    contentHash: string;
+}, {
+    id: string;
+    title: string;
+    source: string;
+    sourceDomain: string;
+    url: string;
+    tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+    publishedAt: string;
+    fetchedAt: string;
+    extraction: "full" | "snippet" | "failed";
+    accessPolicy: "allowed" | "paywalled" | "robots-disallowed" | "tos-restricted";
+    wordCount: number | null;
+    lang: string | null;
+    contentHash: string;
+}>;
+export type SourceDocumentInput = z.input<typeof SourceDocumentSchema>;
+export declare const FactProvenanceSchema: z.ZodObject<{
+    sourceDocId: z.ZodString;
+    sourceDomain: z.ZodString;
+    url: z.ZodString;
+    quote: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    sourceDomain: string;
+    url: string;
+    sourceDocId: string;
+    quote?: string | undefined;
+}, {
+    sourceDomain: string;
+    url: string;
+    sourceDocId: string;
+    quote?: string | undefined;
+}>;
+export type FactProvenanceInput = z.input<typeof FactProvenanceSchema>;
+export declare const ExtractedFactSchema: z.ZodObject<{
+    id: z.ZodString;
+    topic: z.ZodString;
+    clusterId: z.ZodString;
+    statement: z.ZodString;
+    quantity: z.ZodOptional<z.ZodObject<{
+        metric: z.ZodString;
+        value: z.ZodNumber;
+        unit: z.ZodOptional<z.ZodString>;
+        asOf: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        value: number;
+        metric: string;
+        unit?: string | undefined;
+        asOf?: string | undefined;
+    }, {
+        value: number;
+        metric: string;
+        unit?: string | undefined;
+        asOf?: string | undefined;
+    }>>;
+    entities: z.ZodArray<z.ZodString, "many">;
+    provenance: z.ZodArray<z.ZodObject<{
+        sourceDocId: z.ZodString;
+        sourceDomain: z.ZodString;
+        url: z.ZodString;
+        quote: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        sourceDomain: string;
+        url: string;
+        sourceDocId: string;
+        quote?: string | undefined;
+    }, {
+        sourceDomain: string;
+        url: string;
+        sourceDocId: string;
+        quote?: string | undefined;
+    }>, "many">;
+    corroboration: z.ZodNumber;
+    confidence: z.ZodEnum<["high", "medium", "low"]>;
+    extractedBy: z.ZodObject<{
+        provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+        model: z.ZodString;
+        status: z.ZodEnum<["generated", "fallback"]>;
+        reason: z.ZodOptional<z.ZodString>;
+        generatedAt: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        generatedAt: string;
+        provider: "deterministic" | "ollama" | "openai";
+        status: "generated" | "fallback";
+        model: string;
+        reason?: string | undefined;
+    }, {
+        generatedAt: string;
+        provider: "deterministic" | "ollama" | "openai";
+        status: "generated" | "fallback";
+        model: string;
+        reason?: string | undefined;
+    }>;
+}, "strip", z.ZodTypeAny, {
+    id: string;
+    provenance: {
+        sourceDomain: string;
+        url: string;
+        sourceDocId: string;
+        quote?: string | undefined;
+    }[];
+    topic: string;
+    clusterId: string;
+    statement: string;
+    entities: string[];
+    corroboration: number;
+    confidence: "high" | "medium" | "low";
+    extractedBy: {
+        generatedAt: string;
+        provider: "deterministic" | "ollama" | "openai";
+        status: "generated" | "fallback";
+        model: string;
+        reason?: string | undefined;
+    };
+    quantity?: {
+        value: number;
+        metric: string;
+        unit?: string | undefined;
+        asOf?: string | undefined;
+    } | undefined;
+}, {
+    id: string;
+    provenance: {
+        sourceDomain: string;
+        url: string;
+        sourceDocId: string;
+        quote?: string | undefined;
+    }[];
+    topic: string;
+    clusterId: string;
+    statement: string;
+    entities: string[];
+    corroboration: number;
+    confidence: "high" | "medium" | "low";
+    extractedBy: {
+        generatedAt: string;
+        provider: "deterministic" | "ollama" | "openai";
+        status: "generated" | "fallback";
+        model: string;
+        reason?: string | undefined;
+    };
+    quantity?: {
+        value: number;
+        metric: string;
+        unit?: string | undefined;
+        asOf?: string | undefined;
+    } | undefined;
+}>;
+export type ExtractedFactInput = z.input<typeof ExtractedFactSchema>;
 export declare const AggregationArtifactSchema: z.ZodObject<{
     schemaVersion: z.ZodLiteral<"ardur-content-pipeline/v1">;
     contractRevision: z.ZodOptional<z.ZodNumber>;
@@ -301,8 +481,165 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             sourcesResponded: number;
             degraded: boolean;
         }>>;
-    }, "strip", z.ZodTypeAny, {
-        itemsByTopic: Record<string, z.objectOutputType<{
+        documentsByTopic: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+            id: z.ZodString;
+            url: z.ZodString;
+            source: z.ZodString;
+            sourceDomain: z.ZodString;
+            tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+            title: z.ZodString;
+            publishedAt: z.ZodString;
+            fetchedAt: z.ZodString;
+            extraction: z.ZodEnum<["full", "snippet", "failed"]>;
+            accessPolicy: z.ZodEnum<["allowed", "paywalled", "robots-disallowed", "tos-restricted"]>;
+            wordCount: z.ZodNullable<z.ZodNumber>;
+            lang: z.ZodNullable<z.ZodString>;
+            contentHash: z.ZodString;
+        }, "strip", z.ZodTypeAny, {
+            id: string;
+            title: string;
+            source: string;
+            sourceDomain: string;
+            url: string;
+            tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+            publishedAt: string;
+            fetchedAt: string;
+            extraction: "full" | "snippet" | "failed";
+            accessPolicy: "allowed" | "paywalled" | "robots-disallowed" | "tos-restricted";
+            wordCount: number | null;
+            lang: string | null;
+            contentHash: string;
+        }, {
+            id: string;
+            title: string;
+            source: string;
+            sourceDomain: string;
+            url: string;
+            tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+            publishedAt: string;
+            fetchedAt: string;
+            extraction: "full" | "snippet" | "failed";
+            accessPolicy: "allowed" | "paywalled" | "robots-disallowed" | "tos-restricted";
+            wordCount: number | null;
+            lang: string | null;
+            contentHash: string;
+        }>, "many">>>;
+        factsByCluster: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+            id: z.ZodString;
+            topic: z.ZodString;
+            clusterId: z.ZodString;
+            statement: z.ZodString;
+            quantity: z.ZodOptional<z.ZodObject<{
+                metric: z.ZodString;
+                value: z.ZodNumber;
+                unit: z.ZodOptional<z.ZodString>;
+                asOf: z.ZodOptional<z.ZodString>;
+            }, "strip", z.ZodTypeAny, {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            }, {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            }>>;
+            entities: z.ZodArray<z.ZodString, "many">;
+            provenance: z.ZodArray<z.ZodObject<{
+                sourceDocId: z.ZodString;
+                sourceDomain: z.ZodString;
+                url: z.ZodString;
+                quote: z.ZodOptional<z.ZodString>;
+            }, "strip", z.ZodTypeAny, {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }, {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }>, "many">;
+            corroboration: z.ZodNumber;
+            confidence: z.ZodEnum<["high", "medium", "low"]>;
+            extractedBy: z.ZodObject<{
+                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                model: z.ZodString;
+                status: z.ZodEnum<["generated", "fallback"]>;
+                reason: z.ZodOptional<z.ZodString>;
+                generatedAt: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            }, {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            }>;
+        }, "strip", z.ZodTypeAny, {
+            id: string;
+            provenance: {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }[];
+            topic: string;
+            clusterId: string;
+            statement: string;
+            entities: string[];
+            corroboration: number;
+            confidence: "high" | "medium" | "low";
+            extractedBy: {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            };
+            quantity?: {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            } | undefined;
+        }, {
+            id: string;
+            provenance: {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }[];
+            topic: string;
+            clusterId: string;
+            statement: string;
+            entities: string[];
+            corroboration: number;
+            confidence: "high" | "medium" | "low";
+            extractedBy: {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            };
+            quantity?: {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            } | undefined;
+        }>, "many">>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        itemsByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
             id: z.ZodString;
             topic: z.ZodString;
             topicLabel: z.ZodString;
@@ -345,46 +682,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             clusterId: z.ZodString;
             fingerprint: z.ZodString;
             claims: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, z.ZodTypeAny, "passthrough">[]>;
-        clustersByTopic: Record<string, z.objectOutputType<{
-            clusterId: z.ZodString;
-            topic: z.ZodString;
-            topicLabel: z.ZodString;
-            headline: z.ZodString;
-            memberIds: z.ZodArray<z.ZodString, "many">;
-            sourceCount: z.ZodNumber;
-            distinctDomains: z.ZodNumber;
-            tierHistogram: z.ZodObject<{
-                primary: z.ZodOptional<z.ZodNumber>;
-                paper: z.ZodOptional<z.ZodNumber>;
-                news: z.ZodOptional<z.ZodNumber>;
-                'technical-news': z.ZodOptional<z.ZodNumber>;
-                'security-news': z.ZodOptional<z.ZodNumber>;
-            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
-                primary: z.ZodOptional<z.ZodNumber>;
-                paper: z.ZodOptional<z.ZodNumber>;
-                news: z.ZodOptional<z.ZodNumber>;
-                'technical-news': z.ZodOptional<z.ZodNumber>;
-                'security-news': z.ZodOptional<z.ZodNumber>;
-            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
-                primary: z.ZodOptional<z.ZodNumber>;
-                paper: z.ZodOptional<z.ZodNumber>;
-                news: z.ZodOptional<z.ZodNumber>;
-                'technical-news': z.ZodOptional<z.ZodNumber>;
-                'security-news': z.ZodOptional<z.ZodNumber>;
-            }, z.ZodTypeAny, "passthrough">>;
-            earliestPublishedAt: z.ZodString;
-            latestPublishedAt: z.ZodString;
-        }, z.ZodTypeAny, "passthrough">[]>;
-        coverageByTopic: Record<string, {
-            distinctDomains: number;
-            sourcesConfigured: number;
-            sourcesQueried: number;
-            sourcesResponded: number;
-            degraded: boolean;
-        }>;
-    }, {
-        itemsByTopic: Record<string, z.objectInputType<{
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
             id: z.ZodString;
             topic: z.ZodString;
             topicLabel: z.ZodString;
@@ -427,8 +725,51 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             clusterId: z.ZodString;
             fingerprint: z.ZodString;
             claims: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, z.ZodTypeAny, "passthrough">[]>;
-        clustersByTopic: Record<string, z.objectInputType<{
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodString;
+            topic: z.ZodString;
+            topicLabel: z.ZodString;
+            title: z.ZodString;
+            source: z.ZodString;
+            sourceDomain: z.ZodString;
+            sourceUrl: z.ZodString;
+            url: z.ZodString;
+            tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+            publishedAt: z.ZodString;
+            summaryHint: z.ZodString;
+            interaction: z.ZodObject<{
+                feedRank: z.ZodNullable<z.ZodNumber>;
+                shares: z.ZodNullable<z.ZodNumber>;
+                comments: z.ZodNullable<z.ZodNumber>;
+                reactions: z.ZodNullable<z.ZodNumber>;
+                crossSourceMentions: z.ZodNumber;
+                velocity: z.ZodNullable<z.ZodNumber>;
+                capturedAt: z.ZodString;
+                provenance: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                feedRank: number | null;
+                shares: number | null;
+                comments: number | null;
+                reactions: number | null;
+                crossSourceMentions: number;
+                velocity: number | null;
+                capturedAt: string;
+                provenance: string;
+            }, {
+                feedRank: number | null;
+                shares: number | null;
+                comments: number | null;
+                reactions: number | null;
+                crossSourceMentions: number;
+                velocity: number | null;
+                capturedAt: string;
+                provenance: string;
+            }>;
+            clusterId: z.ZodString;
+            fingerprint: z.ZodString;
+            claims: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>, "many">>;
+        clustersByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
             clusterId: z.ZodString;
             topic: z.ZodString;
             topicLabel: z.ZodString;
@@ -457,15 +798,637 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             }, z.ZodTypeAny, "passthrough">>;
             earliestPublishedAt: z.ZodString;
             latestPublishedAt: z.ZodString;
-        }, z.ZodTypeAny, "passthrough">[]>;
-        coverageByTopic: Record<string, {
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            clusterId: z.ZodString;
+            topic: z.ZodString;
+            topicLabel: z.ZodString;
+            headline: z.ZodString;
+            memberIds: z.ZodArray<z.ZodString, "many">;
+            sourceCount: z.ZodNumber;
+            distinctDomains: z.ZodNumber;
+            tierHistogram: z.ZodObject<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
+            earliestPublishedAt: z.ZodString;
+            latestPublishedAt: z.ZodString;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            clusterId: z.ZodString;
+            topic: z.ZodString;
+            topicLabel: z.ZodString;
+            headline: z.ZodString;
+            memberIds: z.ZodArray<z.ZodString, "many">;
+            sourceCount: z.ZodNumber;
+            distinctDomains: z.ZodNumber;
+            tierHistogram: z.ZodObject<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
+            earliestPublishedAt: z.ZodString;
+            latestPublishedAt: z.ZodString;
+        }, z.ZodTypeAny, "passthrough">>, "many">>;
+        coverageByTopic: z.ZodRecord<z.ZodString, z.ZodObject<{
+            sourcesConfigured: z.ZodNumber;
+            sourcesQueried: z.ZodNumber;
+            sourcesResponded: z.ZodNumber;
+            distinctDomains: z.ZodNumber;
+            degraded: z.ZodBoolean;
+        }, "strip", z.ZodTypeAny, {
             distinctDomains: number;
             sourcesConfigured: number;
             sourcesQueried: number;
             sourcesResponded: number;
             degraded: boolean;
-        }>;
-    }>;
+        }, {
+            distinctDomains: number;
+            sourcesConfigured: number;
+            sourcesQueried: number;
+            sourcesResponded: number;
+            degraded: boolean;
+        }>>;
+        documentsByTopic: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+            id: z.ZodString;
+            url: z.ZodString;
+            source: z.ZodString;
+            sourceDomain: z.ZodString;
+            tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+            title: z.ZodString;
+            publishedAt: z.ZodString;
+            fetchedAt: z.ZodString;
+            extraction: z.ZodEnum<["full", "snippet", "failed"]>;
+            accessPolicy: z.ZodEnum<["allowed", "paywalled", "robots-disallowed", "tos-restricted"]>;
+            wordCount: z.ZodNullable<z.ZodNumber>;
+            lang: z.ZodNullable<z.ZodString>;
+            contentHash: z.ZodString;
+        }, "strip", z.ZodTypeAny, {
+            id: string;
+            title: string;
+            source: string;
+            sourceDomain: string;
+            url: string;
+            tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+            publishedAt: string;
+            fetchedAt: string;
+            extraction: "full" | "snippet" | "failed";
+            accessPolicy: "allowed" | "paywalled" | "robots-disallowed" | "tos-restricted";
+            wordCount: number | null;
+            lang: string | null;
+            contentHash: string;
+        }, {
+            id: string;
+            title: string;
+            source: string;
+            sourceDomain: string;
+            url: string;
+            tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+            publishedAt: string;
+            fetchedAt: string;
+            extraction: "full" | "snippet" | "failed";
+            accessPolicy: "allowed" | "paywalled" | "robots-disallowed" | "tos-restricted";
+            wordCount: number | null;
+            lang: string | null;
+            contentHash: string;
+        }>, "many">>>;
+        factsByCluster: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+            id: z.ZodString;
+            topic: z.ZodString;
+            clusterId: z.ZodString;
+            statement: z.ZodString;
+            quantity: z.ZodOptional<z.ZodObject<{
+                metric: z.ZodString;
+                value: z.ZodNumber;
+                unit: z.ZodOptional<z.ZodString>;
+                asOf: z.ZodOptional<z.ZodString>;
+            }, "strip", z.ZodTypeAny, {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            }, {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            }>>;
+            entities: z.ZodArray<z.ZodString, "many">;
+            provenance: z.ZodArray<z.ZodObject<{
+                sourceDocId: z.ZodString;
+                sourceDomain: z.ZodString;
+                url: z.ZodString;
+                quote: z.ZodOptional<z.ZodString>;
+            }, "strip", z.ZodTypeAny, {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }, {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }>, "many">;
+            corroboration: z.ZodNumber;
+            confidence: z.ZodEnum<["high", "medium", "low"]>;
+            extractedBy: z.ZodObject<{
+                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                model: z.ZodString;
+                status: z.ZodEnum<["generated", "fallback"]>;
+                reason: z.ZodOptional<z.ZodString>;
+                generatedAt: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            }, {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            }>;
+        }, "strip", z.ZodTypeAny, {
+            id: string;
+            provenance: {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }[];
+            topic: string;
+            clusterId: string;
+            statement: string;
+            entities: string[];
+            corroboration: number;
+            confidence: "high" | "medium" | "low";
+            extractedBy: {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            };
+            quantity?: {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            } | undefined;
+        }, {
+            id: string;
+            provenance: {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }[];
+            topic: string;
+            clusterId: string;
+            statement: string;
+            entities: string[];
+            corroboration: number;
+            confidence: "high" | "medium" | "low";
+            extractedBy: {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            };
+            quantity?: {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            } | undefined;
+        }>, "many">>>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        itemsByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+            id: z.ZodString;
+            topic: z.ZodString;
+            topicLabel: z.ZodString;
+            title: z.ZodString;
+            source: z.ZodString;
+            sourceDomain: z.ZodString;
+            sourceUrl: z.ZodString;
+            url: z.ZodString;
+            tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+            publishedAt: z.ZodString;
+            summaryHint: z.ZodString;
+            interaction: z.ZodObject<{
+                feedRank: z.ZodNullable<z.ZodNumber>;
+                shares: z.ZodNullable<z.ZodNumber>;
+                comments: z.ZodNullable<z.ZodNumber>;
+                reactions: z.ZodNullable<z.ZodNumber>;
+                crossSourceMentions: z.ZodNumber;
+                velocity: z.ZodNullable<z.ZodNumber>;
+                capturedAt: z.ZodString;
+                provenance: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                feedRank: number | null;
+                shares: number | null;
+                comments: number | null;
+                reactions: number | null;
+                crossSourceMentions: number;
+                velocity: number | null;
+                capturedAt: string;
+                provenance: string;
+            }, {
+                feedRank: number | null;
+                shares: number | null;
+                comments: number | null;
+                reactions: number | null;
+                crossSourceMentions: number;
+                velocity: number | null;
+                capturedAt: string;
+                provenance: string;
+            }>;
+            clusterId: z.ZodString;
+            fingerprint: z.ZodString;
+            claims: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodString;
+            topic: z.ZodString;
+            topicLabel: z.ZodString;
+            title: z.ZodString;
+            source: z.ZodString;
+            sourceDomain: z.ZodString;
+            sourceUrl: z.ZodString;
+            url: z.ZodString;
+            tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+            publishedAt: z.ZodString;
+            summaryHint: z.ZodString;
+            interaction: z.ZodObject<{
+                feedRank: z.ZodNullable<z.ZodNumber>;
+                shares: z.ZodNullable<z.ZodNumber>;
+                comments: z.ZodNullable<z.ZodNumber>;
+                reactions: z.ZodNullable<z.ZodNumber>;
+                crossSourceMentions: z.ZodNumber;
+                velocity: z.ZodNullable<z.ZodNumber>;
+                capturedAt: z.ZodString;
+                provenance: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                feedRank: number | null;
+                shares: number | null;
+                comments: number | null;
+                reactions: number | null;
+                crossSourceMentions: number;
+                velocity: number | null;
+                capturedAt: string;
+                provenance: string;
+            }, {
+                feedRank: number | null;
+                shares: number | null;
+                comments: number | null;
+                reactions: number | null;
+                crossSourceMentions: number;
+                velocity: number | null;
+                capturedAt: string;
+                provenance: string;
+            }>;
+            clusterId: z.ZodString;
+            fingerprint: z.ZodString;
+            claims: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodString;
+            topic: z.ZodString;
+            topicLabel: z.ZodString;
+            title: z.ZodString;
+            source: z.ZodString;
+            sourceDomain: z.ZodString;
+            sourceUrl: z.ZodString;
+            url: z.ZodString;
+            tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+            publishedAt: z.ZodString;
+            summaryHint: z.ZodString;
+            interaction: z.ZodObject<{
+                feedRank: z.ZodNullable<z.ZodNumber>;
+                shares: z.ZodNullable<z.ZodNumber>;
+                comments: z.ZodNullable<z.ZodNumber>;
+                reactions: z.ZodNullable<z.ZodNumber>;
+                crossSourceMentions: z.ZodNumber;
+                velocity: z.ZodNullable<z.ZodNumber>;
+                capturedAt: z.ZodString;
+                provenance: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                feedRank: number | null;
+                shares: number | null;
+                comments: number | null;
+                reactions: number | null;
+                crossSourceMentions: number;
+                velocity: number | null;
+                capturedAt: string;
+                provenance: string;
+            }, {
+                feedRank: number | null;
+                shares: number | null;
+                comments: number | null;
+                reactions: number | null;
+                crossSourceMentions: number;
+                velocity: number | null;
+                capturedAt: string;
+                provenance: string;
+            }>;
+            clusterId: z.ZodString;
+            fingerprint: z.ZodString;
+            claims: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>, "many">>;
+        clustersByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+            clusterId: z.ZodString;
+            topic: z.ZodString;
+            topicLabel: z.ZodString;
+            headline: z.ZodString;
+            memberIds: z.ZodArray<z.ZodString, "many">;
+            sourceCount: z.ZodNumber;
+            distinctDomains: z.ZodNumber;
+            tierHistogram: z.ZodObject<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
+            earliestPublishedAt: z.ZodString;
+            latestPublishedAt: z.ZodString;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            clusterId: z.ZodString;
+            topic: z.ZodString;
+            topicLabel: z.ZodString;
+            headline: z.ZodString;
+            memberIds: z.ZodArray<z.ZodString, "many">;
+            sourceCount: z.ZodNumber;
+            distinctDomains: z.ZodNumber;
+            tierHistogram: z.ZodObject<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
+            earliestPublishedAt: z.ZodString;
+            latestPublishedAt: z.ZodString;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            clusterId: z.ZodString;
+            topic: z.ZodString;
+            topicLabel: z.ZodString;
+            headline: z.ZodString;
+            memberIds: z.ZodArray<z.ZodString, "many">;
+            sourceCount: z.ZodNumber;
+            distinctDomains: z.ZodNumber;
+            tierHistogram: z.ZodObject<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
+            earliestPublishedAt: z.ZodString;
+            latestPublishedAt: z.ZodString;
+        }, z.ZodTypeAny, "passthrough">>, "many">>;
+        coverageByTopic: z.ZodRecord<z.ZodString, z.ZodObject<{
+            sourcesConfigured: z.ZodNumber;
+            sourcesQueried: z.ZodNumber;
+            sourcesResponded: z.ZodNumber;
+            distinctDomains: z.ZodNumber;
+            degraded: z.ZodBoolean;
+        }, "strip", z.ZodTypeAny, {
+            distinctDomains: number;
+            sourcesConfigured: number;
+            sourcesQueried: number;
+            sourcesResponded: number;
+            degraded: boolean;
+        }, {
+            distinctDomains: number;
+            sourcesConfigured: number;
+            sourcesQueried: number;
+            sourcesResponded: number;
+            degraded: boolean;
+        }>>;
+        documentsByTopic: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+            id: z.ZodString;
+            url: z.ZodString;
+            source: z.ZodString;
+            sourceDomain: z.ZodString;
+            tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+            title: z.ZodString;
+            publishedAt: z.ZodString;
+            fetchedAt: z.ZodString;
+            extraction: z.ZodEnum<["full", "snippet", "failed"]>;
+            accessPolicy: z.ZodEnum<["allowed", "paywalled", "robots-disallowed", "tos-restricted"]>;
+            wordCount: z.ZodNullable<z.ZodNumber>;
+            lang: z.ZodNullable<z.ZodString>;
+            contentHash: z.ZodString;
+        }, "strip", z.ZodTypeAny, {
+            id: string;
+            title: string;
+            source: string;
+            sourceDomain: string;
+            url: string;
+            tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+            publishedAt: string;
+            fetchedAt: string;
+            extraction: "full" | "snippet" | "failed";
+            accessPolicy: "allowed" | "paywalled" | "robots-disallowed" | "tos-restricted";
+            wordCount: number | null;
+            lang: string | null;
+            contentHash: string;
+        }, {
+            id: string;
+            title: string;
+            source: string;
+            sourceDomain: string;
+            url: string;
+            tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+            publishedAt: string;
+            fetchedAt: string;
+            extraction: "full" | "snippet" | "failed";
+            accessPolicy: "allowed" | "paywalled" | "robots-disallowed" | "tos-restricted";
+            wordCount: number | null;
+            lang: string | null;
+            contentHash: string;
+        }>, "many">>>;
+        factsByCluster: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+            id: z.ZodString;
+            topic: z.ZodString;
+            clusterId: z.ZodString;
+            statement: z.ZodString;
+            quantity: z.ZodOptional<z.ZodObject<{
+                metric: z.ZodString;
+                value: z.ZodNumber;
+                unit: z.ZodOptional<z.ZodString>;
+                asOf: z.ZodOptional<z.ZodString>;
+            }, "strip", z.ZodTypeAny, {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            }, {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            }>>;
+            entities: z.ZodArray<z.ZodString, "many">;
+            provenance: z.ZodArray<z.ZodObject<{
+                sourceDocId: z.ZodString;
+                sourceDomain: z.ZodString;
+                url: z.ZodString;
+                quote: z.ZodOptional<z.ZodString>;
+            }, "strip", z.ZodTypeAny, {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }, {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }>, "many">;
+            corroboration: z.ZodNumber;
+            confidence: z.ZodEnum<["high", "medium", "low"]>;
+            extractedBy: z.ZodObject<{
+                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                model: z.ZodString;
+                status: z.ZodEnum<["generated", "fallback"]>;
+                reason: z.ZodOptional<z.ZodString>;
+                generatedAt: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            }, {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            }>;
+        }, "strip", z.ZodTypeAny, {
+            id: string;
+            provenance: {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }[];
+            topic: string;
+            clusterId: string;
+            statement: string;
+            entities: string[];
+            corroboration: number;
+            confidence: "high" | "medium" | "low";
+            extractedBy: {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            };
+            quantity?: {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            } | undefined;
+        }, {
+            id: string;
+            provenance: {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }[];
+            topic: string;
+            clusterId: string;
+            statement: string;
+            entities: string[];
+            corroboration: number;
+            confidence: "high" | "medium" | "low";
+            extractedBy: {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            };
+            quantity?: {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            } | undefined;
+        }>, "many">>>;
+    }, z.ZodTypeAny, "passthrough">>;
 }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
     schemaVersion: z.ZodLiteral<"ardur-content-pipeline/v1">;
     contractRevision: z.ZodOptional<z.ZodNumber>;
@@ -757,8 +1720,165 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             sourcesResponded: number;
             degraded: boolean;
         }>>;
-    }, "strip", z.ZodTypeAny, {
-        itemsByTopic: Record<string, z.objectOutputType<{
+        documentsByTopic: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+            id: z.ZodString;
+            url: z.ZodString;
+            source: z.ZodString;
+            sourceDomain: z.ZodString;
+            tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+            title: z.ZodString;
+            publishedAt: z.ZodString;
+            fetchedAt: z.ZodString;
+            extraction: z.ZodEnum<["full", "snippet", "failed"]>;
+            accessPolicy: z.ZodEnum<["allowed", "paywalled", "robots-disallowed", "tos-restricted"]>;
+            wordCount: z.ZodNullable<z.ZodNumber>;
+            lang: z.ZodNullable<z.ZodString>;
+            contentHash: z.ZodString;
+        }, "strip", z.ZodTypeAny, {
+            id: string;
+            title: string;
+            source: string;
+            sourceDomain: string;
+            url: string;
+            tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+            publishedAt: string;
+            fetchedAt: string;
+            extraction: "full" | "snippet" | "failed";
+            accessPolicy: "allowed" | "paywalled" | "robots-disallowed" | "tos-restricted";
+            wordCount: number | null;
+            lang: string | null;
+            contentHash: string;
+        }, {
+            id: string;
+            title: string;
+            source: string;
+            sourceDomain: string;
+            url: string;
+            tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+            publishedAt: string;
+            fetchedAt: string;
+            extraction: "full" | "snippet" | "failed";
+            accessPolicy: "allowed" | "paywalled" | "robots-disallowed" | "tos-restricted";
+            wordCount: number | null;
+            lang: string | null;
+            contentHash: string;
+        }>, "many">>>;
+        factsByCluster: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+            id: z.ZodString;
+            topic: z.ZodString;
+            clusterId: z.ZodString;
+            statement: z.ZodString;
+            quantity: z.ZodOptional<z.ZodObject<{
+                metric: z.ZodString;
+                value: z.ZodNumber;
+                unit: z.ZodOptional<z.ZodString>;
+                asOf: z.ZodOptional<z.ZodString>;
+            }, "strip", z.ZodTypeAny, {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            }, {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            }>>;
+            entities: z.ZodArray<z.ZodString, "many">;
+            provenance: z.ZodArray<z.ZodObject<{
+                sourceDocId: z.ZodString;
+                sourceDomain: z.ZodString;
+                url: z.ZodString;
+                quote: z.ZodOptional<z.ZodString>;
+            }, "strip", z.ZodTypeAny, {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }, {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }>, "many">;
+            corroboration: z.ZodNumber;
+            confidence: z.ZodEnum<["high", "medium", "low"]>;
+            extractedBy: z.ZodObject<{
+                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                model: z.ZodString;
+                status: z.ZodEnum<["generated", "fallback"]>;
+                reason: z.ZodOptional<z.ZodString>;
+                generatedAt: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            }, {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            }>;
+        }, "strip", z.ZodTypeAny, {
+            id: string;
+            provenance: {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }[];
+            topic: string;
+            clusterId: string;
+            statement: string;
+            entities: string[];
+            corroboration: number;
+            confidence: "high" | "medium" | "low";
+            extractedBy: {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            };
+            quantity?: {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            } | undefined;
+        }, {
+            id: string;
+            provenance: {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }[];
+            topic: string;
+            clusterId: string;
+            statement: string;
+            entities: string[];
+            corroboration: number;
+            confidence: "high" | "medium" | "low";
+            extractedBy: {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            };
+            quantity?: {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            } | undefined;
+        }>, "many">>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        itemsByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
             id: z.ZodString;
             topic: z.ZodString;
             topicLabel: z.ZodString;
@@ -801,46 +1921,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             clusterId: z.ZodString;
             fingerprint: z.ZodString;
             claims: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, z.ZodTypeAny, "passthrough">[]>;
-        clustersByTopic: Record<string, z.objectOutputType<{
-            clusterId: z.ZodString;
-            topic: z.ZodString;
-            topicLabel: z.ZodString;
-            headline: z.ZodString;
-            memberIds: z.ZodArray<z.ZodString, "many">;
-            sourceCount: z.ZodNumber;
-            distinctDomains: z.ZodNumber;
-            tierHistogram: z.ZodObject<{
-                primary: z.ZodOptional<z.ZodNumber>;
-                paper: z.ZodOptional<z.ZodNumber>;
-                news: z.ZodOptional<z.ZodNumber>;
-                'technical-news': z.ZodOptional<z.ZodNumber>;
-                'security-news': z.ZodOptional<z.ZodNumber>;
-            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
-                primary: z.ZodOptional<z.ZodNumber>;
-                paper: z.ZodOptional<z.ZodNumber>;
-                news: z.ZodOptional<z.ZodNumber>;
-                'technical-news': z.ZodOptional<z.ZodNumber>;
-                'security-news': z.ZodOptional<z.ZodNumber>;
-            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
-                primary: z.ZodOptional<z.ZodNumber>;
-                paper: z.ZodOptional<z.ZodNumber>;
-                news: z.ZodOptional<z.ZodNumber>;
-                'technical-news': z.ZodOptional<z.ZodNumber>;
-                'security-news': z.ZodOptional<z.ZodNumber>;
-            }, z.ZodTypeAny, "passthrough">>;
-            earliestPublishedAt: z.ZodString;
-            latestPublishedAt: z.ZodString;
-        }, z.ZodTypeAny, "passthrough">[]>;
-        coverageByTopic: Record<string, {
-            distinctDomains: number;
-            sourcesConfigured: number;
-            sourcesQueried: number;
-            sourcesResponded: number;
-            degraded: boolean;
-        }>;
-    }, {
-        itemsByTopic: Record<string, z.objectInputType<{
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
             id: z.ZodString;
             topic: z.ZodString;
             topicLabel: z.ZodString;
@@ -883,8 +1964,51 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             clusterId: z.ZodString;
             fingerprint: z.ZodString;
             claims: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, z.ZodTypeAny, "passthrough">[]>;
-        clustersByTopic: Record<string, z.objectInputType<{
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodString;
+            topic: z.ZodString;
+            topicLabel: z.ZodString;
+            title: z.ZodString;
+            source: z.ZodString;
+            sourceDomain: z.ZodString;
+            sourceUrl: z.ZodString;
+            url: z.ZodString;
+            tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+            publishedAt: z.ZodString;
+            summaryHint: z.ZodString;
+            interaction: z.ZodObject<{
+                feedRank: z.ZodNullable<z.ZodNumber>;
+                shares: z.ZodNullable<z.ZodNumber>;
+                comments: z.ZodNullable<z.ZodNumber>;
+                reactions: z.ZodNullable<z.ZodNumber>;
+                crossSourceMentions: z.ZodNumber;
+                velocity: z.ZodNullable<z.ZodNumber>;
+                capturedAt: z.ZodString;
+                provenance: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                feedRank: number | null;
+                shares: number | null;
+                comments: number | null;
+                reactions: number | null;
+                crossSourceMentions: number;
+                velocity: number | null;
+                capturedAt: string;
+                provenance: string;
+            }, {
+                feedRank: number | null;
+                shares: number | null;
+                comments: number | null;
+                reactions: number | null;
+                crossSourceMentions: number;
+                velocity: number | null;
+                capturedAt: string;
+                provenance: string;
+            }>;
+            clusterId: z.ZodString;
+            fingerprint: z.ZodString;
+            claims: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>, "many">>;
+        clustersByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
             clusterId: z.ZodString;
             topic: z.ZodString;
             topicLabel: z.ZodString;
@@ -913,15 +2037,637 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             }, z.ZodTypeAny, "passthrough">>;
             earliestPublishedAt: z.ZodString;
             latestPublishedAt: z.ZodString;
-        }, z.ZodTypeAny, "passthrough">[]>;
-        coverageByTopic: Record<string, {
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            clusterId: z.ZodString;
+            topic: z.ZodString;
+            topicLabel: z.ZodString;
+            headline: z.ZodString;
+            memberIds: z.ZodArray<z.ZodString, "many">;
+            sourceCount: z.ZodNumber;
+            distinctDomains: z.ZodNumber;
+            tierHistogram: z.ZodObject<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
+            earliestPublishedAt: z.ZodString;
+            latestPublishedAt: z.ZodString;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            clusterId: z.ZodString;
+            topic: z.ZodString;
+            topicLabel: z.ZodString;
+            headline: z.ZodString;
+            memberIds: z.ZodArray<z.ZodString, "many">;
+            sourceCount: z.ZodNumber;
+            distinctDomains: z.ZodNumber;
+            tierHistogram: z.ZodObject<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
+            earliestPublishedAt: z.ZodString;
+            latestPublishedAt: z.ZodString;
+        }, z.ZodTypeAny, "passthrough">>, "many">>;
+        coverageByTopic: z.ZodRecord<z.ZodString, z.ZodObject<{
+            sourcesConfigured: z.ZodNumber;
+            sourcesQueried: z.ZodNumber;
+            sourcesResponded: z.ZodNumber;
+            distinctDomains: z.ZodNumber;
+            degraded: z.ZodBoolean;
+        }, "strip", z.ZodTypeAny, {
             distinctDomains: number;
             sourcesConfigured: number;
             sourcesQueried: number;
             sourcesResponded: number;
             degraded: boolean;
-        }>;
-    }>;
+        }, {
+            distinctDomains: number;
+            sourcesConfigured: number;
+            sourcesQueried: number;
+            sourcesResponded: number;
+            degraded: boolean;
+        }>>;
+        documentsByTopic: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+            id: z.ZodString;
+            url: z.ZodString;
+            source: z.ZodString;
+            sourceDomain: z.ZodString;
+            tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+            title: z.ZodString;
+            publishedAt: z.ZodString;
+            fetchedAt: z.ZodString;
+            extraction: z.ZodEnum<["full", "snippet", "failed"]>;
+            accessPolicy: z.ZodEnum<["allowed", "paywalled", "robots-disallowed", "tos-restricted"]>;
+            wordCount: z.ZodNullable<z.ZodNumber>;
+            lang: z.ZodNullable<z.ZodString>;
+            contentHash: z.ZodString;
+        }, "strip", z.ZodTypeAny, {
+            id: string;
+            title: string;
+            source: string;
+            sourceDomain: string;
+            url: string;
+            tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+            publishedAt: string;
+            fetchedAt: string;
+            extraction: "full" | "snippet" | "failed";
+            accessPolicy: "allowed" | "paywalled" | "robots-disallowed" | "tos-restricted";
+            wordCount: number | null;
+            lang: string | null;
+            contentHash: string;
+        }, {
+            id: string;
+            title: string;
+            source: string;
+            sourceDomain: string;
+            url: string;
+            tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+            publishedAt: string;
+            fetchedAt: string;
+            extraction: "full" | "snippet" | "failed";
+            accessPolicy: "allowed" | "paywalled" | "robots-disallowed" | "tos-restricted";
+            wordCount: number | null;
+            lang: string | null;
+            contentHash: string;
+        }>, "many">>>;
+        factsByCluster: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+            id: z.ZodString;
+            topic: z.ZodString;
+            clusterId: z.ZodString;
+            statement: z.ZodString;
+            quantity: z.ZodOptional<z.ZodObject<{
+                metric: z.ZodString;
+                value: z.ZodNumber;
+                unit: z.ZodOptional<z.ZodString>;
+                asOf: z.ZodOptional<z.ZodString>;
+            }, "strip", z.ZodTypeAny, {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            }, {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            }>>;
+            entities: z.ZodArray<z.ZodString, "many">;
+            provenance: z.ZodArray<z.ZodObject<{
+                sourceDocId: z.ZodString;
+                sourceDomain: z.ZodString;
+                url: z.ZodString;
+                quote: z.ZodOptional<z.ZodString>;
+            }, "strip", z.ZodTypeAny, {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }, {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }>, "many">;
+            corroboration: z.ZodNumber;
+            confidence: z.ZodEnum<["high", "medium", "low"]>;
+            extractedBy: z.ZodObject<{
+                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                model: z.ZodString;
+                status: z.ZodEnum<["generated", "fallback"]>;
+                reason: z.ZodOptional<z.ZodString>;
+                generatedAt: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            }, {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            }>;
+        }, "strip", z.ZodTypeAny, {
+            id: string;
+            provenance: {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }[];
+            topic: string;
+            clusterId: string;
+            statement: string;
+            entities: string[];
+            corroboration: number;
+            confidence: "high" | "medium" | "low";
+            extractedBy: {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            };
+            quantity?: {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            } | undefined;
+        }, {
+            id: string;
+            provenance: {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }[];
+            topic: string;
+            clusterId: string;
+            statement: string;
+            entities: string[];
+            corroboration: number;
+            confidence: "high" | "medium" | "low";
+            extractedBy: {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            };
+            quantity?: {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            } | undefined;
+        }>, "many">>>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        itemsByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+            id: z.ZodString;
+            topic: z.ZodString;
+            topicLabel: z.ZodString;
+            title: z.ZodString;
+            source: z.ZodString;
+            sourceDomain: z.ZodString;
+            sourceUrl: z.ZodString;
+            url: z.ZodString;
+            tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+            publishedAt: z.ZodString;
+            summaryHint: z.ZodString;
+            interaction: z.ZodObject<{
+                feedRank: z.ZodNullable<z.ZodNumber>;
+                shares: z.ZodNullable<z.ZodNumber>;
+                comments: z.ZodNullable<z.ZodNumber>;
+                reactions: z.ZodNullable<z.ZodNumber>;
+                crossSourceMentions: z.ZodNumber;
+                velocity: z.ZodNullable<z.ZodNumber>;
+                capturedAt: z.ZodString;
+                provenance: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                feedRank: number | null;
+                shares: number | null;
+                comments: number | null;
+                reactions: number | null;
+                crossSourceMentions: number;
+                velocity: number | null;
+                capturedAt: string;
+                provenance: string;
+            }, {
+                feedRank: number | null;
+                shares: number | null;
+                comments: number | null;
+                reactions: number | null;
+                crossSourceMentions: number;
+                velocity: number | null;
+                capturedAt: string;
+                provenance: string;
+            }>;
+            clusterId: z.ZodString;
+            fingerprint: z.ZodString;
+            claims: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodString;
+            topic: z.ZodString;
+            topicLabel: z.ZodString;
+            title: z.ZodString;
+            source: z.ZodString;
+            sourceDomain: z.ZodString;
+            sourceUrl: z.ZodString;
+            url: z.ZodString;
+            tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+            publishedAt: z.ZodString;
+            summaryHint: z.ZodString;
+            interaction: z.ZodObject<{
+                feedRank: z.ZodNullable<z.ZodNumber>;
+                shares: z.ZodNullable<z.ZodNumber>;
+                comments: z.ZodNullable<z.ZodNumber>;
+                reactions: z.ZodNullable<z.ZodNumber>;
+                crossSourceMentions: z.ZodNumber;
+                velocity: z.ZodNullable<z.ZodNumber>;
+                capturedAt: z.ZodString;
+                provenance: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                feedRank: number | null;
+                shares: number | null;
+                comments: number | null;
+                reactions: number | null;
+                crossSourceMentions: number;
+                velocity: number | null;
+                capturedAt: string;
+                provenance: string;
+            }, {
+                feedRank: number | null;
+                shares: number | null;
+                comments: number | null;
+                reactions: number | null;
+                crossSourceMentions: number;
+                velocity: number | null;
+                capturedAt: string;
+                provenance: string;
+            }>;
+            clusterId: z.ZodString;
+            fingerprint: z.ZodString;
+            claims: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodString;
+            topic: z.ZodString;
+            topicLabel: z.ZodString;
+            title: z.ZodString;
+            source: z.ZodString;
+            sourceDomain: z.ZodString;
+            sourceUrl: z.ZodString;
+            url: z.ZodString;
+            tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+            publishedAt: z.ZodString;
+            summaryHint: z.ZodString;
+            interaction: z.ZodObject<{
+                feedRank: z.ZodNullable<z.ZodNumber>;
+                shares: z.ZodNullable<z.ZodNumber>;
+                comments: z.ZodNullable<z.ZodNumber>;
+                reactions: z.ZodNullable<z.ZodNumber>;
+                crossSourceMentions: z.ZodNumber;
+                velocity: z.ZodNullable<z.ZodNumber>;
+                capturedAt: z.ZodString;
+                provenance: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                feedRank: number | null;
+                shares: number | null;
+                comments: number | null;
+                reactions: number | null;
+                crossSourceMentions: number;
+                velocity: number | null;
+                capturedAt: string;
+                provenance: string;
+            }, {
+                feedRank: number | null;
+                shares: number | null;
+                comments: number | null;
+                reactions: number | null;
+                crossSourceMentions: number;
+                velocity: number | null;
+                capturedAt: string;
+                provenance: string;
+            }>;
+            clusterId: z.ZodString;
+            fingerprint: z.ZodString;
+            claims: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>, "many">>;
+        clustersByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+            clusterId: z.ZodString;
+            topic: z.ZodString;
+            topicLabel: z.ZodString;
+            headline: z.ZodString;
+            memberIds: z.ZodArray<z.ZodString, "many">;
+            sourceCount: z.ZodNumber;
+            distinctDomains: z.ZodNumber;
+            tierHistogram: z.ZodObject<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
+            earliestPublishedAt: z.ZodString;
+            latestPublishedAt: z.ZodString;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            clusterId: z.ZodString;
+            topic: z.ZodString;
+            topicLabel: z.ZodString;
+            headline: z.ZodString;
+            memberIds: z.ZodArray<z.ZodString, "many">;
+            sourceCount: z.ZodNumber;
+            distinctDomains: z.ZodNumber;
+            tierHistogram: z.ZodObject<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
+            earliestPublishedAt: z.ZodString;
+            latestPublishedAt: z.ZodString;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            clusterId: z.ZodString;
+            topic: z.ZodString;
+            topicLabel: z.ZodString;
+            headline: z.ZodString;
+            memberIds: z.ZodArray<z.ZodString, "many">;
+            sourceCount: z.ZodNumber;
+            distinctDomains: z.ZodNumber;
+            tierHistogram: z.ZodObject<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
+            earliestPublishedAt: z.ZodString;
+            latestPublishedAt: z.ZodString;
+        }, z.ZodTypeAny, "passthrough">>, "many">>;
+        coverageByTopic: z.ZodRecord<z.ZodString, z.ZodObject<{
+            sourcesConfigured: z.ZodNumber;
+            sourcesQueried: z.ZodNumber;
+            sourcesResponded: z.ZodNumber;
+            distinctDomains: z.ZodNumber;
+            degraded: z.ZodBoolean;
+        }, "strip", z.ZodTypeAny, {
+            distinctDomains: number;
+            sourcesConfigured: number;
+            sourcesQueried: number;
+            sourcesResponded: number;
+            degraded: boolean;
+        }, {
+            distinctDomains: number;
+            sourcesConfigured: number;
+            sourcesQueried: number;
+            sourcesResponded: number;
+            degraded: boolean;
+        }>>;
+        documentsByTopic: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+            id: z.ZodString;
+            url: z.ZodString;
+            source: z.ZodString;
+            sourceDomain: z.ZodString;
+            tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+            title: z.ZodString;
+            publishedAt: z.ZodString;
+            fetchedAt: z.ZodString;
+            extraction: z.ZodEnum<["full", "snippet", "failed"]>;
+            accessPolicy: z.ZodEnum<["allowed", "paywalled", "robots-disallowed", "tos-restricted"]>;
+            wordCount: z.ZodNullable<z.ZodNumber>;
+            lang: z.ZodNullable<z.ZodString>;
+            contentHash: z.ZodString;
+        }, "strip", z.ZodTypeAny, {
+            id: string;
+            title: string;
+            source: string;
+            sourceDomain: string;
+            url: string;
+            tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+            publishedAt: string;
+            fetchedAt: string;
+            extraction: "full" | "snippet" | "failed";
+            accessPolicy: "allowed" | "paywalled" | "robots-disallowed" | "tos-restricted";
+            wordCount: number | null;
+            lang: string | null;
+            contentHash: string;
+        }, {
+            id: string;
+            title: string;
+            source: string;
+            sourceDomain: string;
+            url: string;
+            tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+            publishedAt: string;
+            fetchedAt: string;
+            extraction: "full" | "snippet" | "failed";
+            accessPolicy: "allowed" | "paywalled" | "robots-disallowed" | "tos-restricted";
+            wordCount: number | null;
+            lang: string | null;
+            contentHash: string;
+        }>, "many">>>;
+        factsByCluster: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+            id: z.ZodString;
+            topic: z.ZodString;
+            clusterId: z.ZodString;
+            statement: z.ZodString;
+            quantity: z.ZodOptional<z.ZodObject<{
+                metric: z.ZodString;
+                value: z.ZodNumber;
+                unit: z.ZodOptional<z.ZodString>;
+                asOf: z.ZodOptional<z.ZodString>;
+            }, "strip", z.ZodTypeAny, {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            }, {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            }>>;
+            entities: z.ZodArray<z.ZodString, "many">;
+            provenance: z.ZodArray<z.ZodObject<{
+                sourceDocId: z.ZodString;
+                sourceDomain: z.ZodString;
+                url: z.ZodString;
+                quote: z.ZodOptional<z.ZodString>;
+            }, "strip", z.ZodTypeAny, {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }, {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }>, "many">;
+            corroboration: z.ZodNumber;
+            confidence: z.ZodEnum<["high", "medium", "low"]>;
+            extractedBy: z.ZodObject<{
+                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                model: z.ZodString;
+                status: z.ZodEnum<["generated", "fallback"]>;
+                reason: z.ZodOptional<z.ZodString>;
+                generatedAt: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            }, {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            }>;
+        }, "strip", z.ZodTypeAny, {
+            id: string;
+            provenance: {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }[];
+            topic: string;
+            clusterId: string;
+            statement: string;
+            entities: string[];
+            corroboration: number;
+            confidence: "high" | "medium" | "low";
+            extractedBy: {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            };
+            quantity?: {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            } | undefined;
+        }, {
+            id: string;
+            provenance: {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }[];
+            topic: string;
+            clusterId: string;
+            statement: string;
+            entities: string[];
+            corroboration: number;
+            confidence: "high" | "medium" | "low";
+            extractedBy: {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            };
+            quantity?: {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            } | undefined;
+        }>, "many">>>;
+    }, z.ZodTypeAny, "passthrough">>;
 }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
     schemaVersion: z.ZodLiteral<"ardur-content-pipeline/v1">;
     contractRevision: z.ZodOptional<z.ZodNumber>;
@@ -1213,8 +2959,165 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             sourcesResponded: number;
             degraded: boolean;
         }>>;
-    }, "strip", z.ZodTypeAny, {
-        itemsByTopic: Record<string, z.objectOutputType<{
+        documentsByTopic: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+            id: z.ZodString;
+            url: z.ZodString;
+            source: z.ZodString;
+            sourceDomain: z.ZodString;
+            tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+            title: z.ZodString;
+            publishedAt: z.ZodString;
+            fetchedAt: z.ZodString;
+            extraction: z.ZodEnum<["full", "snippet", "failed"]>;
+            accessPolicy: z.ZodEnum<["allowed", "paywalled", "robots-disallowed", "tos-restricted"]>;
+            wordCount: z.ZodNullable<z.ZodNumber>;
+            lang: z.ZodNullable<z.ZodString>;
+            contentHash: z.ZodString;
+        }, "strip", z.ZodTypeAny, {
+            id: string;
+            title: string;
+            source: string;
+            sourceDomain: string;
+            url: string;
+            tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+            publishedAt: string;
+            fetchedAt: string;
+            extraction: "full" | "snippet" | "failed";
+            accessPolicy: "allowed" | "paywalled" | "robots-disallowed" | "tos-restricted";
+            wordCount: number | null;
+            lang: string | null;
+            contentHash: string;
+        }, {
+            id: string;
+            title: string;
+            source: string;
+            sourceDomain: string;
+            url: string;
+            tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+            publishedAt: string;
+            fetchedAt: string;
+            extraction: "full" | "snippet" | "failed";
+            accessPolicy: "allowed" | "paywalled" | "robots-disallowed" | "tos-restricted";
+            wordCount: number | null;
+            lang: string | null;
+            contentHash: string;
+        }>, "many">>>;
+        factsByCluster: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+            id: z.ZodString;
+            topic: z.ZodString;
+            clusterId: z.ZodString;
+            statement: z.ZodString;
+            quantity: z.ZodOptional<z.ZodObject<{
+                metric: z.ZodString;
+                value: z.ZodNumber;
+                unit: z.ZodOptional<z.ZodString>;
+                asOf: z.ZodOptional<z.ZodString>;
+            }, "strip", z.ZodTypeAny, {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            }, {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            }>>;
+            entities: z.ZodArray<z.ZodString, "many">;
+            provenance: z.ZodArray<z.ZodObject<{
+                sourceDocId: z.ZodString;
+                sourceDomain: z.ZodString;
+                url: z.ZodString;
+                quote: z.ZodOptional<z.ZodString>;
+            }, "strip", z.ZodTypeAny, {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }, {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }>, "many">;
+            corroboration: z.ZodNumber;
+            confidence: z.ZodEnum<["high", "medium", "low"]>;
+            extractedBy: z.ZodObject<{
+                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                model: z.ZodString;
+                status: z.ZodEnum<["generated", "fallback"]>;
+                reason: z.ZodOptional<z.ZodString>;
+                generatedAt: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            }, {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            }>;
+        }, "strip", z.ZodTypeAny, {
+            id: string;
+            provenance: {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }[];
+            topic: string;
+            clusterId: string;
+            statement: string;
+            entities: string[];
+            corroboration: number;
+            confidence: "high" | "medium" | "low";
+            extractedBy: {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            };
+            quantity?: {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            } | undefined;
+        }, {
+            id: string;
+            provenance: {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }[];
+            topic: string;
+            clusterId: string;
+            statement: string;
+            entities: string[];
+            corroboration: number;
+            confidence: "high" | "medium" | "low";
+            extractedBy: {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            };
+            quantity?: {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            } | undefined;
+        }>, "many">>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        itemsByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
             id: z.ZodString;
             topic: z.ZodString;
             topicLabel: z.ZodString;
@@ -1257,46 +3160,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             clusterId: z.ZodString;
             fingerprint: z.ZodString;
             claims: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, z.ZodTypeAny, "passthrough">[]>;
-        clustersByTopic: Record<string, z.objectOutputType<{
-            clusterId: z.ZodString;
-            topic: z.ZodString;
-            topicLabel: z.ZodString;
-            headline: z.ZodString;
-            memberIds: z.ZodArray<z.ZodString, "many">;
-            sourceCount: z.ZodNumber;
-            distinctDomains: z.ZodNumber;
-            tierHistogram: z.ZodObject<{
-                primary: z.ZodOptional<z.ZodNumber>;
-                paper: z.ZodOptional<z.ZodNumber>;
-                news: z.ZodOptional<z.ZodNumber>;
-                'technical-news': z.ZodOptional<z.ZodNumber>;
-                'security-news': z.ZodOptional<z.ZodNumber>;
-            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
-                primary: z.ZodOptional<z.ZodNumber>;
-                paper: z.ZodOptional<z.ZodNumber>;
-                news: z.ZodOptional<z.ZodNumber>;
-                'technical-news': z.ZodOptional<z.ZodNumber>;
-                'security-news': z.ZodOptional<z.ZodNumber>;
-            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
-                primary: z.ZodOptional<z.ZodNumber>;
-                paper: z.ZodOptional<z.ZodNumber>;
-                news: z.ZodOptional<z.ZodNumber>;
-                'technical-news': z.ZodOptional<z.ZodNumber>;
-                'security-news': z.ZodOptional<z.ZodNumber>;
-            }, z.ZodTypeAny, "passthrough">>;
-            earliestPublishedAt: z.ZodString;
-            latestPublishedAt: z.ZodString;
-        }, z.ZodTypeAny, "passthrough">[]>;
-        coverageByTopic: Record<string, {
-            distinctDomains: number;
-            sourcesConfigured: number;
-            sourcesQueried: number;
-            sourcesResponded: number;
-            degraded: boolean;
-        }>;
-    }, {
-        itemsByTopic: Record<string, z.objectInputType<{
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
             id: z.ZodString;
             topic: z.ZodString;
             topicLabel: z.ZodString;
@@ -1339,8 +3203,51 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             clusterId: z.ZodString;
             fingerprint: z.ZodString;
             claims: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, z.ZodTypeAny, "passthrough">[]>;
-        clustersByTopic: Record<string, z.objectInputType<{
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodString;
+            topic: z.ZodString;
+            topicLabel: z.ZodString;
+            title: z.ZodString;
+            source: z.ZodString;
+            sourceDomain: z.ZodString;
+            sourceUrl: z.ZodString;
+            url: z.ZodString;
+            tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+            publishedAt: z.ZodString;
+            summaryHint: z.ZodString;
+            interaction: z.ZodObject<{
+                feedRank: z.ZodNullable<z.ZodNumber>;
+                shares: z.ZodNullable<z.ZodNumber>;
+                comments: z.ZodNullable<z.ZodNumber>;
+                reactions: z.ZodNullable<z.ZodNumber>;
+                crossSourceMentions: z.ZodNumber;
+                velocity: z.ZodNullable<z.ZodNumber>;
+                capturedAt: z.ZodString;
+                provenance: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                feedRank: number | null;
+                shares: number | null;
+                comments: number | null;
+                reactions: number | null;
+                crossSourceMentions: number;
+                velocity: number | null;
+                capturedAt: string;
+                provenance: string;
+            }, {
+                feedRank: number | null;
+                shares: number | null;
+                comments: number | null;
+                reactions: number | null;
+                crossSourceMentions: number;
+                velocity: number | null;
+                capturedAt: string;
+                provenance: string;
+            }>;
+            clusterId: z.ZodString;
+            fingerprint: z.ZodString;
+            claims: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>, "many">>;
+        clustersByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
             clusterId: z.ZodString;
             topic: z.ZodString;
             topicLabel: z.ZodString;
@@ -1369,15 +3276,637 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             }, z.ZodTypeAny, "passthrough">>;
             earliestPublishedAt: z.ZodString;
             latestPublishedAt: z.ZodString;
-        }, z.ZodTypeAny, "passthrough">[]>;
-        coverageByTopic: Record<string, {
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            clusterId: z.ZodString;
+            topic: z.ZodString;
+            topicLabel: z.ZodString;
+            headline: z.ZodString;
+            memberIds: z.ZodArray<z.ZodString, "many">;
+            sourceCount: z.ZodNumber;
+            distinctDomains: z.ZodNumber;
+            tierHistogram: z.ZodObject<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
+            earliestPublishedAt: z.ZodString;
+            latestPublishedAt: z.ZodString;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            clusterId: z.ZodString;
+            topic: z.ZodString;
+            topicLabel: z.ZodString;
+            headline: z.ZodString;
+            memberIds: z.ZodArray<z.ZodString, "many">;
+            sourceCount: z.ZodNumber;
+            distinctDomains: z.ZodNumber;
+            tierHistogram: z.ZodObject<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
+            earliestPublishedAt: z.ZodString;
+            latestPublishedAt: z.ZodString;
+        }, z.ZodTypeAny, "passthrough">>, "many">>;
+        coverageByTopic: z.ZodRecord<z.ZodString, z.ZodObject<{
+            sourcesConfigured: z.ZodNumber;
+            sourcesQueried: z.ZodNumber;
+            sourcesResponded: z.ZodNumber;
+            distinctDomains: z.ZodNumber;
+            degraded: z.ZodBoolean;
+        }, "strip", z.ZodTypeAny, {
             distinctDomains: number;
             sourcesConfigured: number;
             sourcesQueried: number;
             sourcesResponded: number;
             degraded: boolean;
-        }>;
-    }>;
+        }, {
+            distinctDomains: number;
+            sourcesConfigured: number;
+            sourcesQueried: number;
+            sourcesResponded: number;
+            degraded: boolean;
+        }>>;
+        documentsByTopic: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+            id: z.ZodString;
+            url: z.ZodString;
+            source: z.ZodString;
+            sourceDomain: z.ZodString;
+            tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+            title: z.ZodString;
+            publishedAt: z.ZodString;
+            fetchedAt: z.ZodString;
+            extraction: z.ZodEnum<["full", "snippet", "failed"]>;
+            accessPolicy: z.ZodEnum<["allowed", "paywalled", "robots-disallowed", "tos-restricted"]>;
+            wordCount: z.ZodNullable<z.ZodNumber>;
+            lang: z.ZodNullable<z.ZodString>;
+            contentHash: z.ZodString;
+        }, "strip", z.ZodTypeAny, {
+            id: string;
+            title: string;
+            source: string;
+            sourceDomain: string;
+            url: string;
+            tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+            publishedAt: string;
+            fetchedAt: string;
+            extraction: "full" | "snippet" | "failed";
+            accessPolicy: "allowed" | "paywalled" | "robots-disallowed" | "tos-restricted";
+            wordCount: number | null;
+            lang: string | null;
+            contentHash: string;
+        }, {
+            id: string;
+            title: string;
+            source: string;
+            sourceDomain: string;
+            url: string;
+            tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+            publishedAt: string;
+            fetchedAt: string;
+            extraction: "full" | "snippet" | "failed";
+            accessPolicy: "allowed" | "paywalled" | "robots-disallowed" | "tos-restricted";
+            wordCount: number | null;
+            lang: string | null;
+            contentHash: string;
+        }>, "many">>>;
+        factsByCluster: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+            id: z.ZodString;
+            topic: z.ZodString;
+            clusterId: z.ZodString;
+            statement: z.ZodString;
+            quantity: z.ZodOptional<z.ZodObject<{
+                metric: z.ZodString;
+                value: z.ZodNumber;
+                unit: z.ZodOptional<z.ZodString>;
+                asOf: z.ZodOptional<z.ZodString>;
+            }, "strip", z.ZodTypeAny, {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            }, {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            }>>;
+            entities: z.ZodArray<z.ZodString, "many">;
+            provenance: z.ZodArray<z.ZodObject<{
+                sourceDocId: z.ZodString;
+                sourceDomain: z.ZodString;
+                url: z.ZodString;
+                quote: z.ZodOptional<z.ZodString>;
+            }, "strip", z.ZodTypeAny, {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }, {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }>, "many">;
+            corroboration: z.ZodNumber;
+            confidence: z.ZodEnum<["high", "medium", "low"]>;
+            extractedBy: z.ZodObject<{
+                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                model: z.ZodString;
+                status: z.ZodEnum<["generated", "fallback"]>;
+                reason: z.ZodOptional<z.ZodString>;
+                generatedAt: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            }, {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            }>;
+        }, "strip", z.ZodTypeAny, {
+            id: string;
+            provenance: {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }[];
+            topic: string;
+            clusterId: string;
+            statement: string;
+            entities: string[];
+            corroboration: number;
+            confidence: "high" | "medium" | "low";
+            extractedBy: {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            };
+            quantity?: {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            } | undefined;
+        }, {
+            id: string;
+            provenance: {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }[];
+            topic: string;
+            clusterId: string;
+            statement: string;
+            entities: string[];
+            corroboration: number;
+            confidence: "high" | "medium" | "low";
+            extractedBy: {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            };
+            quantity?: {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            } | undefined;
+        }>, "many">>>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        itemsByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+            id: z.ZodString;
+            topic: z.ZodString;
+            topicLabel: z.ZodString;
+            title: z.ZodString;
+            source: z.ZodString;
+            sourceDomain: z.ZodString;
+            sourceUrl: z.ZodString;
+            url: z.ZodString;
+            tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+            publishedAt: z.ZodString;
+            summaryHint: z.ZodString;
+            interaction: z.ZodObject<{
+                feedRank: z.ZodNullable<z.ZodNumber>;
+                shares: z.ZodNullable<z.ZodNumber>;
+                comments: z.ZodNullable<z.ZodNumber>;
+                reactions: z.ZodNullable<z.ZodNumber>;
+                crossSourceMentions: z.ZodNumber;
+                velocity: z.ZodNullable<z.ZodNumber>;
+                capturedAt: z.ZodString;
+                provenance: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                feedRank: number | null;
+                shares: number | null;
+                comments: number | null;
+                reactions: number | null;
+                crossSourceMentions: number;
+                velocity: number | null;
+                capturedAt: string;
+                provenance: string;
+            }, {
+                feedRank: number | null;
+                shares: number | null;
+                comments: number | null;
+                reactions: number | null;
+                crossSourceMentions: number;
+                velocity: number | null;
+                capturedAt: string;
+                provenance: string;
+            }>;
+            clusterId: z.ZodString;
+            fingerprint: z.ZodString;
+            claims: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodString;
+            topic: z.ZodString;
+            topicLabel: z.ZodString;
+            title: z.ZodString;
+            source: z.ZodString;
+            sourceDomain: z.ZodString;
+            sourceUrl: z.ZodString;
+            url: z.ZodString;
+            tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+            publishedAt: z.ZodString;
+            summaryHint: z.ZodString;
+            interaction: z.ZodObject<{
+                feedRank: z.ZodNullable<z.ZodNumber>;
+                shares: z.ZodNullable<z.ZodNumber>;
+                comments: z.ZodNullable<z.ZodNumber>;
+                reactions: z.ZodNullable<z.ZodNumber>;
+                crossSourceMentions: z.ZodNumber;
+                velocity: z.ZodNullable<z.ZodNumber>;
+                capturedAt: z.ZodString;
+                provenance: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                feedRank: number | null;
+                shares: number | null;
+                comments: number | null;
+                reactions: number | null;
+                crossSourceMentions: number;
+                velocity: number | null;
+                capturedAt: string;
+                provenance: string;
+            }, {
+                feedRank: number | null;
+                shares: number | null;
+                comments: number | null;
+                reactions: number | null;
+                crossSourceMentions: number;
+                velocity: number | null;
+                capturedAt: string;
+                provenance: string;
+            }>;
+            clusterId: z.ZodString;
+            fingerprint: z.ZodString;
+            claims: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodString;
+            topic: z.ZodString;
+            topicLabel: z.ZodString;
+            title: z.ZodString;
+            source: z.ZodString;
+            sourceDomain: z.ZodString;
+            sourceUrl: z.ZodString;
+            url: z.ZodString;
+            tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+            publishedAt: z.ZodString;
+            summaryHint: z.ZodString;
+            interaction: z.ZodObject<{
+                feedRank: z.ZodNullable<z.ZodNumber>;
+                shares: z.ZodNullable<z.ZodNumber>;
+                comments: z.ZodNullable<z.ZodNumber>;
+                reactions: z.ZodNullable<z.ZodNumber>;
+                crossSourceMentions: z.ZodNumber;
+                velocity: z.ZodNullable<z.ZodNumber>;
+                capturedAt: z.ZodString;
+                provenance: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                feedRank: number | null;
+                shares: number | null;
+                comments: number | null;
+                reactions: number | null;
+                crossSourceMentions: number;
+                velocity: number | null;
+                capturedAt: string;
+                provenance: string;
+            }, {
+                feedRank: number | null;
+                shares: number | null;
+                comments: number | null;
+                reactions: number | null;
+                crossSourceMentions: number;
+                velocity: number | null;
+                capturedAt: string;
+                provenance: string;
+            }>;
+            clusterId: z.ZodString;
+            fingerprint: z.ZodString;
+            claims: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>, "many">>;
+        clustersByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+            clusterId: z.ZodString;
+            topic: z.ZodString;
+            topicLabel: z.ZodString;
+            headline: z.ZodString;
+            memberIds: z.ZodArray<z.ZodString, "many">;
+            sourceCount: z.ZodNumber;
+            distinctDomains: z.ZodNumber;
+            tierHistogram: z.ZodObject<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
+            earliestPublishedAt: z.ZodString;
+            latestPublishedAt: z.ZodString;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            clusterId: z.ZodString;
+            topic: z.ZodString;
+            topicLabel: z.ZodString;
+            headline: z.ZodString;
+            memberIds: z.ZodArray<z.ZodString, "many">;
+            sourceCount: z.ZodNumber;
+            distinctDomains: z.ZodNumber;
+            tierHistogram: z.ZodObject<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
+            earliestPublishedAt: z.ZodString;
+            latestPublishedAt: z.ZodString;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            clusterId: z.ZodString;
+            topic: z.ZodString;
+            topicLabel: z.ZodString;
+            headline: z.ZodString;
+            memberIds: z.ZodArray<z.ZodString, "many">;
+            sourceCount: z.ZodNumber;
+            distinctDomains: z.ZodNumber;
+            tierHistogram: z.ZodObject<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                primary: z.ZodOptional<z.ZodNumber>;
+                paper: z.ZodOptional<z.ZodNumber>;
+                news: z.ZodOptional<z.ZodNumber>;
+                'technical-news': z.ZodOptional<z.ZodNumber>;
+                'security-news': z.ZodOptional<z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
+            earliestPublishedAt: z.ZodString;
+            latestPublishedAt: z.ZodString;
+        }, z.ZodTypeAny, "passthrough">>, "many">>;
+        coverageByTopic: z.ZodRecord<z.ZodString, z.ZodObject<{
+            sourcesConfigured: z.ZodNumber;
+            sourcesQueried: z.ZodNumber;
+            sourcesResponded: z.ZodNumber;
+            distinctDomains: z.ZodNumber;
+            degraded: z.ZodBoolean;
+        }, "strip", z.ZodTypeAny, {
+            distinctDomains: number;
+            sourcesConfigured: number;
+            sourcesQueried: number;
+            sourcesResponded: number;
+            degraded: boolean;
+        }, {
+            distinctDomains: number;
+            sourcesConfigured: number;
+            sourcesQueried: number;
+            sourcesResponded: number;
+            degraded: boolean;
+        }>>;
+        documentsByTopic: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+            id: z.ZodString;
+            url: z.ZodString;
+            source: z.ZodString;
+            sourceDomain: z.ZodString;
+            tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+            title: z.ZodString;
+            publishedAt: z.ZodString;
+            fetchedAt: z.ZodString;
+            extraction: z.ZodEnum<["full", "snippet", "failed"]>;
+            accessPolicy: z.ZodEnum<["allowed", "paywalled", "robots-disallowed", "tos-restricted"]>;
+            wordCount: z.ZodNullable<z.ZodNumber>;
+            lang: z.ZodNullable<z.ZodString>;
+            contentHash: z.ZodString;
+        }, "strip", z.ZodTypeAny, {
+            id: string;
+            title: string;
+            source: string;
+            sourceDomain: string;
+            url: string;
+            tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+            publishedAt: string;
+            fetchedAt: string;
+            extraction: "full" | "snippet" | "failed";
+            accessPolicy: "allowed" | "paywalled" | "robots-disallowed" | "tos-restricted";
+            wordCount: number | null;
+            lang: string | null;
+            contentHash: string;
+        }, {
+            id: string;
+            title: string;
+            source: string;
+            sourceDomain: string;
+            url: string;
+            tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+            publishedAt: string;
+            fetchedAt: string;
+            extraction: "full" | "snippet" | "failed";
+            accessPolicy: "allowed" | "paywalled" | "robots-disallowed" | "tos-restricted";
+            wordCount: number | null;
+            lang: string | null;
+            contentHash: string;
+        }>, "many">>>;
+        factsByCluster: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+            id: z.ZodString;
+            topic: z.ZodString;
+            clusterId: z.ZodString;
+            statement: z.ZodString;
+            quantity: z.ZodOptional<z.ZodObject<{
+                metric: z.ZodString;
+                value: z.ZodNumber;
+                unit: z.ZodOptional<z.ZodString>;
+                asOf: z.ZodOptional<z.ZodString>;
+            }, "strip", z.ZodTypeAny, {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            }, {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            }>>;
+            entities: z.ZodArray<z.ZodString, "many">;
+            provenance: z.ZodArray<z.ZodObject<{
+                sourceDocId: z.ZodString;
+                sourceDomain: z.ZodString;
+                url: z.ZodString;
+                quote: z.ZodOptional<z.ZodString>;
+            }, "strip", z.ZodTypeAny, {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }, {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }>, "many">;
+            corroboration: z.ZodNumber;
+            confidence: z.ZodEnum<["high", "medium", "low"]>;
+            extractedBy: z.ZodObject<{
+                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                model: z.ZodString;
+                status: z.ZodEnum<["generated", "fallback"]>;
+                reason: z.ZodOptional<z.ZodString>;
+                generatedAt: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            }, {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            }>;
+        }, "strip", z.ZodTypeAny, {
+            id: string;
+            provenance: {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }[];
+            topic: string;
+            clusterId: string;
+            statement: string;
+            entities: string[];
+            corroboration: number;
+            confidence: "high" | "medium" | "low";
+            extractedBy: {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            };
+            quantity?: {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            } | undefined;
+        }, {
+            id: string;
+            provenance: {
+                sourceDomain: string;
+                url: string;
+                sourceDocId: string;
+                quote?: string | undefined;
+            }[];
+            topic: string;
+            clusterId: string;
+            statement: string;
+            entities: string[];
+            corroboration: number;
+            confidence: "high" | "medium" | "low";
+            extractedBy: {
+                generatedAt: string;
+                provider: "deterministic" | "ollama" | "openai";
+                status: "generated" | "fallback";
+                model: string;
+                reason?: string | undefined;
+            };
+            quantity?: {
+                value: number;
+                metric: string;
+                unit?: string | undefined;
+                asOf?: string | undefined;
+            } | undefined;
+        }>, "many">>>;
+    }, z.ZodTypeAny, "passthrough">>;
 }, z.ZodTypeAny, "passthrough">>;
 export type AggregationArtifactInput = z.input<typeof AggregationArtifactSchema>;
 export declare const RankingArtifactSchema: z.ZodObject<{
@@ -1443,28 +3972,31 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             verification: z.ZodEnum<["multi-source", "single-source"]>;
@@ -1493,6 +4025,30 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             earliestPublishedAt: z.ZodString;
             latestPublishedAt: z.ZodString;
             auditId: z.ZodString;
+            references: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                source: z.ZodString;
+                sourceDomain: z.ZodString;
+                tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+                url: z.ZodString;
+                title: z.ZodString;
+                publishedAt: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                title: string;
+                source: string;
+                sourceDomain: string;
+                url: string;
+                tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+                publishedAt: string;
+            }, {
+                title: string;
+                source: string;
+                sourceDomain: string;
+                url: string;
+                tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+                publishedAt: string;
+            }>, "many">>;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            gateStatus: z.ZodOptional<z.ZodEnum<["auto", "flagged", "hold"]>>;
         }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
             clusterId: z.ZodString;
             topic: z.ZodString;
@@ -1502,28 +4058,31 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             verification: z.ZodEnum<["multi-source", "single-source"]>;
@@ -1552,6 +4111,30 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             earliestPublishedAt: z.ZodString;
             latestPublishedAt: z.ZodString;
             auditId: z.ZodString;
+            references: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                source: z.ZodString;
+                sourceDomain: z.ZodString;
+                tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+                url: z.ZodString;
+                title: z.ZodString;
+                publishedAt: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                title: string;
+                source: string;
+                sourceDomain: string;
+                url: string;
+                tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+                publishedAt: string;
+            }, {
+                title: string;
+                source: string;
+                sourceDomain: string;
+                url: string;
+                tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+                publishedAt: string;
+            }>, "many">>;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            gateStatus: z.ZodOptional<z.ZodEnum<["auto", "flagged", "hold"]>>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             clusterId: z.ZodString;
             topic: z.ZodString;
@@ -1561,28 +4144,31 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             verification: z.ZodEnum<["multi-source", "single-source"]>;
@@ -1611,6 +4197,30 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             earliestPublishedAt: z.ZodString;
             latestPublishedAt: z.ZodString;
             auditId: z.ZodString;
+            references: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                source: z.ZodString;
+                sourceDomain: z.ZodString;
+                tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+                url: z.ZodString;
+                title: z.ZodString;
+                publishedAt: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                title: string;
+                source: string;
+                sourceDomain: string;
+                url: string;
+                tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+                publishedAt: string;
+            }, {
+                title: string;
+                source: string;
+                sourceDomain: string;
+                url: string;
+                tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+                publishedAt: string;
+            }>, "many">>;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            gateStatus: z.ZodOptional<z.ZodEnum<["auto", "flagged", "hold"]>>;
         }, z.ZodTypeAny, "passthrough">>, "many">>;
         audit: z.ZodArray<z.ZodObject<{
             auditId: z.ZodString;
@@ -1621,28 +4231,31 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             computed: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             rationale: z.ZodString;
             weightProfile: z.ZodString;
             rankedAt: z.ZodString;
@@ -1654,12 +4267,15 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             inputs: Record<string, number>;
             computed: {
                 interaction: number;
+                corroboration: number;
                 credibility: number;
                 recency: number;
                 diversity: number;
-                corroboration: number;
                 total: number;
                 weights: Record<string, number>;
+                technicalSignificance?: number | undefined;
+            } & {
+                [k: string]: unknown;
             };
             rationale: string;
             weightProfile: string;
@@ -1672,12 +4288,15 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             inputs: Record<string, number>;
             computed: {
                 interaction: number;
+                corroboration: number;
                 credibility: number;
                 recency: number;
                 diversity: number;
-                corroboration: number;
                 total: number;
                 weights: Record<string, number>;
+                technicalSignificance?: number | undefined;
+            } & {
+                [k: string]: unknown;
             };
             rationale: string;
             weightProfile: string;
@@ -1695,28 +4314,31 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             verification: z.ZodEnum<["multi-source", "single-source"]>;
@@ -1745,6 +4367,30 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             earliestPublishedAt: z.ZodString;
             latestPublishedAt: z.ZodString;
             auditId: z.ZodString;
+            references: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                source: z.ZodString;
+                sourceDomain: z.ZodString;
+                tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+                url: z.ZodString;
+                title: z.ZodString;
+                publishedAt: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                title: string;
+                source: string;
+                sourceDomain: string;
+                url: string;
+                tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+                publishedAt: string;
+            }, {
+                title: string;
+                source: string;
+                sourceDomain: string;
+                url: string;
+                tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+                publishedAt: string;
+            }>, "many">>;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            gateStatus: z.ZodOptional<z.ZodEnum<["auto", "flagged", "hold"]>>;
         }, z.ZodTypeAny, "passthrough">[]>;
         audit: {
             topic: string;
@@ -1754,12 +4400,15 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             inputs: Record<string, number>;
             computed: {
                 interaction: number;
+                corroboration: number;
                 credibility: number;
                 recency: number;
                 diversity: number;
-                corroboration: number;
                 total: number;
                 weights: Record<string, number>;
+                technicalSignificance?: number | undefined;
+            } & {
+                [k: string]: unknown;
             };
             rationale: string;
             weightProfile: string;
@@ -1776,28 +4425,31 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             verification: z.ZodEnum<["multi-source", "single-source"]>;
@@ -1826,6 +4478,30 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             earliestPublishedAt: z.ZodString;
             latestPublishedAt: z.ZodString;
             auditId: z.ZodString;
+            references: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                source: z.ZodString;
+                sourceDomain: z.ZodString;
+                tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+                url: z.ZodString;
+                title: z.ZodString;
+                publishedAt: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                title: string;
+                source: string;
+                sourceDomain: string;
+                url: string;
+                tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+                publishedAt: string;
+            }, {
+                title: string;
+                source: string;
+                sourceDomain: string;
+                url: string;
+                tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+                publishedAt: string;
+            }>, "many">>;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            gateStatus: z.ZodOptional<z.ZodEnum<["auto", "flagged", "hold"]>>;
         }, z.ZodTypeAny, "passthrough">[]>;
         audit: {
             topic: string;
@@ -1835,12 +4511,15 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             inputs: Record<string, number>;
             computed: {
                 interaction: number;
+                corroboration: number;
                 credibility: number;
                 recency: number;
                 diversity: number;
-                corroboration: number;
                 total: number;
                 weights: Record<string, number>;
+                technicalSignificance?: number | undefined;
+            } & {
+                [k: string]: unknown;
             };
             rationale: string;
             weightProfile: string;
@@ -1910,28 +4589,31 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             verification: z.ZodEnum<["multi-source", "single-source"]>;
@@ -1960,6 +4642,30 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             earliestPublishedAt: z.ZodString;
             latestPublishedAt: z.ZodString;
             auditId: z.ZodString;
+            references: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                source: z.ZodString;
+                sourceDomain: z.ZodString;
+                tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+                url: z.ZodString;
+                title: z.ZodString;
+                publishedAt: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                title: string;
+                source: string;
+                sourceDomain: string;
+                url: string;
+                tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+                publishedAt: string;
+            }, {
+                title: string;
+                source: string;
+                sourceDomain: string;
+                url: string;
+                tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+                publishedAt: string;
+            }>, "many">>;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            gateStatus: z.ZodOptional<z.ZodEnum<["auto", "flagged", "hold"]>>;
         }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
             clusterId: z.ZodString;
             topic: z.ZodString;
@@ -1969,28 +4675,31 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             verification: z.ZodEnum<["multi-source", "single-source"]>;
@@ -2019,6 +4728,30 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             earliestPublishedAt: z.ZodString;
             latestPublishedAt: z.ZodString;
             auditId: z.ZodString;
+            references: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                source: z.ZodString;
+                sourceDomain: z.ZodString;
+                tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+                url: z.ZodString;
+                title: z.ZodString;
+                publishedAt: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                title: string;
+                source: string;
+                sourceDomain: string;
+                url: string;
+                tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+                publishedAt: string;
+            }, {
+                title: string;
+                source: string;
+                sourceDomain: string;
+                url: string;
+                tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+                publishedAt: string;
+            }>, "many">>;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            gateStatus: z.ZodOptional<z.ZodEnum<["auto", "flagged", "hold"]>>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             clusterId: z.ZodString;
             topic: z.ZodString;
@@ -2028,28 +4761,31 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             verification: z.ZodEnum<["multi-source", "single-source"]>;
@@ -2078,6 +4814,30 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             earliestPublishedAt: z.ZodString;
             latestPublishedAt: z.ZodString;
             auditId: z.ZodString;
+            references: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                source: z.ZodString;
+                sourceDomain: z.ZodString;
+                tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+                url: z.ZodString;
+                title: z.ZodString;
+                publishedAt: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                title: string;
+                source: string;
+                sourceDomain: string;
+                url: string;
+                tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+                publishedAt: string;
+            }, {
+                title: string;
+                source: string;
+                sourceDomain: string;
+                url: string;
+                tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+                publishedAt: string;
+            }>, "many">>;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            gateStatus: z.ZodOptional<z.ZodEnum<["auto", "flagged", "hold"]>>;
         }, z.ZodTypeAny, "passthrough">>, "many">>;
         audit: z.ZodArray<z.ZodObject<{
             auditId: z.ZodString;
@@ -2088,28 +4848,31 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             computed: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             rationale: z.ZodString;
             weightProfile: z.ZodString;
             rankedAt: z.ZodString;
@@ -2121,12 +4884,15 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             inputs: Record<string, number>;
             computed: {
                 interaction: number;
+                corroboration: number;
                 credibility: number;
                 recency: number;
                 diversity: number;
-                corroboration: number;
                 total: number;
                 weights: Record<string, number>;
+                technicalSignificance?: number | undefined;
+            } & {
+                [k: string]: unknown;
             };
             rationale: string;
             weightProfile: string;
@@ -2139,12 +4905,15 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             inputs: Record<string, number>;
             computed: {
                 interaction: number;
+                corroboration: number;
                 credibility: number;
                 recency: number;
                 diversity: number;
-                corroboration: number;
                 total: number;
                 weights: Record<string, number>;
+                technicalSignificance?: number | undefined;
+            } & {
+                [k: string]: unknown;
             };
             rationale: string;
             weightProfile: string;
@@ -2162,28 +4931,31 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             verification: z.ZodEnum<["multi-source", "single-source"]>;
@@ -2212,6 +4984,30 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             earliestPublishedAt: z.ZodString;
             latestPublishedAt: z.ZodString;
             auditId: z.ZodString;
+            references: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                source: z.ZodString;
+                sourceDomain: z.ZodString;
+                tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+                url: z.ZodString;
+                title: z.ZodString;
+                publishedAt: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                title: string;
+                source: string;
+                sourceDomain: string;
+                url: string;
+                tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+                publishedAt: string;
+            }, {
+                title: string;
+                source: string;
+                sourceDomain: string;
+                url: string;
+                tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+                publishedAt: string;
+            }>, "many">>;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            gateStatus: z.ZodOptional<z.ZodEnum<["auto", "flagged", "hold"]>>;
         }, z.ZodTypeAny, "passthrough">[]>;
         audit: {
             topic: string;
@@ -2221,12 +5017,15 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             inputs: Record<string, number>;
             computed: {
                 interaction: number;
+                corroboration: number;
                 credibility: number;
                 recency: number;
                 diversity: number;
-                corroboration: number;
                 total: number;
                 weights: Record<string, number>;
+                technicalSignificance?: number | undefined;
+            } & {
+                [k: string]: unknown;
             };
             rationale: string;
             weightProfile: string;
@@ -2243,28 +5042,31 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             verification: z.ZodEnum<["multi-source", "single-source"]>;
@@ -2293,6 +5095,30 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             earliestPublishedAt: z.ZodString;
             latestPublishedAt: z.ZodString;
             auditId: z.ZodString;
+            references: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                source: z.ZodString;
+                sourceDomain: z.ZodString;
+                tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+                url: z.ZodString;
+                title: z.ZodString;
+                publishedAt: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                title: string;
+                source: string;
+                sourceDomain: string;
+                url: string;
+                tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+                publishedAt: string;
+            }, {
+                title: string;
+                source: string;
+                sourceDomain: string;
+                url: string;
+                tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+                publishedAt: string;
+            }>, "many">>;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            gateStatus: z.ZodOptional<z.ZodEnum<["auto", "flagged", "hold"]>>;
         }, z.ZodTypeAny, "passthrough">[]>;
         audit: {
             topic: string;
@@ -2302,12 +5128,15 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             inputs: Record<string, number>;
             computed: {
                 interaction: number;
+                corroboration: number;
                 credibility: number;
                 recency: number;
                 diversity: number;
-                corroboration: number;
                 total: number;
                 weights: Record<string, number>;
+                technicalSignificance?: number | undefined;
+            } & {
+                [k: string]: unknown;
             };
             rationale: string;
             weightProfile: string;
@@ -2377,28 +5206,31 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             verification: z.ZodEnum<["multi-source", "single-source"]>;
@@ -2427,6 +5259,30 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             earliestPublishedAt: z.ZodString;
             latestPublishedAt: z.ZodString;
             auditId: z.ZodString;
+            references: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                source: z.ZodString;
+                sourceDomain: z.ZodString;
+                tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+                url: z.ZodString;
+                title: z.ZodString;
+                publishedAt: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                title: string;
+                source: string;
+                sourceDomain: string;
+                url: string;
+                tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+                publishedAt: string;
+            }, {
+                title: string;
+                source: string;
+                sourceDomain: string;
+                url: string;
+                tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+                publishedAt: string;
+            }>, "many">>;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            gateStatus: z.ZodOptional<z.ZodEnum<["auto", "flagged", "hold"]>>;
         }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
             clusterId: z.ZodString;
             topic: z.ZodString;
@@ -2436,28 +5292,31 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             verification: z.ZodEnum<["multi-source", "single-source"]>;
@@ -2486,6 +5345,30 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             earliestPublishedAt: z.ZodString;
             latestPublishedAt: z.ZodString;
             auditId: z.ZodString;
+            references: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                source: z.ZodString;
+                sourceDomain: z.ZodString;
+                tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+                url: z.ZodString;
+                title: z.ZodString;
+                publishedAt: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                title: string;
+                source: string;
+                sourceDomain: string;
+                url: string;
+                tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+                publishedAt: string;
+            }, {
+                title: string;
+                source: string;
+                sourceDomain: string;
+                url: string;
+                tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+                publishedAt: string;
+            }>, "many">>;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            gateStatus: z.ZodOptional<z.ZodEnum<["auto", "flagged", "hold"]>>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             clusterId: z.ZodString;
             topic: z.ZodString;
@@ -2495,28 +5378,31 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             verification: z.ZodEnum<["multi-source", "single-source"]>;
@@ -2545,6 +5431,30 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             earliestPublishedAt: z.ZodString;
             latestPublishedAt: z.ZodString;
             auditId: z.ZodString;
+            references: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                source: z.ZodString;
+                sourceDomain: z.ZodString;
+                tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+                url: z.ZodString;
+                title: z.ZodString;
+                publishedAt: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                title: string;
+                source: string;
+                sourceDomain: string;
+                url: string;
+                tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+                publishedAt: string;
+            }, {
+                title: string;
+                source: string;
+                sourceDomain: string;
+                url: string;
+                tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+                publishedAt: string;
+            }>, "many">>;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            gateStatus: z.ZodOptional<z.ZodEnum<["auto", "flagged", "hold"]>>;
         }, z.ZodTypeAny, "passthrough">>, "many">>;
         audit: z.ZodArray<z.ZodObject<{
             auditId: z.ZodString;
@@ -2555,28 +5465,31 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             computed: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             rationale: z.ZodString;
             weightProfile: z.ZodString;
             rankedAt: z.ZodString;
@@ -2588,12 +5501,15 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             inputs: Record<string, number>;
             computed: {
                 interaction: number;
+                corroboration: number;
                 credibility: number;
                 recency: number;
                 diversity: number;
-                corroboration: number;
                 total: number;
                 weights: Record<string, number>;
+                technicalSignificance?: number | undefined;
+            } & {
+                [k: string]: unknown;
             };
             rationale: string;
             weightProfile: string;
@@ -2606,12 +5522,15 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             inputs: Record<string, number>;
             computed: {
                 interaction: number;
+                corroboration: number;
                 credibility: number;
                 recency: number;
                 diversity: number;
-                corroboration: number;
                 total: number;
                 weights: Record<string, number>;
+                technicalSignificance?: number | undefined;
+            } & {
+                [k: string]: unknown;
             };
             rationale: string;
             weightProfile: string;
@@ -2629,28 +5548,31 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             verification: z.ZodEnum<["multi-source", "single-source"]>;
@@ -2679,6 +5601,30 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             earliestPublishedAt: z.ZodString;
             latestPublishedAt: z.ZodString;
             auditId: z.ZodString;
+            references: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                source: z.ZodString;
+                sourceDomain: z.ZodString;
+                tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+                url: z.ZodString;
+                title: z.ZodString;
+                publishedAt: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                title: string;
+                source: string;
+                sourceDomain: string;
+                url: string;
+                tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+                publishedAt: string;
+            }, {
+                title: string;
+                source: string;
+                sourceDomain: string;
+                url: string;
+                tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+                publishedAt: string;
+            }>, "many">>;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            gateStatus: z.ZodOptional<z.ZodEnum<["auto", "flagged", "hold"]>>;
         }, z.ZodTypeAny, "passthrough">[]>;
         audit: {
             topic: string;
@@ -2688,12 +5634,15 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             inputs: Record<string, number>;
             computed: {
                 interaction: number;
+                corroboration: number;
                 credibility: number;
                 recency: number;
                 diversity: number;
-                corroboration: number;
                 total: number;
                 weights: Record<string, number>;
+                technicalSignificance?: number | undefined;
+            } & {
+                [k: string]: unknown;
             };
             rationale: string;
             weightProfile: string;
@@ -2710,28 +5659,31 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             verification: z.ZodEnum<["multi-source", "single-source"]>;
@@ -2760,6 +5712,30 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             earliestPublishedAt: z.ZodString;
             latestPublishedAt: z.ZodString;
             auditId: z.ZodString;
+            references: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                source: z.ZodString;
+                sourceDomain: z.ZodString;
+                tier: z.ZodEnum<["primary", "paper", "news", "technical-news", "security-news"]>;
+                url: z.ZodString;
+                title: z.ZodString;
+                publishedAt: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                title: string;
+                source: string;
+                sourceDomain: string;
+                url: string;
+                tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+                publishedAt: string;
+            }, {
+                title: string;
+                source: string;
+                sourceDomain: string;
+                url: string;
+                tier: "primary" | "paper" | "news" | "technical-news" | "security-news";
+                publishedAt: string;
+            }>, "many">>;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            gateStatus: z.ZodOptional<z.ZodEnum<["auto", "flagged", "hold"]>>;
         }, z.ZodTypeAny, "passthrough">[]>;
         audit: {
             topic: string;
@@ -2769,12 +5745,15 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             inputs: Record<string, number>;
             computed: {
                 interaction: number;
+                corroboration: number;
                 credibility: number;
                 recency: number;
                 diversity: number;
-                corroboration: number;
                 total: number;
                 weights: Record<string, number>;
+                technicalSignificance?: number | undefined;
+            } & {
+                [k: string]: unknown;
             };
             rationale: string;
             weightProfile: string;
@@ -2848,28 +5827,31 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             references: z.ZodArray<z.ZodObject<{
@@ -2905,6 +5887,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 movement: "new" | "up" | "down" | "same";
             }>;
             carriedOver: z.ZodBoolean;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -2914,28 +5897,31 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             references: z.ZodArray<z.ZodObject<{
@@ -2971,6 +5957,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 movement: "new" | "up" | "down" | "same";
             }>;
             carriedOver: z.ZodBoolean;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -2980,28 +5967,31 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             references: z.ZodArray<z.ZodObject<{
@@ -3037,6 +6027,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 movement: "new" | "up" | "down" | "same";
             }>;
             carriedOver: z.ZodBoolean;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, z.ZodTypeAny, "passthrough">>, "many">>;
         global: z.ZodArray<z.ZodObject<{
             rank: z.ZodNumber;
@@ -3047,28 +6038,31 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             references: z.ZodArray<z.ZodObject<{
@@ -3104,6 +6098,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 movement: "new" | "up" | "down" | "same";
             }>;
             carriedOver: z.ZodBoolean;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -3113,28 +6108,31 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             references: z.ZodArray<z.ZodObject<{
@@ -3170,6 +6168,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 movement: "new" | "up" | "down" | "same";
             }>;
             carriedOver: z.ZodBoolean;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -3179,28 +6178,31 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             references: z.ZodArray<z.ZodObject<{
@@ -3236,6 +6238,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 movement: "new" | "up" | "down" | "same";
             }>;
             carriedOver: z.ZodBoolean;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, z.ZodTypeAny, "passthrough">>, "many">;
         stability: z.ZodObject<{
             carriedOver: z.ZodNumber;
@@ -3262,28 +6265,31 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             references: z.ZodArray<z.ZodObject<{
@@ -3319,6 +6325,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 movement: "new" | "up" | "down" | "same";
             }>;
             carriedOver: z.ZodBoolean;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, z.ZodTypeAny, "passthrough">[]>;
         global: z.objectOutputType<{
             rank: z.ZodNumber;
@@ -3329,28 +6336,31 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             references: z.ZodArray<z.ZodObject<{
@@ -3386,6 +6396,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 movement: "new" | "up" | "down" | "same";
             }>;
             carriedOver: z.ZodBoolean;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, z.ZodTypeAny, "passthrough">[];
         stability: {
             carriedOver: number;
@@ -3404,28 +6415,31 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             references: z.ZodArray<z.ZodObject<{
@@ -3461,6 +6475,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 movement: "new" | "up" | "down" | "same";
             }>;
             carriedOver: z.ZodBoolean;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, z.ZodTypeAny, "passthrough">[]>;
         global: z.objectInputType<{
             rank: z.ZodNumber;
@@ -3471,28 +6486,31 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             references: z.ZodArray<z.ZodObject<{
@@ -3528,6 +6546,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 movement: "new" | "up" | "down" | "same";
             }>;
             carriedOver: z.ZodBoolean;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, z.ZodTypeAny, "passthrough">[];
         stability: {
             carriedOver: number;
@@ -3600,28 +6619,31 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             references: z.ZodArray<z.ZodObject<{
@@ -3657,6 +6679,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 movement: "new" | "up" | "down" | "same";
             }>;
             carriedOver: z.ZodBoolean;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -3666,28 +6689,31 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             references: z.ZodArray<z.ZodObject<{
@@ -3723,6 +6749,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 movement: "new" | "up" | "down" | "same";
             }>;
             carriedOver: z.ZodBoolean;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -3732,28 +6759,31 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             references: z.ZodArray<z.ZodObject<{
@@ -3789,6 +6819,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 movement: "new" | "up" | "down" | "same";
             }>;
             carriedOver: z.ZodBoolean;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, z.ZodTypeAny, "passthrough">>, "many">>;
         global: z.ZodArray<z.ZodObject<{
             rank: z.ZodNumber;
@@ -3799,28 +6830,31 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             references: z.ZodArray<z.ZodObject<{
@@ -3856,6 +6890,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 movement: "new" | "up" | "down" | "same";
             }>;
             carriedOver: z.ZodBoolean;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -3865,28 +6900,31 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             references: z.ZodArray<z.ZodObject<{
@@ -3922,6 +6960,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 movement: "new" | "up" | "down" | "same";
             }>;
             carriedOver: z.ZodBoolean;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -3931,28 +6970,31 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             references: z.ZodArray<z.ZodObject<{
@@ -3988,6 +7030,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 movement: "new" | "up" | "down" | "same";
             }>;
             carriedOver: z.ZodBoolean;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, z.ZodTypeAny, "passthrough">>, "many">;
         stability: z.ZodObject<{
             carriedOver: z.ZodNumber;
@@ -4014,28 +7057,31 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             references: z.ZodArray<z.ZodObject<{
@@ -4071,6 +7117,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 movement: "new" | "up" | "down" | "same";
             }>;
             carriedOver: z.ZodBoolean;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, z.ZodTypeAny, "passthrough">[]>;
         global: z.objectOutputType<{
             rank: z.ZodNumber;
@@ -4081,28 +7128,31 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             references: z.ZodArray<z.ZodObject<{
@@ -4138,6 +7188,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 movement: "new" | "up" | "down" | "same";
             }>;
             carriedOver: z.ZodBoolean;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, z.ZodTypeAny, "passthrough">[];
         stability: {
             carriedOver: number;
@@ -4156,28 +7207,31 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             references: z.ZodArray<z.ZodObject<{
@@ -4213,6 +7267,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 movement: "new" | "up" | "down" | "same";
             }>;
             carriedOver: z.ZodBoolean;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, z.ZodTypeAny, "passthrough">[]>;
         global: z.objectInputType<{
             rank: z.ZodNumber;
@@ -4223,28 +7278,31 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             references: z.ZodArray<z.ZodObject<{
@@ -4280,6 +7338,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 movement: "new" | "up" | "down" | "same";
             }>;
             carriedOver: z.ZodBoolean;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, z.ZodTypeAny, "passthrough">[];
         stability: {
             carriedOver: number;
@@ -4352,28 +7411,31 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             references: z.ZodArray<z.ZodObject<{
@@ -4409,6 +7471,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 movement: "new" | "up" | "down" | "same";
             }>;
             carriedOver: z.ZodBoolean;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -4418,28 +7481,31 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             references: z.ZodArray<z.ZodObject<{
@@ -4475,6 +7541,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 movement: "new" | "up" | "down" | "same";
             }>;
             carriedOver: z.ZodBoolean;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -4484,28 +7551,31 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             references: z.ZodArray<z.ZodObject<{
@@ -4541,6 +7611,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 movement: "new" | "up" | "down" | "same";
             }>;
             carriedOver: z.ZodBoolean;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, z.ZodTypeAny, "passthrough">>, "many">>;
         global: z.ZodArray<z.ZodObject<{
             rank: z.ZodNumber;
@@ -4551,28 +7622,31 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             references: z.ZodArray<z.ZodObject<{
@@ -4608,6 +7682,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 movement: "new" | "up" | "down" | "same";
             }>;
             carriedOver: z.ZodBoolean;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -4617,28 +7692,31 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             references: z.ZodArray<z.ZodObject<{
@@ -4674,6 +7752,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 movement: "new" | "up" | "down" | "same";
             }>;
             carriedOver: z.ZodBoolean;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -4683,28 +7762,31 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             references: z.ZodArray<z.ZodObject<{
@@ -4740,6 +7822,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 movement: "new" | "up" | "down" | "same";
             }>;
             carriedOver: z.ZodBoolean;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, z.ZodTypeAny, "passthrough">>, "many">;
         stability: z.ZodObject<{
             carriedOver: z.ZodNumber;
@@ -4766,28 +7849,31 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             references: z.ZodArray<z.ZodObject<{
@@ -4823,6 +7909,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 movement: "new" | "up" | "down" | "same";
             }>;
             carriedOver: z.ZodBoolean;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, z.ZodTypeAny, "passthrough">[]>;
         global: z.objectOutputType<{
             rank: z.ZodNumber;
@@ -4833,28 +7920,31 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             references: z.ZodArray<z.ZodObject<{
@@ -4890,6 +7980,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 movement: "new" | "up" | "down" | "same";
             }>;
             carriedOver: z.ZodBoolean;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, z.ZodTypeAny, "passthrough">[];
         stability: {
             carriedOver: number;
@@ -4908,28 +7999,31 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             references: z.ZodArray<z.ZodObject<{
@@ -4965,6 +8059,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 movement: "new" | "up" | "down" | "same";
             }>;
             carriedOver: z.ZodBoolean;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, z.ZodTypeAny, "passthrough">[]>;
         global: z.objectInputType<{
             rank: z.ZodNumber;
@@ -4975,28 +8070,31 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             score: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
-                corroboration: z.ZodNumber;
                 total: z.ZodNumber;
                 weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            }, "strip", z.ZodTypeAny, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }, {
-                interaction: number;
-                credibility: number;
-                recency: number;
-                diversity: number;
-                corroboration: number;
-                total: number;
-                weights: Record<string, number>;
-            }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                interaction: z.ZodNumber;
+                credibility: z.ZodNumber;
+                corroboration: z.ZodNumber;
+                technicalSignificance: z.ZodOptional<z.ZodNumber>;
+                recency: z.ZodNumber;
+                diversity: z.ZodNumber;
+                total: z.ZodNumber;
+                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             references: z.ZodArray<z.ZodObject<{
@@ -5032,6 +8130,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 movement: "new" | "up" | "down" | "same";
             }>;
             carriedOver: z.ZodBoolean;
+            sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, z.ZodTypeAny, "passthrough">[];
         stability: {
             carriedOver: number;
@@ -5041,6 +8140,674 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
     }>;
 }, z.ZodTypeAny, "passthrough">>;
 export type Top10ArtifactInput = z.input<typeof Top10ArtifactSchema>;
+export declare const MediaProvenanceSchema: z.ZodObject<{
+    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+    license: z.ZodOptional<z.ZodString>;
+    creator: z.ZodOptional<z.ZodString>;
+    sourceUrl: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    origin: "generated" | "openly-licensed";
+    sourceUrl?: string | undefined;
+    license?: string | undefined;
+    creator?: string | undefined;
+}, {
+    origin: "generated" | "openly-licensed";
+    sourceUrl?: string | undefined;
+    license?: string | undefined;
+    creator?: string | undefined;
+}>;
+export type MediaProvenanceInput = z.input<typeof MediaProvenanceSchema>;
+export declare const TextBlockSchema: z.ZodObject<{
+    type: z.ZodEnum<["paragraph", "heading", "list", "quote", "callout"]>;
+    text: z.ZodOptional<z.ZodString>;
+    items: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    attribution: z.ZodOptional<z.ZodObject<{
+        source: z.ZodString;
+        url: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        source: string;
+        url: string;
+    }, {
+        source: string;
+        url: string;
+    }>>;
+}, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+    type: z.ZodEnum<["paragraph", "heading", "list", "quote", "callout"]>;
+    text: z.ZodOptional<z.ZodString>;
+    items: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    attribution: z.ZodOptional<z.ZodObject<{
+        source: z.ZodString;
+        url: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        source: string;
+        url: string;
+    }, {
+        source: string;
+        url: string;
+    }>>;
+}, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+    type: z.ZodEnum<["paragraph", "heading", "list", "quote", "callout"]>;
+    text: z.ZodOptional<z.ZodString>;
+    items: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    attribution: z.ZodOptional<z.ZodObject<{
+        source: z.ZodString;
+        url: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        source: string;
+        url: string;
+    }, {
+        source: string;
+        url: string;
+    }>>;
+}, z.ZodTypeAny, "passthrough">>;
+export declare const ChartBlockSchema: z.ZodObject<{
+    type: z.ZodLiteral<"chart">;
+    chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+    title: z.ZodString;
+    series: z.ZodArray<z.ZodObject<{
+        label: z.ZodString;
+        value: z.ZodNumber;
+        unit: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        value: number;
+        label: string;
+        unit?: string | undefined;
+    }, {
+        value: number;
+        label: string;
+        unit?: string | undefined;
+    }>, "many">;
+    factIds: z.ZodArray<z.ZodString, "many">;
+    caption: z.ZodOptional<z.ZodString>;
+    attribution: z.ZodObject<{
+        sources: z.ZodArray<z.ZodObject<{
+            source: z.ZodString;
+            url: z.ZodString;
+        }, "strip", z.ZodTypeAny, {
+            source: string;
+            url: string;
+        }, {
+            source: string;
+            url: string;
+        }>, "many">;
+    }, "strip", z.ZodTypeAny, {
+        sources: {
+            source: string;
+            url: string;
+        }[];
+    }, {
+        sources: {
+            source: string;
+            url: string;
+        }[];
+    }>;
+}, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+    type: z.ZodLiteral<"chart">;
+    chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+    title: z.ZodString;
+    series: z.ZodArray<z.ZodObject<{
+        label: z.ZodString;
+        value: z.ZodNumber;
+        unit: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        value: number;
+        label: string;
+        unit?: string | undefined;
+    }, {
+        value: number;
+        label: string;
+        unit?: string | undefined;
+    }>, "many">;
+    factIds: z.ZodArray<z.ZodString, "many">;
+    caption: z.ZodOptional<z.ZodString>;
+    attribution: z.ZodObject<{
+        sources: z.ZodArray<z.ZodObject<{
+            source: z.ZodString;
+            url: z.ZodString;
+        }, "strip", z.ZodTypeAny, {
+            source: string;
+            url: string;
+        }, {
+            source: string;
+            url: string;
+        }>, "many">;
+    }, "strip", z.ZodTypeAny, {
+        sources: {
+            source: string;
+            url: string;
+        }[];
+    }, {
+        sources: {
+            source: string;
+            url: string;
+        }[];
+    }>;
+}, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+    type: z.ZodLiteral<"chart">;
+    chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+    title: z.ZodString;
+    series: z.ZodArray<z.ZodObject<{
+        label: z.ZodString;
+        value: z.ZodNumber;
+        unit: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        value: number;
+        label: string;
+        unit?: string | undefined;
+    }, {
+        value: number;
+        label: string;
+        unit?: string | undefined;
+    }>, "many">;
+    factIds: z.ZodArray<z.ZodString, "many">;
+    caption: z.ZodOptional<z.ZodString>;
+    attribution: z.ZodObject<{
+        sources: z.ZodArray<z.ZodObject<{
+            source: z.ZodString;
+            url: z.ZodString;
+        }, "strip", z.ZodTypeAny, {
+            source: string;
+            url: string;
+        }, {
+            source: string;
+            url: string;
+        }>, "many">;
+    }, "strip", z.ZodTypeAny, {
+        sources: {
+            source: string;
+            url: string;
+        }[];
+    }, {
+        sources: {
+            source: string;
+            url: string;
+        }[];
+    }>;
+}, z.ZodTypeAny, "passthrough">>;
+export declare const ImageBlockSchema: z.ZodObject<{
+    type: z.ZodLiteral<"image">;
+    src: z.ZodString;
+    alt: z.ZodString;
+    caption: z.ZodOptional<z.ZodString>;
+    media: z.ZodObject<{
+        origin: z.ZodEnum<["generated", "openly-licensed"]>;
+        license: z.ZodOptional<z.ZodString>;
+        creator: z.ZodOptional<z.ZodString>;
+        sourceUrl: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        origin: "generated" | "openly-licensed";
+        sourceUrl?: string | undefined;
+        license?: string | undefined;
+        creator?: string | undefined;
+    }, {
+        origin: "generated" | "openly-licensed";
+        sourceUrl?: string | undefined;
+        license?: string | undefined;
+        creator?: string | undefined;
+    }>;
+}, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+    type: z.ZodLiteral<"image">;
+    src: z.ZodString;
+    alt: z.ZodString;
+    caption: z.ZodOptional<z.ZodString>;
+    media: z.ZodObject<{
+        origin: z.ZodEnum<["generated", "openly-licensed"]>;
+        license: z.ZodOptional<z.ZodString>;
+        creator: z.ZodOptional<z.ZodString>;
+        sourceUrl: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        origin: "generated" | "openly-licensed";
+        sourceUrl?: string | undefined;
+        license?: string | undefined;
+        creator?: string | undefined;
+    }, {
+        origin: "generated" | "openly-licensed";
+        sourceUrl?: string | undefined;
+        license?: string | undefined;
+        creator?: string | undefined;
+    }>;
+}, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+    type: z.ZodLiteral<"image">;
+    src: z.ZodString;
+    alt: z.ZodString;
+    caption: z.ZodOptional<z.ZodString>;
+    media: z.ZodObject<{
+        origin: z.ZodEnum<["generated", "openly-licensed"]>;
+        license: z.ZodOptional<z.ZodString>;
+        creator: z.ZodOptional<z.ZodString>;
+        sourceUrl: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        origin: "generated" | "openly-licensed";
+        sourceUrl?: string | undefined;
+        license?: string | undefined;
+        creator?: string | undefined;
+    }, {
+        origin: "generated" | "openly-licensed";
+        sourceUrl?: string | undefined;
+        license?: string | undefined;
+        creator?: string | undefined;
+    }>;
+}, z.ZodTypeAny, "passthrough">>;
+export declare const GifBlockSchema: z.ZodObject<{
+    type: z.ZodLiteral<"gif">;
+    src: z.ZodString;
+    alt: z.ZodString;
+    poster: z.ZodOptional<z.ZodString>;
+    media: z.ZodObject<{
+        origin: z.ZodEnum<["generated", "openly-licensed"]>;
+        license: z.ZodOptional<z.ZodString>;
+        creator: z.ZodOptional<z.ZodString>;
+        sourceUrl: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        origin: "generated" | "openly-licensed";
+        sourceUrl?: string | undefined;
+        license?: string | undefined;
+        creator?: string | undefined;
+    }, {
+        origin: "generated" | "openly-licensed";
+        sourceUrl?: string | undefined;
+        license?: string | undefined;
+        creator?: string | undefined;
+    }>;
+}, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+    type: z.ZodLiteral<"gif">;
+    src: z.ZodString;
+    alt: z.ZodString;
+    poster: z.ZodOptional<z.ZodString>;
+    media: z.ZodObject<{
+        origin: z.ZodEnum<["generated", "openly-licensed"]>;
+        license: z.ZodOptional<z.ZodString>;
+        creator: z.ZodOptional<z.ZodString>;
+        sourceUrl: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        origin: "generated" | "openly-licensed";
+        sourceUrl?: string | undefined;
+        license?: string | undefined;
+        creator?: string | undefined;
+    }, {
+        origin: "generated" | "openly-licensed";
+        sourceUrl?: string | undefined;
+        license?: string | undefined;
+        creator?: string | undefined;
+    }>;
+}, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+    type: z.ZodLiteral<"gif">;
+    src: z.ZodString;
+    alt: z.ZodString;
+    poster: z.ZodOptional<z.ZodString>;
+    media: z.ZodObject<{
+        origin: z.ZodEnum<["generated", "openly-licensed"]>;
+        license: z.ZodOptional<z.ZodString>;
+        creator: z.ZodOptional<z.ZodString>;
+        sourceUrl: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        origin: "generated" | "openly-licensed";
+        sourceUrl?: string | undefined;
+        license?: string | undefined;
+        creator?: string | undefined;
+    }, {
+        origin: "generated" | "openly-licensed";
+        sourceUrl?: string | undefined;
+        license?: string | undefined;
+        creator?: string | undefined;
+    }>;
+}, z.ZodTypeAny, "passthrough">>;
+export declare const EmbedBlockSchema: z.ZodObject<{
+    type: z.ZodLiteral<"embed">;
+    provider: z.ZodString;
+    url: z.ZodString;
+    title: z.ZodOptional<z.ZodString>;
+}, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+    type: z.ZodLiteral<"embed">;
+    provider: z.ZodString;
+    url: z.ZodString;
+    title: z.ZodOptional<z.ZodString>;
+}, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+    type: z.ZodLiteral<"embed">;
+    provider: z.ZodString;
+    url: z.ZodString;
+    title: z.ZodOptional<z.ZodString>;
+}, z.ZodTypeAny, "passthrough">>;
+/**
+ * ArticleBlock union — tries each specific variant in order; unknown types fall
+ * through to the catch-all so they are preserved rather than rejected.
+ */
+export declare const ArticleBlockSchema: z.ZodUnion<[z.ZodObject<{
+    type: z.ZodEnum<["paragraph", "heading", "list", "quote", "callout"]>;
+    text: z.ZodOptional<z.ZodString>;
+    items: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    attribution: z.ZodOptional<z.ZodObject<{
+        source: z.ZodString;
+        url: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        source: string;
+        url: string;
+    }, {
+        source: string;
+        url: string;
+    }>>;
+}, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+    type: z.ZodEnum<["paragraph", "heading", "list", "quote", "callout"]>;
+    text: z.ZodOptional<z.ZodString>;
+    items: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    attribution: z.ZodOptional<z.ZodObject<{
+        source: z.ZodString;
+        url: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        source: string;
+        url: string;
+    }, {
+        source: string;
+        url: string;
+    }>>;
+}, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+    type: z.ZodEnum<["paragraph", "heading", "list", "quote", "callout"]>;
+    text: z.ZodOptional<z.ZodString>;
+    items: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    attribution: z.ZodOptional<z.ZodObject<{
+        source: z.ZodString;
+        url: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        source: string;
+        url: string;
+    }, {
+        source: string;
+        url: string;
+    }>>;
+}, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+    type: z.ZodLiteral<"chart">;
+    chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+    title: z.ZodString;
+    series: z.ZodArray<z.ZodObject<{
+        label: z.ZodString;
+        value: z.ZodNumber;
+        unit: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        value: number;
+        label: string;
+        unit?: string | undefined;
+    }, {
+        value: number;
+        label: string;
+        unit?: string | undefined;
+    }>, "many">;
+    factIds: z.ZodArray<z.ZodString, "many">;
+    caption: z.ZodOptional<z.ZodString>;
+    attribution: z.ZodObject<{
+        sources: z.ZodArray<z.ZodObject<{
+            source: z.ZodString;
+            url: z.ZodString;
+        }, "strip", z.ZodTypeAny, {
+            source: string;
+            url: string;
+        }, {
+            source: string;
+            url: string;
+        }>, "many">;
+    }, "strip", z.ZodTypeAny, {
+        sources: {
+            source: string;
+            url: string;
+        }[];
+    }, {
+        sources: {
+            source: string;
+            url: string;
+        }[];
+    }>;
+}, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+    type: z.ZodLiteral<"chart">;
+    chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+    title: z.ZodString;
+    series: z.ZodArray<z.ZodObject<{
+        label: z.ZodString;
+        value: z.ZodNumber;
+        unit: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        value: number;
+        label: string;
+        unit?: string | undefined;
+    }, {
+        value: number;
+        label: string;
+        unit?: string | undefined;
+    }>, "many">;
+    factIds: z.ZodArray<z.ZodString, "many">;
+    caption: z.ZodOptional<z.ZodString>;
+    attribution: z.ZodObject<{
+        sources: z.ZodArray<z.ZodObject<{
+            source: z.ZodString;
+            url: z.ZodString;
+        }, "strip", z.ZodTypeAny, {
+            source: string;
+            url: string;
+        }, {
+            source: string;
+            url: string;
+        }>, "many">;
+    }, "strip", z.ZodTypeAny, {
+        sources: {
+            source: string;
+            url: string;
+        }[];
+    }, {
+        sources: {
+            source: string;
+            url: string;
+        }[];
+    }>;
+}, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+    type: z.ZodLiteral<"chart">;
+    chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+    title: z.ZodString;
+    series: z.ZodArray<z.ZodObject<{
+        label: z.ZodString;
+        value: z.ZodNumber;
+        unit: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        value: number;
+        label: string;
+        unit?: string | undefined;
+    }, {
+        value: number;
+        label: string;
+        unit?: string | undefined;
+    }>, "many">;
+    factIds: z.ZodArray<z.ZodString, "many">;
+    caption: z.ZodOptional<z.ZodString>;
+    attribution: z.ZodObject<{
+        sources: z.ZodArray<z.ZodObject<{
+            source: z.ZodString;
+            url: z.ZodString;
+        }, "strip", z.ZodTypeAny, {
+            source: string;
+            url: string;
+        }, {
+            source: string;
+            url: string;
+        }>, "many">;
+    }, "strip", z.ZodTypeAny, {
+        sources: {
+            source: string;
+            url: string;
+        }[];
+    }, {
+        sources: {
+            source: string;
+            url: string;
+        }[];
+    }>;
+}, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+    type: z.ZodLiteral<"image">;
+    src: z.ZodString;
+    alt: z.ZodString;
+    caption: z.ZodOptional<z.ZodString>;
+    media: z.ZodObject<{
+        origin: z.ZodEnum<["generated", "openly-licensed"]>;
+        license: z.ZodOptional<z.ZodString>;
+        creator: z.ZodOptional<z.ZodString>;
+        sourceUrl: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        origin: "generated" | "openly-licensed";
+        sourceUrl?: string | undefined;
+        license?: string | undefined;
+        creator?: string | undefined;
+    }, {
+        origin: "generated" | "openly-licensed";
+        sourceUrl?: string | undefined;
+        license?: string | undefined;
+        creator?: string | undefined;
+    }>;
+}, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+    type: z.ZodLiteral<"image">;
+    src: z.ZodString;
+    alt: z.ZodString;
+    caption: z.ZodOptional<z.ZodString>;
+    media: z.ZodObject<{
+        origin: z.ZodEnum<["generated", "openly-licensed"]>;
+        license: z.ZodOptional<z.ZodString>;
+        creator: z.ZodOptional<z.ZodString>;
+        sourceUrl: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        origin: "generated" | "openly-licensed";
+        sourceUrl?: string | undefined;
+        license?: string | undefined;
+        creator?: string | undefined;
+    }, {
+        origin: "generated" | "openly-licensed";
+        sourceUrl?: string | undefined;
+        license?: string | undefined;
+        creator?: string | undefined;
+    }>;
+}, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+    type: z.ZodLiteral<"image">;
+    src: z.ZodString;
+    alt: z.ZodString;
+    caption: z.ZodOptional<z.ZodString>;
+    media: z.ZodObject<{
+        origin: z.ZodEnum<["generated", "openly-licensed"]>;
+        license: z.ZodOptional<z.ZodString>;
+        creator: z.ZodOptional<z.ZodString>;
+        sourceUrl: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        origin: "generated" | "openly-licensed";
+        sourceUrl?: string | undefined;
+        license?: string | undefined;
+        creator?: string | undefined;
+    }, {
+        origin: "generated" | "openly-licensed";
+        sourceUrl?: string | undefined;
+        license?: string | undefined;
+        creator?: string | undefined;
+    }>;
+}, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+    type: z.ZodLiteral<"gif">;
+    src: z.ZodString;
+    alt: z.ZodString;
+    poster: z.ZodOptional<z.ZodString>;
+    media: z.ZodObject<{
+        origin: z.ZodEnum<["generated", "openly-licensed"]>;
+        license: z.ZodOptional<z.ZodString>;
+        creator: z.ZodOptional<z.ZodString>;
+        sourceUrl: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        origin: "generated" | "openly-licensed";
+        sourceUrl?: string | undefined;
+        license?: string | undefined;
+        creator?: string | undefined;
+    }, {
+        origin: "generated" | "openly-licensed";
+        sourceUrl?: string | undefined;
+        license?: string | undefined;
+        creator?: string | undefined;
+    }>;
+}, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+    type: z.ZodLiteral<"gif">;
+    src: z.ZodString;
+    alt: z.ZodString;
+    poster: z.ZodOptional<z.ZodString>;
+    media: z.ZodObject<{
+        origin: z.ZodEnum<["generated", "openly-licensed"]>;
+        license: z.ZodOptional<z.ZodString>;
+        creator: z.ZodOptional<z.ZodString>;
+        sourceUrl: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        origin: "generated" | "openly-licensed";
+        sourceUrl?: string | undefined;
+        license?: string | undefined;
+        creator?: string | undefined;
+    }, {
+        origin: "generated" | "openly-licensed";
+        sourceUrl?: string | undefined;
+        license?: string | undefined;
+        creator?: string | undefined;
+    }>;
+}, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+    type: z.ZodLiteral<"gif">;
+    src: z.ZodString;
+    alt: z.ZodString;
+    poster: z.ZodOptional<z.ZodString>;
+    media: z.ZodObject<{
+        origin: z.ZodEnum<["generated", "openly-licensed"]>;
+        license: z.ZodOptional<z.ZodString>;
+        creator: z.ZodOptional<z.ZodString>;
+        sourceUrl: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        origin: "generated" | "openly-licensed";
+        sourceUrl?: string | undefined;
+        license?: string | undefined;
+        creator?: string | undefined;
+    }, {
+        origin: "generated" | "openly-licensed";
+        sourceUrl?: string | undefined;
+        license?: string | undefined;
+        creator?: string | undefined;
+    }>;
+}, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+    type: z.ZodLiteral<"embed">;
+    provider: z.ZodString;
+    url: z.ZodString;
+    title: z.ZodOptional<z.ZodString>;
+}, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+    type: z.ZodLiteral<"embed">;
+    provider: z.ZodString;
+    url: z.ZodString;
+    title: z.ZodOptional<z.ZodString>;
+}, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+    type: z.ZodLiteral<"embed">;
+    provider: z.ZodString;
+    url: z.ZodString;
+    title: z.ZodOptional<z.ZodString>;
+}, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+    type: z.ZodString;
+}, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+    type: z.ZodString;
+}, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+    type: z.ZodString;
+}, z.ZodTypeAny, "passthrough">>]>;
+export declare const ClaimProvenanceSchema: z.ZodObject<{
+    blockIndex: z.ZodNumber;
+    text: z.ZodString;
+    isEditorial: z.ZodBoolean;
+    factIds: z.ZodArray<z.ZodString, "many">;
+    corroboration: z.ZodNumber;
+    confidence: z.ZodEnum<["high", "medium", "low"]>;
+}, "strip", z.ZodTypeAny, {
+    corroboration: number;
+    confidence: "high" | "medium" | "low";
+    text: string;
+    factIds: string[];
+    blockIndex: number;
+    isEditorial: boolean;
+}, {
+    corroboration: number;
+    confidence: "high" | "medium" | "low";
+    text: string;
+    factIds: string[];
+    blockIndex: number;
+    isEditorial: boolean;
+}>;
+export type ClaimProvenanceInput = z.input<typeof ClaimProvenanceSchema>;
 export declare const ArticleArtifactSchema: z.ZodObject<{
     schemaVersion: z.ZodLiteral<"ardur-content-pipeline/v1">;
     contractRevision: z.ZodOptional<z.ZodNumber>;
@@ -5102,7 +8869,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
             topicLabel: z.ZodString;
             headline: z.ZodString;
             dek: z.ZodString;
-            body: z.ZodArray<z.ZodObject<{
+            body: z.ZodArray<z.ZodUnion<[z.ZodObject<{
                 type: z.ZodEnum<["paragraph", "heading", "list", "quote", "callout"]>;
                 text: z.ZodOptional<z.ZodString>;
                 items: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
@@ -5144,7 +8911,277 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                     source: string;
                     url: string;
                 }>>;
-            }, z.ZodTypeAny, "passthrough">>, "many">;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodString;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodString;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodString;
+            }, z.ZodTypeAny, "passthrough">>]>, "many">;
             keyPoints: z.ZodArray<z.ZodString, "many">;
             whyItMatters: z.ZodString;
             readerAction: z.ZodString;
@@ -5212,6 +9249,143 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
             wordCount: z.ZodNumber;
             readingTimeMinutes: z.ZodNumber;
             generatedAt: z.ZodString;
+            editorialStatus: z.ZodOptional<z.ZodEnum<["published", "held", "draft"]>>;
+            facts: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                id: z.ZodString;
+                topic: z.ZodString;
+                clusterId: z.ZodString;
+                statement: z.ZodString;
+                quantity: z.ZodOptional<z.ZodObject<{
+                    metric: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                    asOf: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                }, {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                }>>;
+                entities: z.ZodArray<z.ZodString, "many">;
+                provenance: z.ZodArray<z.ZodObject<{
+                    sourceDocId: z.ZodString;
+                    sourceDomain: z.ZodString;
+                    url: z.ZodString;
+                    quote: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }, {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }>, "many">;
+                corroboration: z.ZodNumber;
+                confidence: z.ZodEnum<["high", "medium", "low"]>;
+                extractedBy: z.ZodObject<{
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    model: z.ZodString;
+                    status: z.ZodEnum<["generated", "fallback"]>;
+                    reason: z.ZodOptional<z.ZodString>;
+                    generatedAt: z.ZodString;
+                }, "strip", z.ZodTypeAny, {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                }, {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                }>;
+            }, "strip", z.ZodTypeAny, {
+                id: string;
+                provenance: {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }[];
+                topic: string;
+                clusterId: string;
+                statement: string;
+                entities: string[];
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                extractedBy: {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                };
+                quantity?: {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                } | undefined;
+            }, {
+                id: string;
+                provenance: {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }[];
+                topic: string;
+                clusterId: string;
+                statement: string;
+                entities: string[];
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                extractedBy: {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                };
+                quantity?: {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                } | undefined;
+            }>, "many">>;
+            claims: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                blockIndex: z.ZodNumber;
+                text: z.ZodString;
+                isEditorial: z.ZodBoolean;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                corroboration: z.ZodNumber;
+                confidence: z.ZodEnum<["high", "medium", "low"]>;
+            }, "strip", z.ZodTypeAny, {
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                text: string;
+                factIds: string[];
+                blockIndex: number;
+                isEditorial: boolean;
+            }, {
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                text: string;
+                factIds: string[];
+                blockIndex: number;
+                isEditorial: boolean;
+            }>, "many">>;
         }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
             id: z.ZodString;
             rank: z.ZodNumber;
@@ -5219,7 +9393,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
             topicLabel: z.ZodString;
             headline: z.ZodString;
             dek: z.ZodString;
-            body: z.ZodArray<z.ZodObject<{
+            body: z.ZodArray<z.ZodUnion<[z.ZodObject<{
                 type: z.ZodEnum<["paragraph", "heading", "list", "quote", "callout"]>;
                 text: z.ZodOptional<z.ZodString>;
                 items: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
@@ -5261,7 +9435,277 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                     source: string;
                     url: string;
                 }>>;
-            }, z.ZodTypeAny, "passthrough">>, "many">;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodString;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodString;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodString;
+            }, z.ZodTypeAny, "passthrough">>]>, "many">;
             keyPoints: z.ZodArray<z.ZodString, "many">;
             whyItMatters: z.ZodString;
             readerAction: z.ZodString;
@@ -5329,6 +9773,143 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
             wordCount: z.ZodNumber;
             readingTimeMinutes: z.ZodNumber;
             generatedAt: z.ZodString;
+            editorialStatus: z.ZodOptional<z.ZodEnum<["published", "held", "draft"]>>;
+            facts: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                id: z.ZodString;
+                topic: z.ZodString;
+                clusterId: z.ZodString;
+                statement: z.ZodString;
+                quantity: z.ZodOptional<z.ZodObject<{
+                    metric: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                    asOf: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                }, {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                }>>;
+                entities: z.ZodArray<z.ZodString, "many">;
+                provenance: z.ZodArray<z.ZodObject<{
+                    sourceDocId: z.ZodString;
+                    sourceDomain: z.ZodString;
+                    url: z.ZodString;
+                    quote: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }, {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }>, "many">;
+                corroboration: z.ZodNumber;
+                confidence: z.ZodEnum<["high", "medium", "low"]>;
+                extractedBy: z.ZodObject<{
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    model: z.ZodString;
+                    status: z.ZodEnum<["generated", "fallback"]>;
+                    reason: z.ZodOptional<z.ZodString>;
+                    generatedAt: z.ZodString;
+                }, "strip", z.ZodTypeAny, {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                }, {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                }>;
+            }, "strip", z.ZodTypeAny, {
+                id: string;
+                provenance: {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }[];
+                topic: string;
+                clusterId: string;
+                statement: string;
+                entities: string[];
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                extractedBy: {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                };
+                quantity?: {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                } | undefined;
+            }, {
+                id: string;
+                provenance: {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }[];
+                topic: string;
+                clusterId: string;
+                statement: string;
+                entities: string[];
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                extractedBy: {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                };
+                quantity?: {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                } | undefined;
+            }>, "many">>;
+            claims: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                blockIndex: z.ZodNumber;
+                text: z.ZodString;
+                isEditorial: z.ZodBoolean;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                corroboration: z.ZodNumber;
+                confidence: z.ZodEnum<["high", "medium", "low"]>;
+            }, "strip", z.ZodTypeAny, {
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                text: string;
+                factIds: string[];
+                blockIndex: number;
+                isEditorial: boolean;
+            }, {
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                text: string;
+                factIds: string[];
+                blockIndex: number;
+                isEditorial: boolean;
+            }>, "many">>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             id: z.ZodString;
             rank: z.ZodNumber;
@@ -5336,7 +9917,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
             topicLabel: z.ZodString;
             headline: z.ZodString;
             dek: z.ZodString;
-            body: z.ZodArray<z.ZodObject<{
+            body: z.ZodArray<z.ZodUnion<[z.ZodObject<{
                 type: z.ZodEnum<["paragraph", "heading", "list", "quote", "callout"]>;
                 text: z.ZodOptional<z.ZodString>;
                 items: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
@@ -5378,7 +9959,277 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                     source: string;
                     url: string;
                 }>>;
-            }, z.ZodTypeAny, "passthrough">>, "many">;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodString;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodString;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodString;
+            }, z.ZodTypeAny, "passthrough">>]>, "many">;
             keyPoints: z.ZodArray<z.ZodString, "many">;
             whyItMatters: z.ZodString;
             readerAction: z.ZodString;
@@ -5446,6 +10297,143 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
             wordCount: z.ZodNumber;
             readingTimeMinutes: z.ZodNumber;
             generatedAt: z.ZodString;
+            editorialStatus: z.ZodOptional<z.ZodEnum<["published", "held", "draft"]>>;
+            facts: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                id: z.ZodString;
+                topic: z.ZodString;
+                clusterId: z.ZodString;
+                statement: z.ZodString;
+                quantity: z.ZodOptional<z.ZodObject<{
+                    metric: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                    asOf: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                }, {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                }>>;
+                entities: z.ZodArray<z.ZodString, "many">;
+                provenance: z.ZodArray<z.ZodObject<{
+                    sourceDocId: z.ZodString;
+                    sourceDomain: z.ZodString;
+                    url: z.ZodString;
+                    quote: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }, {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }>, "many">;
+                corroboration: z.ZodNumber;
+                confidence: z.ZodEnum<["high", "medium", "low"]>;
+                extractedBy: z.ZodObject<{
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    model: z.ZodString;
+                    status: z.ZodEnum<["generated", "fallback"]>;
+                    reason: z.ZodOptional<z.ZodString>;
+                    generatedAt: z.ZodString;
+                }, "strip", z.ZodTypeAny, {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                }, {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                }>;
+            }, "strip", z.ZodTypeAny, {
+                id: string;
+                provenance: {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }[];
+                topic: string;
+                clusterId: string;
+                statement: string;
+                entities: string[];
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                extractedBy: {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                };
+                quantity?: {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                } | undefined;
+            }, {
+                id: string;
+                provenance: {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }[];
+                topic: string;
+                clusterId: string;
+                statement: string;
+                entities: string[];
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                extractedBy: {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                };
+                quantity?: {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                } | undefined;
+            }>, "many">>;
+            claims: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                blockIndex: z.ZodNumber;
+                text: z.ZodString;
+                isEditorial: z.ZodBoolean;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                corroboration: z.ZodNumber;
+                confidence: z.ZodEnum<["high", "medium", "low"]>;
+            }, "strip", z.ZodTypeAny, {
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                text: string;
+                factIds: string[];
+                blockIndex: number;
+                isEditorial: boolean;
+            }, {
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                text: string;
+                factIds: string[];
+                blockIndex: number;
+                isEditorial: boolean;
+            }>, "many">>;
         }, z.ZodTypeAny, "passthrough">>, "many">;
         copyrightPolicy: z.ZodObject<{
             originalTextOnly: z.ZodLiteral<true>;
@@ -5474,7 +10462,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
             topicLabel: z.ZodString;
             headline: z.ZodString;
             dek: z.ZodString;
-            body: z.ZodArray<z.ZodObject<{
+            body: z.ZodArray<z.ZodUnion<[z.ZodObject<{
                 type: z.ZodEnum<["paragraph", "heading", "list", "quote", "callout"]>;
                 text: z.ZodOptional<z.ZodString>;
                 items: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
@@ -5516,7 +10504,277 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                     source: string;
                     url: string;
                 }>>;
-            }, z.ZodTypeAny, "passthrough">>, "many">;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodString;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodString;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodString;
+            }, z.ZodTypeAny, "passthrough">>]>, "many">;
             keyPoints: z.ZodArray<z.ZodString, "many">;
             whyItMatters: z.ZodString;
             readerAction: z.ZodString;
@@ -5584,6 +10842,143 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
             wordCount: z.ZodNumber;
             readingTimeMinutes: z.ZodNumber;
             generatedAt: z.ZodString;
+            editorialStatus: z.ZodOptional<z.ZodEnum<["published", "held", "draft"]>>;
+            facts: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                id: z.ZodString;
+                topic: z.ZodString;
+                clusterId: z.ZodString;
+                statement: z.ZodString;
+                quantity: z.ZodOptional<z.ZodObject<{
+                    metric: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                    asOf: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                }, {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                }>>;
+                entities: z.ZodArray<z.ZodString, "many">;
+                provenance: z.ZodArray<z.ZodObject<{
+                    sourceDocId: z.ZodString;
+                    sourceDomain: z.ZodString;
+                    url: z.ZodString;
+                    quote: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }, {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }>, "many">;
+                corroboration: z.ZodNumber;
+                confidence: z.ZodEnum<["high", "medium", "low"]>;
+                extractedBy: z.ZodObject<{
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    model: z.ZodString;
+                    status: z.ZodEnum<["generated", "fallback"]>;
+                    reason: z.ZodOptional<z.ZodString>;
+                    generatedAt: z.ZodString;
+                }, "strip", z.ZodTypeAny, {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                }, {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                }>;
+            }, "strip", z.ZodTypeAny, {
+                id: string;
+                provenance: {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }[];
+                topic: string;
+                clusterId: string;
+                statement: string;
+                entities: string[];
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                extractedBy: {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                };
+                quantity?: {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                } | undefined;
+            }, {
+                id: string;
+                provenance: {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }[];
+                topic: string;
+                clusterId: string;
+                statement: string;
+                entities: string[];
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                extractedBy: {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                };
+                quantity?: {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                } | undefined;
+            }>, "many">>;
+            claims: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                blockIndex: z.ZodNumber;
+                text: z.ZodString;
+                isEditorial: z.ZodBoolean;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                corroboration: z.ZodNumber;
+                confidence: z.ZodEnum<["high", "medium", "low"]>;
+            }, "strip", z.ZodTypeAny, {
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                text: string;
+                factIds: string[];
+                blockIndex: number;
+                isEditorial: boolean;
+            }, {
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                text: string;
+                factIds: string[];
+                blockIndex: number;
+                isEditorial: boolean;
+            }>, "many">>;
         }, z.ZodTypeAny, "passthrough">[];
         copyrightPolicy: {
             originalTextOnly: true;
@@ -5600,7 +10995,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
             topicLabel: z.ZodString;
             headline: z.ZodString;
             dek: z.ZodString;
-            body: z.ZodArray<z.ZodObject<{
+            body: z.ZodArray<z.ZodUnion<[z.ZodObject<{
                 type: z.ZodEnum<["paragraph", "heading", "list", "quote", "callout"]>;
                 text: z.ZodOptional<z.ZodString>;
                 items: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
@@ -5642,7 +11037,277 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                     source: string;
                     url: string;
                 }>>;
-            }, z.ZodTypeAny, "passthrough">>, "many">;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodString;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodString;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodString;
+            }, z.ZodTypeAny, "passthrough">>]>, "many">;
             keyPoints: z.ZodArray<z.ZodString, "many">;
             whyItMatters: z.ZodString;
             readerAction: z.ZodString;
@@ -5710,6 +11375,143 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
             wordCount: z.ZodNumber;
             readingTimeMinutes: z.ZodNumber;
             generatedAt: z.ZodString;
+            editorialStatus: z.ZodOptional<z.ZodEnum<["published", "held", "draft"]>>;
+            facts: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                id: z.ZodString;
+                topic: z.ZodString;
+                clusterId: z.ZodString;
+                statement: z.ZodString;
+                quantity: z.ZodOptional<z.ZodObject<{
+                    metric: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                    asOf: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                }, {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                }>>;
+                entities: z.ZodArray<z.ZodString, "many">;
+                provenance: z.ZodArray<z.ZodObject<{
+                    sourceDocId: z.ZodString;
+                    sourceDomain: z.ZodString;
+                    url: z.ZodString;
+                    quote: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }, {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }>, "many">;
+                corroboration: z.ZodNumber;
+                confidence: z.ZodEnum<["high", "medium", "low"]>;
+                extractedBy: z.ZodObject<{
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    model: z.ZodString;
+                    status: z.ZodEnum<["generated", "fallback"]>;
+                    reason: z.ZodOptional<z.ZodString>;
+                    generatedAt: z.ZodString;
+                }, "strip", z.ZodTypeAny, {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                }, {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                }>;
+            }, "strip", z.ZodTypeAny, {
+                id: string;
+                provenance: {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }[];
+                topic: string;
+                clusterId: string;
+                statement: string;
+                entities: string[];
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                extractedBy: {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                };
+                quantity?: {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                } | undefined;
+            }, {
+                id: string;
+                provenance: {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }[];
+                topic: string;
+                clusterId: string;
+                statement: string;
+                entities: string[];
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                extractedBy: {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                };
+                quantity?: {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                } | undefined;
+            }>, "many">>;
+            claims: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                blockIndex: z.ZodNumber;
+                text: z.ZodString;
+                isEditorial: z.ZodBoolean;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                corroboration: z.ZodNumber;
+                confidence: z.ZodEnum<["high", "medium", "low"]>;
+            }, "strip", z.ZodTypeAny, {
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                text: string;
+                factIds: string[];
+                blockIndex: number;
+                isEditorial: boolean;
+            }, {
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                text: string;
+                factIds: string[];
+                blockIndex: number;
+                isEditorial: boolean;
+            }>, "many">>;
         }, z.ZodTypeAny, "passthrough">[];
         copyrightPolicy: {
             originalTextOnly: true;
@@ -5780,7 +11582,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
             topicLabel: z.ZodString;
             headline: z.ZodString;
             dek: z.ZodString;
-            body: z.ZodArray<z.ZodObject<{
+            body: z.ZodArray<z.ZodUnion<[z.ZodObject<{
                 type: z.ZodEnum<["paragraph", "heading", "list", "quote", "callout"]>;
                 text: z.ZodOptional<z.ZodString>;
                 items: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
@@ -5822,7 +11624,277 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                     source: string;
                     url: string;
                 }>>;
-            }, z.ZodTypeAny, "passthrough">>, "many">;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodString;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodString;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodString;
+            }, z.ZodTypeAny, "passthrough">>]>, "many">;
             keyPoints: z.ZodArray<z.ZodString, "many">;
             whyItMatters: z.ZodString;
             readerAction: z.ZodString;
@@ -5890,6 +11962,143 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
             wordCount: z.ZodNumber;
             readingTimeMinutes: z.ZodNumber;
             generatedAt: z.ZodString;
+            editorialStatus: z.ZodOptional<z.ZodEnum<["published", "held", "draft"]>>;
+            facts: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                id: z.ZodString;
+                topic: z.ZodString;
+                clusterId: z.ZodString;
+                statement: z.ZodString;
+                quantity: z.ZodOptional<z.ZodObject<{
+                    metric: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                    asOf: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                }, {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                }>>;
+                entities: z.ZodArray<z.ZodString, "many">;
+                provenance: z.ZodArray<z.ZodObject<{
+                    sourceDocId: z.ZodString;
+                    sourceDomain: z.ZodString;
+                    url: z.ZodString;
+                    quote: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }, {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }>, "many">;
+                corroboration: z.ZodNumber;
+                confidence: z.ZodEnum<["high", "medium", "low"]>;
+                extractedBy: z.ZodObject<{
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    model: z.ZodString;
+                    status: z.ZodEnum<["generated", "fallback"]>;
+                    reason: z.ZodOptional<z.ZodString>;
+                    generatedAt: z.ZodString;
+                }, "strip", z.ZodTypeAny, {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                }, {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                }>;
+            }, "strip", z.ZodTypeAny, {
+                id: string;
+                provenance: {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }[];
+                topic: string;
+                clusterId: string;
+                statement: string;
+                entities: string[];
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                extractedBy: {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                };
+                quantity?: {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                } | undefined;
+            }, {
+                id: string;
+                provenance: {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }[];
+                topic: string;
+                clusterId: string;
+                statement: string;
+                entities: string[];
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                extractedBy: {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                };
+                quantity?: {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                } | undefined;
+            }>, "many">>;
+            claims: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                blockIndex: z.ZodNumber;
+                text: z.ZodString;
+                isEditorial: z.ZodBoolean;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                corroboration: z.ZodNumber;
+                confidence: z.ZodEnum<["high", "medium", "low"]>;
+            }, "strip", z.ZodTypeAny, {
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                text: string;
+                factIds: string[];
+                blockIndex: number;
+                isEditorial: boolean;
+            }, {
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                text: string;
+                factIds: string[];
+                blockIndex: number;
+                isEditorial: boolean;
+            }>, "many">>;
         }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
             id: z.ZodString;
             rank: z.ZodNumber;
@@ -5897,7 +12106,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
             topicLabel: z.ZodString;
             headline: z.ZodString;
             dek: z.ZodString;
-            body: z.ZodArray<z.ZodObject<{
+            body: z.ZodArray<z.ZodUnion<[z.ZodObject<{
                 type: z.ZodEnum<["paragraph", "heading", "list", "quote", "callout"]>;
                 text: z.ZodOptional<z.ZodString>;
                 items: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
@@ -5939,7 +12148,277 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                     source: string;
                     url: string;
                 }>>;
-            }, z.ZodTypeAny, "passthrough">>, "many">;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodString;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodString;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodString;
+            }, z.ZodTypeAny, "passthrough">>]>, "many">;
             keyPoints: z.ZodArray<z.ZodString, "many">;
             whyItMatters: z.ZodString;
             readerAction: z.ZodString;
@@ -6007,6 +12486,143 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
             wordCount: z.ZodNumber;
             readingTimeMinutes: z.ZodNumber;
             generatedAt: z.ZodString;
+            editorialStatus: z.ZodOptional<z.ZodEnum<["published", "held", "draft"]>>;
+            facts: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                id: z.ZodString;
+                topic: z.ZodString;
+                clusterId: z.ZodString;
+                statement: z.ZodString;
+                quantity: z.ZodOptional<z.ZodObject<{
+                    metric: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                    asOf: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                }, {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                }>>;
+                entities: z.ZodArray<z.ZodString, "many">;
+                provenance: z.ZodArray<z.ZodObject<{
+                    sourceDocId: z.ZodString;
+                    sourceDomain: z.ZodString;
+                    url: z.ZodString;
+                    quote: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }, {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }>, "many">;
+                corroboration: z.ZodNumber;
+                confidence: z.ZodEnum<["high", "medium", "low"]>;
+                extractedBy: z.ZodObject<{
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    model: z.ZodString;
+                    status: z.ZodEnum<["generated", "fallback"]>;
+                    reason: z.ZodOptional<z.ZodString>;
+                    generatedAt: z.ZodString;
+                }, "strip", z.ZodTypeAny, {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                }, {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                }>;
+            }, "strip", z.ZodTypeAny, {
+                id: string;
+                provenance: {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }[];
+                topic: string;
+                clusterId: string;
+                statement: string;
+                entities: string[];
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                extractedBy: {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                };
+                quantity?: {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                } | undefined;
+            }, {
+                id: string;
+                provenance: {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }[];
+                topic: string;
+                clusterId: string;
+                statement: string;
+                entities: string[];
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                extractedBy: {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                };
+                quantity?: {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                } | undefined;
+            }>, "many">>;
+            claims: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                blockIndex: z.ZodNumber;
+                text: z.ZodString;
+                isEditorial: z.ZodBoolean;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                corroboration: z.ZodNumber;
+                confidence: z.ZodEnum<["high", "medium", "low"]>;
+            }, "strip", z.ZodTypeAny, {
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                text: string;
+                factIds: string[];
+                blockIndex: number;
+                isEditorial: boolean;
+            }, {
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                text: string;
+                factIds: string[];
+                blockIndex: number;
+                isEditorial: boolean;
+            }>, "many">>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             id: z.ZodString;
             rank: z.ZodNumber;
@@ -6014,7 +12630,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
             topicLabel: z.ZodString;
             headline: z.ZodString;
             dek: z.ZodString;
-            body: z.ZodArray<z.ZodObject<{
+            body: z.ZodArray<z.ZodUnion<[z.ZodObject<{
                 type: z.ZodEnum<["paragraph", "heading", "list", "quote", "callout"]>;
                 text: z.ZodOptional<z.ZodString>;
                 items: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
@@ -6056,7 +12672,277 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                     source: string;
                     url: string;
                 }>>;
-            }, z.ZodTypeAny, "passthrough">>, "many">;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodString;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodString;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodString;
+            }, z.ZodTypeAny, "passthrough">>]>, "many">;
             keyPoints: z.ZodArray<z.ZodString, "many">;
             whyItMatters: z.ZodString;
             readerAction: z.ZodString;
@@ -6124,6 +13010,143 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
             wordCount: z.ZodNumber;
             readingTimeMinutes: z.ZodNumber;
             generatedAt: z.ZodString;
+            editorialStatus: z.ZodOptional<z.ZodEnum<["published", "held", "draft"]>>;
+            facts: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                id: z.ZodString;
+                topic: z.ZodString;
+                clusterId: z.ZodString;
+                statement: z.ZodString;
+                quantity: z.ZodOptional<z.ZodObject<{
+                    metric: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                    asOf: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                }, {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                }>>;
+                entities: z.ZodArray<z.ZodString, "many">;
+                provenance: z.ZodArray<z.ZodObject<{
+                    sourceDocId: z.ZodString;
+                    sourceDomain: z.ZodString;
+                    url: z.ZodString;
+                    quote: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }, {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }>, "many">;
+                corroboration: z.ZodNumber;
+                confidence: z.ZodEnum<["high", "medium", "low"]>;
+                extractedBy: z.ZodObject<{
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    model: z.ZodString;
+                    status: z.ZodEnum<["generated", "fallback"]>;
+                    reason: z.ZodOptional<z.ZodString>;
+                    generatedAt: z.ZodString;
+                }, "strip", z.ZodTypeAny, {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                }, {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                }>;
+            }, "strip", z.ZodTypeAny, {
+                id: string;
+                provenance: {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }[];
+                topic: string;
+                clusterId: string;
+                statement: string;
+                entities: string[];
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                extractedBy: {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                };
+                quantity?: {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                } | undefined;
+            }, {
+                id: string;
+                provenance: {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }[];
+                topic: string;
+                clusterId: string;
+                statement: string;
+                entities: string[];
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                extractedBy: {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                };
+                quantity?: {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                } | undefined;
+            }>, "many">>;
+            claims: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                blockIndex: z.ZodNumber;
+                text: z.ZodString;
+                isEditorial: z.ZodBoolean;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                corroboration: z.ZodNumber;
+                confidence: z.ZodEnum<["high", "medium", "low"]>;
+            }, "strip", z.ZodTypeAny, {
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                text: string;
+                factIds: string[];
+                blockIndex: number;
+                isEditorial: boolean;
+            }, {
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                text: string;
+                factIds: string[];
+                blockIndex: number;
+                isEditorial: boolean;
+            }>, "many">>;
         }, z.ZodTypeAny, "passthrough">>, "many">;
         copyrightPolicy: z.ZodObject<{
             originalTextOnly: z.ZodLiteral<true>;
@@ -6152,7 +13175,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
             topicLabel: z.ZodString;
             headline: z.ZodString;
             dek: z.ZodString;
-            body: z.ZodArray<z.ZodObject<{
+            body: z.ZodArray<z.ZodUnion<[z.ZodObject<{
                 type: z.ZodEnum<["paragraph", "heading", "list", "quote", "callout"]>;
                 text: z.ZodOptional<z.ZodString>;
                 items: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
@@ -6194,7 +13217,277 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                     source: string;
                     url: string;
                 }>>;
-            }, z.ZodTypeAny, "passthrough">>, "many">;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodString;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodString;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodString;
+            }, z.ZodTypeAny, "passthrough">>]>, "many">;
             keyPoints: z.ZodArray<z.ZodString, "many">;
             whyItMatters: z.ZodString;
             readerAction: z.ZodString;
@@ -6262,6 +13555,143 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
             wordCount: z.ZodNumber;
             readingTimeMinutes: z.ZodNumber;
             generatedAt: z.ZodString;
+            editorialStatus: z.ZodOptional<z.ZodEnum<["published", "held", "draft"]>>;
+            facts: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                id: z.ZodString;
+                topic: z.ZodString;
+                clusterId: z.ZodString;
+                statement: z.ZodString;
+                quantity: z.ZodOptional<z.ZodObject<{
+                    metric: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                    asOf: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                }, {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                }>>;
+                entities: z.ZodArray<z.ZodString, "many">;
+                provenance: z.ZodArray<z.ZodObject<{
+                    sourceDocId: z.ZodString;
+                    sourceDomain: z.ZodString;
+                    url: z.ZodString;
+                    quote: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }, {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }>, "many">;
+                corroboration: z.ZodNumber;
+                confidence: z.ZodEnum<["high", "medium", "low"]>;
+                extractedBy: z.ZodObject<{
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    model: z.ZodString;
+                    status: z.ZodEnum<["generated", "fallback"]>;
+                    reason: z.ZodOptional<z.ZodString>;
+                    generatedAt: z.ZodString;
+                }, "strip", z.ZodTypeAny, {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                }, {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                }>;
+            }, "strip", z.ZodTypeAny, {
+                id: string;
+                provenance: {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }[];
+                topic: string;
+                clusterId: string;
+                statement: string;
+                entities: string[];
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                extractedBy: {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                };
+                quantity?: {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                } | undefined;
+            }, {
+                id: string;
+                provenance: {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }[];
+                topic: string;
+                clusterId: string;
+                statement: string;
+                entities: string[];
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                extractedBy: {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                };
+                quantity?: {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                } | undefined;
+            }>, "many">>;
+            claims: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                blockIndex: z.ZodNumber;
+                text: z.ZodString;
+                isEditorial: z.ZodBoolean;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                corroboration: z.ZodNumber;
+                confidence: z.ZodEnum<["high", "medium", "low"]>;
+            }, "strip", z.ZodTypeAny, {
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                text: string;
+                factIds: string[];
+                blockIndex: number;
+                isEditorial: boolean;
+            }, {
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                text: string;
+                factIds: string[];
+                blockIndex: number;
+                isEditorial: boolean;
+            }>, "many">>;
         }, z.ZodTypeAny, "passthrough">[];
         copyrightPolicy: {
             originalTextOnly: true;
@@ -6278,7 +13708,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
             topicLabel: z.ZodString;
             headline: z.ZodString;
             dek: z.ZodString;
-            body: z.ZodArray<z.ZodObject<{
+            body: z.ZodArray<z.ZodUnion<[z.ZodObject<{
                 type: z.ZodEnum<["paragraph", "heading", "list", "quote", "callout"]>;
                 text: z.ZodOptional<z.ZodString>;
                 items: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
@@ -6320,7 +13750,277 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                     source: string;
                     url: string;
                 }>>;
-            }, z.ZodTypeAny, "passthrough">>, "many">;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodString;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodString;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodString;
+            }, z.ZodTypeAny, "passthrough">>]>, "many">;
             keyPoints: z.ZodArray<z.ZodString, "many">;
             whyItMatters: z.ZodString;
             readerAction: z.ZodString;
@@ -6388,6 +14088,143 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
             wordCount: z.ZodNumber;
             readingTimeMinutes: z.ZodNumber;
             generatedAt: z.ZodString;
+            editorialStatus: z.ZodOptional<z.ZodEnum<["published", "held", "draft"]>>;
+            facts: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                id: z.ZodString;
+                topic: z.ZodString;
+                clusterId: z.ZodString;
+                statement: z.ZodString;
+                quantity: z.ZodOptional<z.ZodObject<{
+                    metric: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                    asOf: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                }, {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                }>>;
+                entities: z.ZodArray<z.ZodString, "many">;
+                provenance: z.ZodArray<z.ZodObject<{
+                    sourceDocId: z.ZodString;
+                    sourceDomain: z.ZodString;
+                    url: z.ZodString;
+                    quote: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }, {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }>, "many">;
+                corroboration: z.ZodNumber;
+                confidence: z.ZodEnum<["high", "medium", "low"]>;
+                extractedBy: z.ZodObject<{
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    model: z.ZodString;
+                    status: z.ZodEnum<["generated", "fallback"]>;
+                    reason: z.ZodOptional<z.ZodString>;
+                    generatedAt: z.ZodString;
+                }, "strip", z.ZodTypeAny, {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                }, {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                }>;
+            }, "strip", z.ZodTypeAny, {
+                id: string;
+                provenance: {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }[];
+                topic: string;
+                clusterId: string;
+                statement: string;
+                entities: string[];
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                extractedBy: {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                };
+                quantity?: {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                } | undefined;
+            }, {
+                id: string;
+                provenance: {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }[];
+                topic: string;
+                clusterId: string;
+                statement: string;
+                entities: string[];
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                extractedBy: {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                };
+                quantity?: {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                } | undefined;
+            }>, "many">>;
+            claims: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                blockIndex: z.ZodNumber;
+                text: z.ZodString;
+                isEditorial: z.ZodBoolean;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                corroboration: z.ZodNumber;
+                confidence: z.ZodEnum<["high", "medium", "low"]>;
+            }, "strip", z.ZodTypeAny, {
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                text: string;
+                factIds: string[];
+                blockIndex: number;
+                isEditorial: boolean;
+            }, {
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                text: string;
+                factIds: string[];
+                blockIndex: number;
+                isEditorial: boolean;
+            }>, "many">>;
         }, z.ZodTypeAny, "passthrough">[];
         copyrightPolicy: {
             originalTextOnly: true;
@@ -6458,7 +14295,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
             topicLabel: z.ZodString;
             headline: z.ZodString;
             dek: z.ZodString;
-            body: z.ZodArray<z.ZodObject<{
+            body: z.ZodArray<z.ZodUnion<[z.ZodObject<{
                 type: z.ZodEnum<["paragraph", "heading", "list", "quote", "callout"]>;
                 text: z.ZodOptional<z.ZodString>;
                 items: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
@@ -6500,7 +14337,277 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                     source: string;
                     url: string;
                 }>>;
-            }, z.ZodTypeAny, "passthrough">>, "many">;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodString;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodString;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodString;
+            }, z.ZodTypeAny, "passthrough">>]>, "many">;
             keyPoints: z.ZodArray<z.ZodString, "many">;
             whyItMatters: z.ZodString;
             readerAction: z.ZodString;
@@ -6568,6 +14675,143 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
             wordCount: z.ZodNumber;
             readingTimeMinutes: z.ZodNumber;
             generatedAt: z.ZodString;
+            editorialStatus: z.ZodOptional<z.ZodEnum<["published", "held", "draft"]>>;
+            facts: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                id: z.ZodString;
+                topic: z.ZodString;
+                clusterId: z.ZodString;
+                statement: z.ZodString;
+                quantity: z.ZodOptional<z.ZodObject<{
+                    metric: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                    asOf: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                }, {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                }>>;
+                entities: z.ZodArray<z.ZodString, "many">;
+                provenance: z.ZodArray<z.ZodObject<{
+                    sourceDocId: z.ZodString;
+                    sourceDomain: z.ZodString;
+                    url: z.ZodString;
+                    quote: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }, {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }>, "many">;
+                corroboration: z.ZodNumber;
+                confidence: z.ZodEnum<["high", "medium", "low"]>;
+                extractedBy: z.ZodObject<{
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    model: z.ZodString;
+                    status: z.ZodEnum<["generated", "fallback"]>;
+                    reason: z.ZodOptional<z.ZodString>;
+                    generatedAt: z.ZodString;
+                }, "strip", z.ZodTypeAny, {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                }, {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                }>;
+            }, "strip", z.ZodTypeAny, {
+                id: string;
+                provenance: {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }[];
+                topic: string;
+                clusterId: string;
+                statement: string;
+                entities: string[];
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                extractedBy: {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                };
+                quantity?: {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                } | undefined;
+            }, {
+                id: string;
+                provenance: {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }[];
+                topic: string;
+                clusterId: string;
+                statement: string;
+                entities: string[];
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                extractedBy: {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                };
+                quantity?: {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                } | undefined;
+            }>, "many">>;
+            claims: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                blockIndex: z.ZodNumber;
+                text: z.ZodString;
+                isEditorial: z.ZodBoolean;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                corroboration: z.ZodNumber;
+                confidence: z.ZodEnum<["high", "medium", "low"]>;
+            }, "strip", z.ZodTypeAny, {
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                text: string;
+                factIds: string[];
+                blockIndex: number;
+                isEditorial: boolean;
+            }, {
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                text: string;
+                factIds: string[];
+                blockIndex: number;
+                isEditorial: boolean;
+            }>, "many">>;
         }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
             id: z.ZodString;
             rank: z.ZodNumber;
@@ -6575,7 +14819,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
             topicLabel: z.ZodString;
             headline: z.ZodString;
             dek: z.ZodString;
-            body: z.ZodArray<z.ZodObject<{
+            body: z.ZodArray<z.ZodUnion<[z.ZodObject<{
                 type: z.ZodEnum<["paragraph", "heading", "list", "quote", "callout"]>;
                 text: z.ZodOptional<z.ZodString>;
                 items: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
@@ -6617,7 +14861,277 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                     source: string;
                     url: string;
                 }>>;
-            }, z.ZodTypeAny, "passthrough">>, "many">;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodString;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodString;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodString;
+            }, z.ZodTypeAny, "passthrough">>]>, "many">;
             keyPoints: z.ZodArray<z.ZodString, "many">;
             whyItMatters: z.ZodString;
             readerAction: z.ZodString;
@@ -6685,6 +15199,143 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
             wordCount: z.ZodNumber;
             readingTimeMinutes: z.ZodNumber;
             generatedAt: z.ZodString;
+            editorialStatus: z.ZodOptional<z.ZodEnum<["published", "held", "draft"]>>;
+            facts: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                id: z.ZodString;
+                topic: z.ZodString;
+                clusterId: z.ZodString;
+                statement: z.ZodString;
+                quantity: z.ZodOptional<z.ZodObject<{
+                    metric: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                    asOf: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                }, {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                }>>;
+                entities: z.ZodArray<z.ZodString, "many">;
+                provenance: z.ZodArray<z.ZodObject<{
+                    sourceDocId: z.ZodString;
+                    sourceDomain: z.ZodString;
+                    url: z.ZodString;
+                    quote: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }, {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }>, "many">;
+                corroboration: z.ZodNumber;
+                confidence: z.ZodEnum<["high", "medium", "low"]>;
+                extractedBy: z.ZodObject<{
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    model: z.ZodString;
+                    status: z.ZodEnum<["generated", "fallback"]>;
+                    reason: z.ZodOptional<z.ZodString>;
+                    generatedAt: z.ZodString;
+                }, "strip", z.ZodTypeAny, {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                }, {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                }>;
+            }, "strip", z.ZodTypeAny, {
+                id: string;
+                provenance: {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }[];
+                topic: string;
+                clusterId: string;
+                statement: string;
+                entities: string[];
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                extractedBy: {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                };
+                quantity?: {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                } | undefined;
+            }, {
+                id: string;
+                provenance: {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }[];
+                topic: string;
+                clusterId: string;
+                statement: string;
+                entities: string[];
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                extractedBy: {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                };
+                quantity?: {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                } | undefined;
+            }>, "many">>;
+            claims: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                blockIndex: z.ZodNumber;
+                text: z.ZodString;
+                isEditorial: z.ZodBoolean;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                corroboration: z.ZodNumber;
+                confidence: z.ZodEnum<["high", "medium", "low"]>;
+            }, "strip", z.ZodTypeAny, {
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                text: string;
+                factIds: string[];
+                blockIndex: number;
+                isEditorial: boolean;
+            }, {
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                text: string;
+                factIds: string[];
+                blockIndex: number;
+                isEditorial: boolean;
+            }>, "many">>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             id: z.ZodString;
             rank: z.ZodNumber;
@@ -6692,7 +15343,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
             topicLabel: z.ZodString;
             headline: z.ZodString;
             dek: z.ZodString;
-            body: z.ZodArray<z.ZodObject<{
+            body: z.ZodArray<z.ZodUnion<[z.ZodObject<{
                 type: z.ZodEnum<["paragraph", "heading", "list", "quote", "callout"]>;
                 text: z.ZodOptional<z.ZodString>;
                 items: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
@@ -6734,7 +15385,277 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                     source: string;
                     url: string;
                 }>>;
-            }, z.ZodTypeAny, "passthrough">>, "many">;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodString;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodString;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodString;
+            }, z.ZodTypeAny, "passthrough">>]>, "many">;
             keyPoints: z.ZodArray<z.ZodString, "many">;
             whyItMatters: z.ZodString;
             readerAction: z.ZodString;
@@ -6802,6 +15723,143 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
             wordCount: z.ZodNumber;
             readingTimeMinutes: z.ZodNumber;
             generatedAt: z.ZodString;
+            editorialStatus: z.ZodOptional<z.ZodEnum<["published", "held", "draft"]>>;
+            facts: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                id: z.ZodString;
+                topic: z.ZodString;
+                clusterId: z.ZodString;
+                statement: z.ZodString;
+                quantity: z.ZodOptional<z.ZodObject<{
+                    metric: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                    asOf: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                }, {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                }>>;
+                entities: z.ZodArray<z.ZodString, "many">;
+                provenance: z.ZodArray<z.ZodObject<{
+                    sourceDocId: z.ZodString;
+                    sourceDomain: z.ZodString;
+                    url: z.ZodString;
+                    quote: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }, {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }>, "many">;
+                corroboration: z.ZodNumber;
+                confidence: z.ZodEnum<["high", "medium", "low"]>;
+                extractedBy: z.ZodObject<{
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    model: z.ZodString;
+                    status: z.ZodEnum<["generated", "fallback"]>;
+                    reason: z.ZodOptional<z.ZodString>;
+                    generatedAt: z.ZodString;
+                }, "strip", z.ZodTypeAny, {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                }, {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                }>;
+            }, "strip", z.ZodTypeAny, {
+                id: string;
+                provenance: {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }[];
+                topic: string;
+                clusterId: string;
+                statement: string;
+                entities: string[];
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                extractedBy: {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                };
+                quantity?: {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                } | undefined;
+            }, {
+                id: string;
+                provenance: {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }[];
+                topic: string;
+                clusterId: string;
+                statement: string;
+                entities: string[];
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                extractedBy: {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                };
+                quantity?: {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                } | undefined;
+            }>, "many">>;
+            claims: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                blockIndex: z.ZodNumber;
+                text: z.ZodString;
+                isEditorial: z.ZodBoolean;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                corroboration: z.ZodNumber;
+                confidence: z.ZodEnum<["high", "medium", "low"]>;
+            }, "strip", z.ZodTypeAny, {
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                text: string;
+                factIds: string[];
+                blockIndex: number;
+                isEditorial: boolean;
+            }, {
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                text: string;
+                factIds: string[];
+                blockIndex: number;
+                isEditorial: boolean;
+            }>, "many">>;
         }, z.ZodTypeAny, "passthrough">>, "many">;
         copyrightPolicy: z.ZodObject<{
             originalTextOnly: z.ZodLiteral<true>;
@@ -6830,7 +15888,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
             topicLabel: z.ZodString;
             headline: z.ZodString;
             dek: z.ZodString;
-            body: z.ZodArray<z.ZodObject<{
+            body: z.ZodArray<z.ZodUnion<[z.ZodObject<{
                 type: z.ZodEnum<["paragraph", "heading", "list", "quote", "callout"]>;
                 text: z.ZodOptional<z.ZodString>;
                 items: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
@@ -6872,7 +15930,277 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                     source: string;
                     url: string;
                 }>>;
-            }, z.ZodTypeAny, "passthrough">>, "many">;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodString;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodString;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodString;
+            }, z.ZodTypeAny, "passthrough">>]>, "many">;
             keyPoints: z.ZodArray<z.ZodString, "many">;
             whyItMatters: z.ZodString;
             readerAction: z.ZodString;
@@ -6940,6 +16268,143 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
             wordCount: z.ZodNumber;
             readingTimeMinutes: z.ZodNumber;
             generatedAt: z.ZodString;
+            editorialStatus: z.ZodOptional<z.ZodEnum<["published", "held", "draft"]>>;
+            facts: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                id: z.ZodString;
+                topic: z.ZodString;
+                clusterId: z.ZodString;
+                statement: z.ZodString;
+                quantity: z.ZodOptional<z.ZodObject<{
+                    metric: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                    asOf: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                }, {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                }>>;
+                entities: z.ZodArray<z.ZodString, "many">;
+                provenance: z.ZodArray<z.ZodObject<{
+                    sourceDocId: z.ZodString;
+                    sourceDomain: z.ZodString;
+                    url: z.ZodString;
+                    quote: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }, {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }>, "many">;
+                corroboration: z.ZodNumber;
+                confidence: z.ZodEnum<["high", "medium", "low"]>;
+                extractedBy: z.ZodObject<{
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    model: z.ZodString;
+                    status: z.ZodEnum<["generated", "fallback"]>;
+                    reason: z.ZodOptional<z.ZodString>;
+                    generatedAt: z.ZodString;
+                }, "strip", z.ZodTypeAny, {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                }, {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                }>;
+            }, "strip", z.ZodTypeAny, {
+                id: string;
+                provenance: {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }[];
+                topic: string;
+                clusterId: string;
+                statement: string;
+                entities: string[];
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                extractedBy: {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                };
+                quantity?: {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                } | undefined;
+            }, {
+                id: string;
+                provenance: {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }[];
+                topic: string;
+                clusterId: string;
+                statement: string;
+                entities: string[];
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                extractedBy: {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                };
+                quantity?: {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                } | undefined;
+            }>, "many">>;
+            claims: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                blockIndex: z.ZodNumber;
+                text: z.ZodString;
+                isEditorial: z.ZodBoolean;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                corroboration: z.ZodNumber;
+                confidence: z.ZodEnum<["high", "medium", "low"]>;
+            }, "strip", z.ZodTypeAny, {
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                text: string;
+                factIds: string[];
+                blockIndex: number;
+                isEditorial: boolean;
+            }, {
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                text: string;
+                factIds: string[];
+                blockIndex: number;
+                isEditorial: boolean;
+            }>, "many">>;
         }, z.ZodTypeAny, "passthrough">[];
         copyrightPolicy: {
             originalTextOnly: true;
@@ -6956,7 +16421,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
             topicLabel: z.ZodString;
             headline: z.ZodString;
             dek: z.ZodString;
-            body: z.ZodArray<z.ZodObject<{
+            body: z.ZodArray<z.ZodUnion<[z.ZodObject<{
                 type: z.ZodEnum<["paragraph", "heading", "list", "quote", "callout"]>;
                 text: z.ZodOptional<z.ZodString>;
                 items: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
@@ -6998,7 +16463,277 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                     source: string;
                     url: string;
                 }>>;
-            }, z.ZodTypeAny, "passthrough">>, "many">;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"chart">;
+                chartType: z.ZodEnum<["bar", "line", "area", "scatter", "pie"]>;
+                title: z.ZodString;
+                series: z.ZodArray<z.ZodObject<{
+                    label: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }, {
+                    value: number;
+                    label: string;
+                    unit?: string | undefined;
+                }>, "many">;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                caption: z.ZodOptional<z.ZodString>;
+                attribution: z.ZodObject<{
+                    sources: z.ZodArray<z.ZodObject<{
+                        source: z.ZodString;
+                        url: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        source: string;
+                        url: string;
+                    }, {
+                        source: string;
+                        url: string;
+                    }>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }, {
+                    sources: {
+                        source: string;
+                        url: string;
+                    }[];
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"image">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                caption: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"gif">;
+                src: z.ZodString;
+                alt: z.ZodString;
+                poster: z.ZodOptional<z.ZodString>;
+                media: z.ZodObject<{
+                    origin: z.ZodEnum<["generated", "openly-licensed"]>;
+                    license: z.ZodOptional<z.ZodString>;
+                    creator: z.ZodOptional<z.ZodString>;
+                    sourceUrl: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }, {
+                    origin: "generated" | "openly-licensed";
+                    sourceUrl?: string | undefined;
+                    license?: string | undefined;
+                    creator?: string | undefined;
+                }>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodLiteral<"embed">;
+                provider: z.ZodString;
+                url: z.ZodString;
+                title: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">>, z.ZodObject<{
+                type: z.ZodString;
+            }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+                type: z.ZodString;
+            }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+                type: z.ZodString;
+            }, z.ZodTypeAny, "passthrough">>]>, "many">;
             keyPoints: z.ZodArray<z.ZodString, "many">;
             whyItMatters: z.ZodString;
             readerAction: z.ZodString;
@@ -7066,6 +16801,143 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
             wordCount: z.ZodNumber;
             readingTimeMinutes: z.ZodNumber;
             generatedAt: z.ZodString;
+            editorialStatus: z.ZodOptional<z.ZodEnum<["published", "held", "draft"]>>;
+            facts: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                id: z.ZodString;
+                topic: z.ZodString;
+                clusterId: z.ZodString;
+                statement: z.ZodString;
+                quantity: z.ZodOptional<z.ZodObject<{
+                    metric: z.ZodString;
+                    value: z.ZodNumber;
+                    unit: z.ZodOptional<z.ZodString>;
+                    asOf: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                }, {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                }>>;
+                entities: z.ZodArray<z.ZodString, "many">;
+                provenance: z.ZodArray<z.ZodObject<{
+                    sourceDocId: z.ZodString;
+                    sourceDomain: z.ZodString;
+                    url: z.ZodString;
+                    quote: z.ZodOptional<z.ZodString>;
+                }, "strip", z.ZodTypeAny, {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }, {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }>, "many">;
+                corroboration: z.ZodNumber;
+                confidence: z.ZodEnum<["high", "medium", "low"]>;
+                extractedBy: z.ZodObject<{
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    model: z.ZodString;
+                    status: z.ZodEnum<["generated", "fallback"]>;
+                    reason: z.ZodOptional<z.ZodString>;
+                    generatedAt: z.ZodString;
+                }, "strip", z.ZodTypeAny, {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                }, {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                }>;
+            }, "strip", z.ZodTypeAny, {
+                id: string;
+                provenance: {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }[];
+                topic: string;
+                clusterId: string;
+                statement: string;
+                entities: string[];
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                extractedBy: {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                };
+                quantity?: {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                } | undefined;
+            }, {
+                id: string;
+                provenance: {
+                    sourceDomain: string;
+                    url: string;
+                    sourceDocId: string;
+                    quote?: string | undefined;
+                }[];
+                topic: string;
+                clusterId: string;
+                statement: string;
+                entities: string[];
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                extractedBy: {
+                    generatedAt: string;
+                    provider: "deterministic" | "ollama" | "openai";
+                    status: "generated" | "fallback";
+                    model: string;
+                    reason?: string | undefined;
+                };
+                quantity?: {
+                    value: number;
+                    metric: string;
+                    unit?: string | undefined;
+                    asOf?: string | undefined;
+                } | undefined;
+            }>, "many">>;
+            claims: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                blockIndex: z.ZodNumber;
+                text: z.ZodString;
+                isEditorial: z.ZodBoolean;
+                factIds: z.ZodArray<z.ZodString, "many">;
+                corroboration: z.ZodNumber;
+                confidence: z.ZodEnum<["high", "medium", "low"]>;
+            }, "strip", z.ZodTypeAny, {
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                text: string;
+                factIds: string[];
+                blockIndex: number;
+                isEditorial: boolean;
+            }, {
+                corroboration: number;
+                confidence: "high" | "medium" | "low";
+                text: string;
+                factIds: string[];
+                blockIndex: number;
+                isEditorial: boolean;
+            }>, "many">>;
         }, z.ZodTypeAny, "passthrough">[];
         copyrightPolicy: {
             originalTextOnly: true;

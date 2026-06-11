@@ -2,7 +2,9 @@
  * @ardurai/contracts — Shared wire contract for the Ardur AI content pipeline.
  *
  * Schema:           ardur-content-pipeline/v1
- * Contract revision: 2  (rev 2 ratifies `claims?` on AggregatedItem)
+ * Contract revision: 3  (rev 3 adds fact/provenance layer, visual ArticleBlock union,
+ *                        uncapped source set, ScoreBreakdown.technicalSignificance,
+ *                        RankedCluster.gateStatus/references, ClaimProvenance)
  *
  * The four engines exchange data through typed, versioned envelopes:
  *   ardur-news-aggregator → ardur-ranking-engine → ardur-top10-engine → ardur-article-synthesizer
@@ -12,10 +14,13 @@
  *   - No PII: no user/session/device ids, IPs, emails, cookies, UTMs, or referrers.
  *     Interaction metrics are aggregate-only.
  *   - Copyright-safe: items carry metadata-derived hints and links, never
- *     reproduced article bodies.
+ *     reproduced article bodies. Facts carry original-expression statements +
+ *     short quotes (<25 words) + canonical links only.
  *   - GATE BEFORE STAMP: always call assertCompatibleArtifact(raw, stage) on every
  *     inbound artifact BEFORE casting to a stage type. Re-stamping without gating
  *     silently launders incompatible upstream artifacts.
+ *   - Renderer rule: unknown ArticleBlock.type ⇒ skip (or render a link-out fallback),
+ *     never throw.
  *
  * Usage:
  *   import { assertCompatibleArtifact, SCHEMA_VERSION } from '@ardurai/contracts';
@@ -35,8 +40,12 @@ export const SCHEMA_VERSION = 'ardur-content-pipeline/v1' as const;
  *
  * Rev 1: baseline schema (all fields except `claims?`)
  * Rev 2: ratifies `claims?` on AggregatedItem (additive; absent == rev 1 producer)
+ * Rev 3: ExtractedFact + FactProvenance + SourceDocument (fact/provenance layer);
+ *        visual ArticleBlock union (chart/image/gif/embed); TextBlock named export;
+ *        ScoreBreakdown.technicalSignificance?; RankedCluster.references?/sourceDocIds?/gateStatus?;
+ *        Top10Entry.sourceDocIds?; ClaimProvenance + SynthesizedArticle.claims?/facts?/editorialStatus?
  */
-export const CONTRACT_REVISION = 2 as const;
+export const CONTRACT_REVISION = 3 as const;
 
 // ---------------------------------------------------------------------------
 // Primitive union types
@@ -61,6 +70,12 @@ export type SourceQuality =
 export type Verification = 'multi-source' | 'single-source';
 
 export type PipelineStage = 'aggregation' | 'ranking' | 'top10' | 'articles';
+
+/** Rev 3: result of attempting to fetch and extract an article body. */
+export type ExtractionStatus = 'full' | 'snippet' | 'failed';
+
+/** Rev 3: access classification for a fetched article URL. */
+export type AccessPolicy = 'allowed' | 'paywalled' | 'robots-disallowed' | 'tos-restricted';
 
 // ---------------------------------------------------------------------------
 // Shared sub-types
@@ -170,10 +185,61 @@ export interface SourceCoverage {
   degraded: boolean; // true if below the diversity floor
 }
 
+/**
+ * Rev 3: metadata for a fetched source article. The BODY is never serialized here —
+ * it lives only in the private ETL store for extraction + audit.
+ */
+export interface SourceDocument {
+  id: string; // stable id (hash of canonical url)
+  url: string; // canonical, no PII/fragment
+  source: string;
+  sourceDomain: string;
+  tier: SourceTier;
+  title: string;
+  publishedAt: string; // ISO 8601 UTC
+  fetchedAt: string; // ISO 8601 UTC
+  extraction: ExtractionStatus;
+  accessPolicy: AccessPolicy;
+  wordCount: number | null;
+  lang: string | null;
+  contentHash: string; // dedup / change-detection
+}
+
+/** Rev 3: per-source attribution for an extracted fact. */
+export interface FactProvenance {
+  sourceDocId: string; // → SourceDocument.id
+  sourceDomain: string;
+  url: string; // canonical link for attribution
+  quote?: string; // optional verbatim support, < 25 words
+}
+
+/** Rev 3: an atomic, original-expression fact extracted from one or more bodies. */
+export interface ExtractedFact {
+  id: string;
+  topic: string;
+  clusterId: string;
+  statement: string; // original expression, not a copied sentence
+  quantity?: {
+    metric: string;
+    value: number;
+    unit?: string;
+    asOf?: string; // ISO date the figure refers to
+  };
+  entities: string[];
+  provenance: FactProvenance[]; // length >= 1, ALWAYS
+  corroboration: number; // distinct source domains, >= 1
+  confidence: Confidence;
+  extractedBy: ProviderMeta;
+}
+
 export interface AggregationData {
   itemsByTopic: Record<string, AggregatedItem[]>;
   clustersByTopic: Record<string, Cluster[]>;
   coverageByTopic: Record<string, SourceCoverage>;
+  /** Rev 3: fetched source document metadata, keyed by topic. Bodies never included. */
+  documentsByTopic?: Record<string, SourceDocument[]>;
+  /** Rev 3: extracted facts per cluster. */
+  factsByCluster?: Record<string, ExtractedFact[]>;
 }
 
 export type AggregationArtifact = ArtifactEnvelope<AggregationData>;
@@ -184,12 +250,14 @@ export type AggregationArtifact = ArtifactEnvelope<AggregationData>;
 
 /** Per-signal contribution to a cluster's score. */
 export interface ScoreBreakdown {
-  interaction: number;
-  credibility: number;
-  recency: number;
-  diversity: number;
-  corroboration: number;
-  total: number;
+  interaction: number; // E
+  credibility: number; // S
+  corroboration: number; // C
+  /** Rev 3: technical-significance signal value. Absent on rev-2 producers. */
+  technicalSignificance?: number; // T
+  recency: number; // MULTIPLIER (not an additive component)
+  diversity: number; // MULTIPLIER
+  total: number; // = recency × Σ(wᵢ·signalᵢ) × diversity
   weights: Record<string, number>; // weights actually applied
 }
 
@@ -210,6 +278,15 @@ export interface RankedCluster {
   earliestPublishedAt: string;
   latestPublishedAt: string;
   auditId: string; // -> AuditEntry.auditId
+  /**
+   * Rev 3: uncapped resolved references attached by the ranking engine so top-10
+   * can skip loading the full AggregationArtifact (Option 2, design doc §6.1b).
+   */
+  references?: SourceRef[];
+  /** Rev 3: SourceDocument.id values covering the cluster members. */
+  sourceDocIds?: string[];
+  /** Rev 3: editorial gate classification set by the ranking engine. */
+  gateStatus?: 'auto' | 'flagged' | 'hold';
 }
 
 /** Fully reproducible record of how one cluster's score was computed. */
@@ -256,12 +333,15 @@ export interface Top10Entry {
   score: ScoreBreakdown;
   sourceQuality: SourceQuality;
   confidence: Confidence;
-  references: SourceRef[]; // deduped, capped (default 5)
+  /** Display cap is a renderer concern; the data carries the full uncapped set. */
+  references: SourceRef[];
   delta: {
     previousRank: number | null;
     movement: 'new' | 'up' | 'down' | 'same';
   };
   carriedOver: boolean; // present in the previous cycle's Top-10
+  /** Rev 3: SourceDocument.id values for the full provenance set. */
+  sourceDocIds?: string[];
 }
 
 export interface StabilityReport {
@@ -284,13 +364,82 @@ export type Top10Artifact = ArtifactEnvelope<Top10Data>;
 // Stage 4 — Article synthesis (ardur-article-synthesizer)
 // ---------------------------------------------------------------------------
 
-/** In-app render block. The app renders these with no navigation away. */
-export interface ArticleBlock {
+/**
+ * Text-only in-app render block (5 original types, unchanged).
+ * Rev 3: renamed from ArticleBlock to TextBlock; ArticleBlock is now the full union.
+ */
+export interface TextBlock {
   type: 'paragraph' | 'heading' | 'list' | 'quote' | 'callout';
   text?: string; // for paragraph | heading | quote | callout
   items?: string[]; // for list
   /** Quotes must be < 25 words and carry attribution. */
   attribution?: { source: string; url: string };
+}
+
+/** Rev 3: chart block built exclusively from ExtractedFact.quantity values. */
+export interface ChartBlock {
+  type: 'chart';
+  chartType: 'bar' | 'line' | 'area' | 'scatter' | 'pie';
+  title: string;
+  series: Array<{ label: string; value: number; unit?: string }>;
+  factIds: string[]; // → ExtractedFact.id (every datapoint traces back)
+  caption?: string;
+  attribution: { sources: Array<{ source: string; url: string }> };
+}
+
+/** Rev 3: provenance for generated or openly-licensed media. */
+export interface MediaProvenance {
+  origin: 'generated' | 'openly-licensed';
+  license?: string; // required when openly-licensed (e.g. "CC0", "CC-BY-4.0")
+  creator?: string;
+  sourceUrl?: string;
+}
+
+/** Rev 3: image block; only generated or openly-licensed images. */
+export interface ImageBlock {
+  type: 'image';
+  src: string;
+  alt: string;
+  caption?: string;
+  media: MediaProvenance;
+}
+
+/** Rev 3: GIF/animation block; rendered as looping video where possible. */
+export interface GifBlock {
+  type: 'gif';
+  src: string;
+  alt: string;
+  poster?: string;
+  media: MediaProvenance;
+}
+
+/** Rev 3: embed block; allowlisted providers only. */
+export interface EmbedBlock {
+  type: 'embed';
+  provider: string;
+  url: string;
+  title?: string;
+}
+
+/**
+ * In-app render block union.
+ * Rev 3: extended from TextBlock-only to include chart/image/gif/embed variants.
+ * Renderer rule: unknown `type` ⇒ skip/fallback, never throw.
+ */
+export type ArticleBlock = TextBlock | ChartBlock | ImageBlock | GifBlock | EmbedBlock;
+
+/**
+ * Rev 3: per-claim mapping from an article sentence to the ExtractedFacts that
+ * ground it. Promoted from the synthesizer's internal ProvenanceMap so the gate
+ * and the source-trail UI share one canonical type.
+ */
+export interface ClaimProvenance {
+  blockIndex: number; // which ArticleBlock the claim sentence lives in
+  text: string; // the claim-bearing sentence
+  isEditorial: boolean; // editorial/transition lines are not fact-gated
+  factIds: string[]; // ExtractedFact.id values grounding it (≥1 for non-editorial)
+  corroboration: number; // distinct source domains across those facts
+  confidence: Confidence;
 }
 
 export interface ArticleReference {
@@ -328,6 +477,15 @@ export interface SynthesizedArticle {
   wordCount: number;
   readingTimeMinutes: number;
   generatedAt: string;
+  /**
+   * Rev 3: editorial lifecycle status. 'held' means the provenance gate failed
+   * and the piece must not be published to readers. Absent == 'published' (legacy).
+   */
+  editorialStatus?: 'published' | 'held' | 'draft';
+  /** Rev 3: the ExtractedFacts used to write this article (for source-trail UI). */
+  facts?: ExtractedFact[];
+  /** Rev 3: per-sentence claim→fact mapping produced by the provenance gate. */
+  claims?: ClaimProvenance[];
 }
 
 export interface CopyrightPolicy {

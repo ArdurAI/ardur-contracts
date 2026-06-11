@@ -9,6 +9,21 @@ import {
   SchemaVersionError,
   type ArtifactEnvelope,
   type AggregationData,
+  type ExtractedFact,
+  type FactProvenance,
+  type SourceDocument,
+  type ClaimProvenance,
+  type TextBlock,
+  type ChartBlock,
+  type ImageBlock,
+  type GifBlock,
+  type EmbedBlock,
+  type ArticleBlock,
+  type MediaProvenance,
+  type ScoreBreakdown,
+  type RankedCluster,
+  type Top10Entry,
+  type SynthesizedArticle,
 } from './index.ts';
 
 // ---------------------------------------------------------------------------
@@ -47,8 +62,8 @@ describe('SCHEMA_VERSION', () => {
 });
 
 describe('CONTRACT_REVISION', () => {
-  it('is 2 (rev 2 ratifies claims[])', () => {
-    assert.strictEqual(CONTRACT_REVISION, 2);
+  it('is 3 (rev 3 adds fact/provenance layer, visual blocks, uncapped source set)', () => {
+    assert.strictEqual(CONTRACT_REVISION, 3);
   });
 });
 
@@ -291,5 +306,244 @@ describe('SchemaVersionError', () => {
     }
     assert.ok(caught instanceof Error);
     assert.ok(caught instanceof SchemaVersionError);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Rev 3 — type exports (structural checks via assignability)
+// ---------------------------------------------------------------------------
+
+describe('Rev 3 — exported types are assignable at runtime', () => {
+  it('SourceDocument fields are structurally correct', () => {
+    const doc: SourceDocument = {
+      id: 'doc-1',
+      url: 'https://reuters.com/article',
+      source: 'Reuters',
+      sourceDomain: 'reuters.com',
+      tier: 'news',
+      title: 'AI progress in 2026',
+      publishedAt: '2026-06-11T04:00:00.000Z',
+      fetchedAt: '2026-06-11T05:00:00.000Z',
+      extraction: 'full',
+      accessPolicy: 'allowed',
+      wordCount: 800,
+      lang: 'en',
+      contentHash: 'abc123',
+    };
+    assert.strictEqual(doc.extraction, 'full');
+    assert.strictEqual(doc.accessPolicy, 'allowed');
+  });
+
+  it('FactProvenance and ExtractedFact fields are structurally correct', () => {
+    const prov: FactProvenance = {
+      sourceDocId: 'doc-1',
+      sourceDomain: 'reuters.com',
+      url: 'https://reuters.com/article',
+      quote: 'Less than 25 words verbatim here.',
+    };
+    const fact: ExtractedFact = {
+      id: 'fact-1',
+      topic: 'ai',
+      clusterId: 'cluster-ai-1',
+      statement: 'AI model efficiency improved by 40% year-over-year.',
+      quantity: { metric: 'efficiency_improvement', value: 40, unit: '%', asOf: '2026-Q1' },
+      entities: ['AI', 'model efficiency'],
+      provenance: [prov],
+      corroboration: 1,
+      confidence: 'high',
+      extractedBy: {
+        provider: 'ollama',
+        model: 'llama3.2',
+        status: 'generated',
+        generatedAt: '2026-06-11T05:30:00.000Z',
+      },
+    };
+    assert.strictEqual(fact.provenance.length, 1);
+    assert.strictEqual(fact.quantity?.value, 40);
+  });
+
+  it('MediaProvenance covers generated and openly-licensed origins', () => {
+    const gen: MediaProvenance = { origin: 'generated' };
+    const lic: MediaProvenance = { origin: 'openly-licensed', license: 'CC0', creator: 'Unsplash' };
+    assert.strictEqual(gen.origin, 'generated');
+    assert.strictEqual(lic.license, 'CC0');
+  });
+
+  it('ArticleBlock union covers all five variants', () => {
+    const text: ArticleBlock = { type: 'paragraph', text: 'Hello.' };
+    const heading: ArticleBlock = { type: 'heading', text: 'Section' };
+    const chart: ArticleBlock = {
+      type: 'chart',
+      chartType: 'bar',
+      title: 'Efficiency gains',
+      series: [{ label: '2025', value: 30, unit: '%' }, { label: '2026', value: 40, unit: '%' }],
+      factIds: ['fact-1'],
+      attribution: { sources: [{ source: 'Reuters', url: 'https://reuters.com/article' }] },
+    };
+    const image: ArticleBlock = {
+      type: 'image',
+      src: 'https://example.com/img.jpg',
+      alt: 'A diagram',
+      media: { origin: 'openly-licensed', license: 'CC-BY-4.0' },
+    };
+    const gif: ArticleBlock = {
+      type: 'gif',
+      src: 'https://example.com/anim.gif',
+      alt: 'Animation',
+      media: { origin: 'generated' },
+    };
+    const embed: ArticleBlock = {
+      type: 'embed',
+      provider: 'youtube',
+      url: 'https://youtube.com/watch?v=abc',
+      title: 'Demo video',
+    };
+    assert.strictEqual(text.type, 'paragraph');
+    assert.strictEqual(heading.type, 'heading');
+    assert.strictEqual((chart as ChartBlock).chartType, 'bar');
+    assert.strictEqual((image as ImageBlock).media.origin, 'openly-licensed');
+    assert.strictEqual((gif as GifBlock).media.origin, 'generated');
+    assert.strictEqual((embed as EmbedBlock).provider, 'youtube');
+  });
+
+  it('TextBlock and ChartBlock are named exports (not just the union)', () => {
+    const tb: TextBlock = { type: 'callout', text: 'Note.' };
+    const cb: ChartBlock = {
+      type: 'chart',
+      chartType: 'line',
+      title: 'Trend',
+      series: [{ label: 'Jan', value: 10 }],
+      factIds: ['f-1'],
+      attribution: { sources: [] },
+    };
+    assert.strictEqual(tb.type, 'callout');
+    assert.strictEqual(cb.type, 'chart');
+  });
+
+  it('ScoreBreakdown.technicalSignificance is optional (rev 3 additive)', () => {
+    const rev2score: ScoreBreakdown = {
+      interaction: 0.5,
+      credibility: 0.8,
+      corroboration: 0.7,
+      recency: 0.9,
+      diversity: 0.6,
+      total: 0.74,
+      weights: { interaction: 0.2 },
+    };
+    assert.strictEqual(rev2score.technicalSignificance, undefined);
+
+    const rev3score: ScoreBreakdown = { ...rev2score, technicalSignificance: 0.85 };
+    assert.strictEqual(rev3score.technicalSignificance, 0.85);
+  });
+
+  it('RankedCluster rev 3 optional fields are absent-safe', () => {
+    const cluster: RankedCluster = {
+      clusterId: 'c-1',
+      topic: 'ai',
+      topicLabel: 'AI',
+      headline: 'AI news',
+      rank: 1,
+      score: {
+        interaction: 0.5, credibility: 0.8, corroboration: 0.7,
+        recency: 0.9, diversity: 0.6, total: 0.74, weights: {},
+      },
+      sourceQuality: 'corroborated',
+      confidence: 'high',
+      verification: 'multi-source',
+      sourceCount: 3,
+      distinctDomains: 3,
+      tierHistogram: { news: 3 },
+      memberIds: ['i-1'],
+      earliestPublishedAt: '2026-06-11T03:00:00.000Z',
+      latestPublishedAt: '2026-06-11T05:00:00.000Z',
+      auditId: 'audit-1',
+    };
+    assert.strictEqual(cluster.references, undefined);
+    assert.strictEqual(cluster.sourceDocIds, undefined);
+    assert.strictEqual(cluster.gateStatus, undefined);
+
+    const rev3cluster: RankedCluster = {
+      ...cluster,
+      references: [{ source: 'Reuters', sourceDomain: 'reuters.com', tier: 'news',
+                     url: 'https://reuters.com/a', title: 'AI', publishedAt: '2026-06-11T04:00:00.000Z' }],
+      sourceDocIds: ['doc-1'],
+      gateStatus: 'auto',
+    };
+    assert.strictEqual(rev3cluster.gateStatus, 'auto');
+    assert.strictEqual(rev3cluster.references?.length, 1);
+  });
+
+  it('Top10Entry.sourceDocIds is optional (rev 3 additive)', () => {
+    const entry: Top10Entry = {
+      rank: 1,
+      clusterId: 'c-1',
+      topic: 'ai',
+      topicLabel: 'AI',
+      headline: 'AI news',
+      score: {
+        interaction: 0.5, credibility: 0.8, corroboration: 0.7,
+        recency: 0.9, diversity: 0.6, total: 0.74, weights: {},
+      },
+      sourceQuality: 'corroborated',
+      confidence: 'high',
+      references: [],
+      delta: { previousRank: null, movement: 'new' },
+      carriedOver: false,
+    };
+    assert.strictEqual(entry.sourceDocIds, undefined);
+
+    const rev3entry: Top10Entry = { ...entry, sourceDocIds: ['doc-1', 'doc-2'] };
+    assert.strictEqual(rev3entry.sourceDocIds?.length, 2);
+  });
+
+  it('ClaimProvenance fields are structurally correct', () => {
+    const claim: ClaimProvenance = {
+      blockIndex: 2,
+      text: 'AI model efficiency improved by 40% year-over-year.',
+      isEditorial: false,
+      factIds: ['fact-1', 'fact-2'],
+      corroboration: 2,
+      confidence: 'high',
+    };
+    assert.strictEqual(claim.isEditorial, false);
+    assert.strictEqual(claim.factIds.length, 2);
+  });
+
+  it('SynthesizedArticle rev 3 optional fields are absent-safe', () => {
+    const article: SynthesizedArticle = {
+      id: 'art-1',
+      rank: 1,
+      topic: 'ai',
+      topicLabel: 'AI',
+      headline: 'AI progress',
+      dek: 'A look at AI in 2026.',
+      body: [{ type: 'paragraph', text: 'Body text.' }],
+      keyPoints: ['Point one'],
+      whyItMatters: 'Affects everyone.',
+      readerAction: 'Read the linked papers.',
+      tags: ['ai'],
+      confidence: 'high',
+      sourceQuality: 'corroborated',
+      references: [],
+      provenance: { clusterId: 'c-1', sourceCount: 3, distinctDomains: 3, upstreamRunId: 'run-1' },
+      ai: { provider: 'deterministic', model: 'deterministic@v1', status: 'fallback',
+             generatedAt: '2026-06-11T06:00:00.000Z' },
+      legalNote: 'Original text only.',
+      wordCount: 320,
+      readingTimeMinutes: 2,
+      generatedAt: '2026-06-11T06:00:00.000Z',
+    };
+    assert.strictEqual(article.editorialStatus, undefined);
+    assert.strictEqual(article.facts, undefined);
+    assert.strictEqual(article.claims, undefined);
+
+    const rev3article: SynthesizedArticle = {
+      ...article,
+      editorialStatus: 'published',
+      claims: [{ blockIndex: 0, text: 'Body text.', isEditorial: false,
+                 factIds: ['f-1'], corroboration: 1, confidence: 'high' }],
+    };
+    assert.strictEqual(rev3article.editorialStatus, 'published');
+    assert.strictEqual(rev3article.claims?.length, 1);
   });
 });
