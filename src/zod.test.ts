@@ -678,19 +678,37 @@ describe('ExtractedFactSchema', () => {
 describe('AggregationArtifactSchema — rev 3 additive fields', () => {
   it('parses with documentsByTopic and factsByCluster (rev 3 producer)', () => {
     const doc = {
-      id: 'doc-1', url: 'https://reuters.com/article', source: 'Reuters',
-      sourceDomain: 'reuters.com', tier: 'news', title: 'AI Progress',
-      publishedAt: '2026-06-11T04:00:00.000Z', fetchedAt: '2026-06-11T05:00:00.000Z',
-      extraction: 'full', accessPolicy: 'allowed', wordCount: 800, lang: 'en',
+      id: 'doc-1',
+      url: 'https://reuters.com/article',
+      source: 'Reuters',
+      sourceDomain: 'reuters.com',
+      tier: 'news',
+      title: 'AI Progress',
+      publishedAt: '2026-06-11T04:00:00.000Z',
+      fetchedAt: '2026-06-11T05:00:00.000Z',
+      extraction: 'full',
+      accessPolicy: 'allowed',
+      wordCount: 800,
+      lang: 'en',
       contentHash: 'abc123',
     };
     const fact = {
-      id: 'fact-1', topic: 'ai', clusterId: 'cluster-ai-1',
+      id: 'fact-1',
+      topic: 'ai',
+      clusterId: 'cluster-ai-1',
       statement: 'AI efficiency improved 40%.',
-      entities: ['AI'], corroboration: 1, confidence: 'high',
-      provenance: [{ sourceDocId: 'doc-1', sourceDomain: 'reuters.com', url: 'https://reuters.com/article' }],
-      extractedBy: { provider: 'ollama', model: 'llama3.2', status: 'generated',
-                     generatedAt: '2026-06-11T05:30:00.000Z' },
+      entities: ['AI'],
+      corroboration: 1,
+      confidence: 'high',
+      provenance: [
+        { sourceDocId: 'doc-1', sourceDomain: 'reuters.com', url: 'https://reuters.com/article' },
+      ],
+      extractedBy: {
+        provider: 'ollama',
+        model: 'llama3.2',
+        status: 'generated',
+        generatedAt: '2026-06-11T05:30:00.000Z',
+      },
     };
     const result = AggregationArtifactSchema.safeParse(
       makeAggArtifact({
@@ -719,26 +737,47 @@ describe('AggregationArtifactSchema — rev 3 additive fields', () => {
 
 describe('RankingArtifactSchema — rev 3 additive fields', () => {
   const baseScore = {
-    interaction: 0.8, credibility: 0.9, corroboration: 0.75,
-    recency: 0.7, diversity: 0.85, total: 0.8, weights: {},
+    interaction: 0.8,
+    credibility: 0.9,
+    corroboration: 0.75,
+    recency: 0.7,
+    diversity: 0.85,
+    total: 0.8,
+    weights: {},
   };
   const baseCluster = {
-    clusterId: 'c-1', topic: 'ai', topicLabel: 'AI', headline: 'AI news',
-    rank: 1, score: baseScore, sourceQuality: 'corroborated', confidence: 'high',
-    verification: 'multi-source', sourceCount: 3, distinctDomains: 3,
-    tierHistogram: { news: 3 }, memberIds: ['i-1'],
+    clusterId: 'c-1',
+    topic: 'ai',
+    topicLabel: 'AI',
+    headline: 'AI news',
+    rank: 1,
+    score: baseScore,
+    sourceQuality: 'corroborated',
+    confidence: 'high',
+    verification: 'multi-source',
+    sourceCount: 3,
+    distinctDomains: 3,
+    tierHistogram: { news: 3 },
+    memberIds: ['i-1'],
     earliestPublishedAt: '2026-06-11T03:00:00.000Z',
-    latestPublishedAt: '2026-06-11T05:00:00.000Z', auditId: 'audit-1',
+    latestPublishedAt: '2026-06-11T05:00:00.000Z',
+    auditId: 'audit-1',
   };
 
   it('parses a RankedCluster with rev 3 optional fields (technicalSignificance, references, sourceDocIds, gateStatus)', () => {
     const cluster = {
       ...baseCluster,
       score: { ...baseScore, technicalSignificance: 0.85 },
-      references: [{
-        source: 'Reuters', sourceDomain: 'reuters.com', tier: 'news',
-        url: 'https://reuters.com/article', title: 'AI news', publishedAt: '2026-06-11T04:00:00.000Z',
-      }],
+      references: [
+        {
+          source: 'Reuters',
+          sourceDomain: 'reuters.com',
+          tier: 'news',
+          url: 'https://reuters.com/article',
+          title: 'AI news',
+          publishedAt: '2026-06-11T04:00:00.000Z',
+        },
+      ],
       sourceDocIds: ['doc-1'],
       gateStatus: 'auto',
     };
@@ -785,13 +824,26 @@ describe('RankingArtifactSchema — rev 3 additive fields', () => {
 
 describe('Top10ArtifactSchema — rev 3 sourceDocIds field', () => {
   const baseScore = {
-    interaction: 0.8, credibility: 0.9, corroboration: 0.75,
-    recency: 0.7, diversity: 0.85, total: 0.8, weights: {},
+    interaction: 0.8,
+    credibility: 0.9,
+    corroboration: 0.75,
+    recency: 0.7,
+    diversity: 0.85,
+    total: 0.8,
+    weights: {},
   };
   const entry = {
-    rank: 1, clusterId: 'c-1', topic: 'ai', topicLabel: 'AI', headline: 'AI news',
-    score: baseScore, sourceQuality: 'corroborated', confidence: 'high',
-    references: [], delta: { previousRank: null, movement: 'new' }, carriedOver: false,
+    rank: 1,
+    clusterId: 'c-1',
+    topic: 'ai',
+    topicLabel: 'AI',
+    headline: 'AI news',
+    score: baseScore,
+    sourceQuality: 'corroborated',
+    confidence: 'high',
+    references: [],
+    delta: { previousRank: null, movement: 'new' },
+    carriedOver: false,
   };
 
   it('parses a Top10Entry with sourceDocIds (rev 3)', () => {
@@ -878,7 +930,10 @@ describe('ChartBlockSchema', () => {
     type: 'chart',
     chartType: 'bar',
     title: 'Efficiency gains',
-    series: [{ label: '2025', value: 30, unit: '%' }, { label: '2026', value: 40, unit: '%' }],
+    series: [
+      { label: '2025', value: 30, unit: '%' },
+      { label: '2026', value: 40, unit: '%' },
+    ],
     factIds: ['fact-1'],
     attribution: { sources: [{ source: 'Reuters', url: 'https://reuters.com/article' }] },
   };
@@ -918,7 +973,9 @@ describe('ImageBlockSchema', () => {
 
   it('rejects missing media', () => {
     const result = ImageBlockSchema.safeParse({
-      type: 'image', src: 'https://example.com/img.jpg', alt: 'Missing media',
+      type: 'image',
+      src: 'https://example.com/img.jpg',
+      alt: 'Missing media',
     });
     assert.ok(!result.success);
   });
@@ -940,7 +997,10 @@ describe('GifBlockSchema', () => {
 describe('EmbedBlockSchema', () => {
   it('parses a valid embed block', () => {
     const result = EmbedBlockSchema.safeParse({
-      type: 'embed', provider: 'youtube', url: 'https://youtube.com/watch?v=abc', title: 'Demo',
+      type: 'embed',
+      provider: 'youtube',
+      url: 'https://youtube.com/watch?v=abc',
+      title: 'Demo',
     });
     assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
   });
@@ -954,8 +1014,11 @@ describe('ArticleBlockSchema — union + forward-compat', () => {
 
   it('accepts a chart block', () => {
     const result = ArticleBlockSchema.safeParse({
-      type: 'chart', chartType: 'line', title: 'Trend',
-      series: [{ label: 'Q1', value: 10 }], factIds: ['f-1'],
+      type: 'chart',
+      chartType: 'line',
+      title: 'Trend',
+      series: [{ label: 'Q1', value: 10 }],
+      factIds: ['f-1'],
       attribution: { sources: [] },
     });
     assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
@@ -963,7 +1026,9 @@ describe('ArticleBlockSchema — union + forward-compat', () => {
 
   it('accepts an image block', () => {
     const result = ArticleBlockSchema.safeParse({
-      type: 'image', src: 'https://ex.com/img.jpg', alt: 'Alt',
+      type: 'image',
+      src: 'https://ex.com/img.jpg',
+      alt: 'Alt',
       media: { origin: 'generated' },
     });
     assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
@@ -971,20 +1036,28 @@ describe('ArticleBlockSchema — union + forward-compat', () => {
 
   it('accepts a gif block', () => {
     const result = ArticleBlockSchema.safeParse({
-      type: 'gif', src: 'https://ex.com/a.gif', alt: 'Alt', media: { origin: 'generated' },
+      type: 'gif',
+      src: 'https://ex.com/a.gif',
+      alt: 'Alt',
+      media: { origin: 'generated' },
     });
     assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
   });
 
   it('accepts an embed block', () => {
     const result = ArticleBlockSchema.safeParse({
-      type: 'embed', provider: 'vimeo', url: 'https://vimeo.com/123',
+      type: 'embed',
+      provider: 'vimeo',
+      url: 'https://vimeo.com/123',
     });
     assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
   });
 
   it('accepts an unknown future block type (forward-compat, never throw)', () => {
-    const result = ArticleBlockSchema.safeParse({ type: 'future-video-block', src: 'https://ex.com/v.mp4' });
+    const result = ArticleBlockSchema.safeParse({
+      type: 'future-video-block',
+      src: 'https://ex.com/v.mp4',
+    });
     assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
   });
 });
@@ -1020,8 +1093,12 @@ describe('ClaimProvenanceSchema', () => {
 
   it('rejects negative blockIndex', () => {
     const result = ClaimProvenanceSchema.safeParse({
-      blockIndex: -1, text: 'Claim.', isEditorial: false,
-      factIds: ['f-1'], corroboration: 1, confidence: 'high',
+      blockIndex: -1,
+      text: 'Claim.',
+      isEditorial: false,
+      factIds: ['f-1'],
+      corroboration: 1,
+      confidence: 'high',
     });
     assert.ok(!result.success);
   });
@@ -1034,14 +1111,23 @@ describe('ClaimProvenanceSchema', () => {
 describe('ArticleArtifactSchema — rev 3 additive fields', () => {
   it('parses a SynthesizedArticle with editorialStatus, facts, and claims', () => {
     const article = {
-      id: 'article-1', rank: 1, topic: 'ai', topicLabel: 'AI',
-      headline: 'AI Progress: What 2026 Brings', dek: 'An independent look.',
+      id: 'article-1',
+      rank: 1,
+      topic: 'ai',
+      topicLabel: 'AI',
+      headline: 'AI Progress: What 2026 Brings',
+      dek: 'An independent look.',
       body: [
         { type: 'heading', text: 'Introduction' },
         { type: 'paragraph', text: 'AI has seen remarkable progress.' },
         {
-          type: 'chart', chartType: 'bar', title: 'Efficiency gains',
-          series: [{ label: '2025', value: 30, unit: '%' }, { label: '2026', value: 40, unit: '%' }],
+          type: 'chart',
+          chartType: 'bar',
+          title: 'Efficiency gains',
+          series: [
+            { label: '2025', value: 30, unit: '%' },
+            { label: '2026', value: 40, unit: '%' },
+          ],
           factIds: ['fact-1'],
           attribution: { sources: [{ source: 'Reuters', url: 'https://reuters.com/article' }] },
         },
@@ -1053,26 +1139,57 @@ describe('ArticleArtifactSchema — rev 3 additive fields', () => {
       confidence: 'high',
       sourceQuality: 'corroborated',
       references: [],
-      provenance: { clusterId: 'c-1', sourceCount: 3, distinctDomains: 3, upstreamRunId: 'run-top10-1' },
-      ai: { provider: 'ollama', model: 'llama3.2', status: 'generated',
-             generatedAt: '2026-06-11T06:04:00.000Z' },
+      provenance: {
+        clusterId: 'c-1',
+        sourceCount: 3,
+        distinctDomains: 3,
+        upstreamRunId: 'run-top10-1',
+      },
+      ai: {
+        provider: 'ollama',
+        model: 'llama3.2',
+        status: 'generated',
+        generatedAt: '2026-06-11T06:04:00.000Z',
+      },
       legalNote: 'Original text only.',
       wordCount: 320,
       readingTimeMinutes: 2,
       generatedAt: '2026-06-11T06:04:00.000Z',
       editorialStatus: 'published',
-      facts: [{
-        id: 'fact-1', topic: 'ai', clusterId: 'c-1',
-        statement: 'AI efficiency improved 40%.',
-        entities: ['AI'], corroboration: 2, confidence: 'high',
-        provenance: [{ sourceDocId: 'doc-1', sourceDomain: 'reuters.com', url: 'https://reuters.com/article' }],
-        extractedBy: { provider: 'ollama', model: 'llama3.2', status: 'generated',
-                       generatedAt: '2026-06-11T05:30:00.000Z' },
-      }],
-      claims: [{
-        blockIndex: 1, text: 'AI has seen remarkable progress.',
-        isEditorial: false, factIds: ['fact-1'], corroboration: 2, confidence: 'high',
-      }],
+      facts: [
+        {
+          id: 'fact-1',
+          topic: 'ai',
+          clusterId: 'c-1',
+          statement: 'AI efficiency improved 40%.',
+          entities: ['AI'],
+          corroboration: 2,
+          confidence: 'high',
+          provenance: [
+            {
+              sourceDocId: 'doc-1',
+              sourceDomain: 'reuters.com',
+              url: 'https://reuters.com/article',
+            },
+          ],
+          extractedBy: {
+            provider: 'ollama',
+            model: 'llama3.2',
+            status: 'generated',
+            generatedAt: '2026-06-11T05:30:00.000Z',
+          },
+        },
+      ],
+      claims: [
+        {
+          blockIndex: 1,
+          text: 'AI has seen remarkable progress.',
+          isEditorial: false,
+          factIds: ['fact-1'],
+          corroboration: 2,
+          confidence: 'high',
+        },
+      ],
     };
     const result = ArticleArtifactSchema.safeParse(
       makeArticleArtifact({
@@ -1080,8 +1197,11 @@ describe('ArticleArtifactSchema — rev 3 additive fields', () => {
         data: {
           articles: [article],
           copyrightPolicy: {
-            originalTextOnly: true, maxQuoteWords: 25, reproduceArticleBody: false,
-            requireAttribution: true, requireCanonicalLinks: true,
+            originalTextOnly: true,
+            maxQuoteWords: 25,
+            reproduceArticleBody: false,
+            requireAttribution: true,
+            requireCanonicalLinks: true,
           },
         },
       }),
@@ -1091,16 +1211,30 @@ describe('ArticleArtifactSchema — rev 3 additive fields', () => {
 
   it('parses a held article (editorialStatus: held)', () => {
     const article = {
-      id: 'art-held', rank: 2, topic: 'security', topicLabel: 'Security',
-      headline: 'New vulnerability', dek: 'Details pending verification.',
+      id: 'art-held',
+      rank: 2,
+      topic: 'security',
+      topicLabel: 'Security',
+      headline: 'New vulnerability',
+      dek: 'Details pending verification.',
       body: [{ type: 'paragraph', text: 'Placeholder.' }],
-      keyPoints: [], whyItMatters: 'TBD.', readerAction: 'Check back soon.',
-      tags: ['security'], confidence: 'low', sourceQuality: 'single source',
+      keyPoints: [],
+      whyItMatters: 'TBD.',
+      readerAction: 'Check back soon.',
+      tags: ['security'],
+      confidence: 'low',
+      sourceQuality: 'single source',
       references: [],
       provenance: { clusterId: 'c-2', sourceCount: 1, distinctDomains: 1, upstreamRunId: 'run-1' },
-      ai: { provider: 'deterministic', model: 'deterministic@v1', status: 'fallback',
-             generatedAt: '2026-06-11T06:00:00.000Z' },
-      legalNote: 'Original text only.', wordCount: 50, readingTimeMinutes: 1,
+      ai: {
+        provider: 'deterministic',
+        model: 'deterministic@v1',
+        status: 'fallback',
+        generatedAt: '2026-06-11T06:00:00.000Z',
+      },
+      legalNote: 'Original text only.',
+      wordCount: 50,
+      readingTimeMinutes: 1,
       generatedAt: '2026-06-11T06:00:00.000Z',
       editorialStatus: 'held',
     };
@@ -1110,8 +1244,11 @@ describe('ArticleArtifactSchema — rev 3 additive fields', () => {
         data: {
           articles: [article],
           copyrightPolicy: {
-            originalTextOnly: true, maxQuoteWords: 25, reproduceArticleBody: false,
-            requireAttribution: true, requireCanonicalLinks: true,
+            originalTextOnly: true,
+            maxQuoteWords: 25,
+            reproduceArticleBody: false,
+            requireAttribution: true,
+            requireCanonicalLinks: true,
           },
         },
       }),
@@ -1121,23 +1258,43 @@ describe('ArticleArtifactSchema — rev 3 additive fields', () => {
 
   it('rejects invalid editorialStatus value', () => {
     const article = {
-      id: 'art-1', rank: 1, topic: 'ai', topicLabel: 'AI',
-      headline: 'AI', dek: 'AI.', body: [], keyPoints: [], whyItMatters: '', readerAction: '',
-      tags: [], confidence: 'high', sourceQuality: 'corroborated', references: [],
+      id: 'art-1',
+      rank: 1,
+      topic: 'ai',
+      topicLabel: 'AI',
+      headline: 'AI',
+      dek: 'AI.',
+      body: [],
+      keyPoints: [],
+      whyItMatters: '',
+      readerAction: '',
+      tags: [],
+      confidence: 'high',
+      sourceQuality: 'corroborated',
+      references: [],
       provenance: { clusterId: 'c-1', sourceCount: 1, distinctDomains: 1, upstreamRunId: 'r-1' },
-      ai: { provider: 'deterministic', model: 'd@v1', status: 'fallback',
-             generatedAt: '2026-06-11T06:00:00.000Z' },
-      legalNote: '', wordCount: 0, readingTimeMinutes: 0,
+      ai: {
+        provider: 'deterministic',
+        model: 'd@v1',
+        status: 'fallback',
+        generatedAt: '2026-06-11T06:00:00.000Z',
+      },
+      legalNote: '',
+      wordCount: 0,
+      readingTimeMinutes: 0,
       generatedAt: '2026-06-11T06:00:00.000Z',
-      editorialStatus: 'approved',  // invalid
+      editorialStatus: 'approved', // invalid
     };
     const result = ArticleArtifactSchema.safeParse(
       makeArticleArtifact({
         data: {
           articles: [article],
           copyrightPolicy: {
-            originalTextOnly: true, maxQuoteWords: 25, reproduceArticleBody: false,
-            requireAttribution: true, requireCanonicalLinks: true,
+            originalTextOnly: true,
+            maxQuoteWords: 25,
+            reproduceArticleBody: false,
+            requireAttribution: true,
+            requireCanonicalLinks: true,
           },
         },
       }),

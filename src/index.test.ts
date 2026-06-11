@@ -376,7 +376,10 @@ describe('Rev 3 — exported types are assignable at runtime', () => {
       type: 'chart',
       chartType: 'bar',
       title: 'Efficiency gains',
-      series: [{ label: '2025', value: 30, unit: '%' }, { label: '2026', value: 40, unit: '%' }],
+      series: [
+        { label: '2025', value: 30, unit: '%' },
+        { label: '2026', value: 40, unit: '%' },
+      ],
       factIds: ['fact-1'],
       attribution: { sources: [{ source: 'Reuters', url: 'https://reuters.com/article' }] },
     };
@@ -444,8 +447,13 @@ describe('Rev 3 — exported types are assignable at runtime', () => {
       headline: 'AI news',
       rank: 1,
       score: {
-        interaction: 0.5, credibility: 0.8, corroboration: 0.7,
-        recency: 0.9, diversity: 0.6, total: 0.74, weights: {},
+        interaction: 0.5,
+        credibility: 0.8,
+        corroboration: 0.7,
+        recency: 0.9,
+        diversity: 0.6,
+        total: 0.74,
+        weights: {},
       },
       sourceQuality: 'corroborated',
       confidence: 'high',
@@ -464,8 +472,16 @@ describe('Rev 3 — exported types are assignable at runtime', () => {
 
     const rev3cluster: RankedCluster = {
       ...cluster,
-      references: [{ source: 'Reuters', sourceDomain: 'reuters.com', tier: 'news',
-                     url: 'https://reuters.com/a', title: 'AI', publishedAt: '2026-06-11T04:00:00.000Z' }],
+      references: [
+        {
+          source: 'Reuters',
+          sourceDomain: 'reuters.com',
+          tier: 'news',
+          url: 'https://reuters.com/a',
+          title: 'AI',
+          publishedAt: '2026-06-11T04:00:00.000Z',
+        },
+      ],
       sourceDocIds: ['doc-1'],
       gateStatus: 'auto',
     };
@@ -481,8 +497,13 @@ describe('Rev 3 — exported types are assignable at runtime', () => {
       topicLabel: 'AI',
       headline: 'AI news',
       score: {
-        interaction: 0.5, credibility: 0.8, corroboration: 0.7,
-        recency: 0.9, diversity: 0.6, total: 0.74, weights: {},
+        interaction: 0.5,
+        credibility: 0.8,
+        corroboration: 0.7,
+        recency: 0.9,
+        diversity: 0.6,
+        total: 0.74,
+        weights: {},
       },
       sourceQuality: 'corroborated',
       confidence: 'high',
@@ -526,8 +547,12 @@ describe('Rev 3 — exported types are assignable at runtime', () => {
       sourceQuality: 'corroborated',
       references: [],
       provenance: { clusterId: 'c-1', sourceCount: 3, distinctDomains: 3, upstreamRunId: 'run-1' },
-      ai: { provider: 'deterministic', model: 'deterministic@v1', status: 'fallback',
-             generatedAt: '2026-06-11T06:00:00.000Z' },
+      ai: {
+        provider: 'deterministic',
+        model: 'deterministic@v1',
+        status: 'fallback',
+        generatedAt: '2026-06-11T06:00:00.000Z',
+      },
       legalNote: 'Original text only.',
       wordCount: 320,
       readingTimeMinutes: 2,
@@ -540,8 +565,16 @@ describe('Rev 3 — exported types are assignable at runtime', () => {
     const rev3article: SynthesizedArticle = {
       ...article,
       editorialStatus: 'published',
-      claims: [{ blockIndex: 0, text: 'Body text.', isEditorial: false,
-                 factIds: ['f-1'], corroboration: 1, confidence: 'high' }],
+      claims: [
+        {
+          blockIndex: 0,
+          text: 'Body text.',
+          isEditorial: false,
+          factIds: ['f-1'],
+          corroboration: 1,
+          confidence: 'high',
+        },
+      ],
     };
     assert.strictEqual(rev3article.editorialStatus, 'published');
     assert.strictEqual(rev3article.claims?.length, 1);
