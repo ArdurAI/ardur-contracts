@@ -250,7 +250,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
     }>>;
     warnings: z.ZodArray<z.ZodString, "many">;
     data: z.ZodObject<{
-        itemsByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        itemsByTopic: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             id: z.ZodString;
             topic: z.ZodString;
             topicLabel: z.ZodString;
@@ -380,7 +380,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             fingerprint: z.ZodString;
             claims: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, z.ZodTypeAny, "passthrough">>, "many">>;
-        clustersByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        clustersByTopic: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             clusterId: z.ZodString;
             topic: z.ZodString;
             topicLabel: z.ZodString;
@@ -468,7 +468,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             earliestPublishedAt: z.ZodString;
             latestPublishedAt: z.ZodString;
         }, z.ZodTypeAny, "passthrough">>, "many">>;
-        coverageByTopic: z.ZodRecord<z.ZodString, z.ZodObject<{
+        coverageByTopic: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodObject<{
             sourcesConfigured: z.ZodNumber;
             sourcesQueried: z.ZodNumber;
             sourcesResponded: z.ZodNumber;
@@ -487,7 +487,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             sourcesResponded: number;
             degraded: boolean;
         }>>;
-        documentsByTopic: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        documentsByTopic: z.ZodOptional<z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             id: z.ZodString;
             url: z.ZodString;
             source: z.ZodString;
@@ -530,7 +530,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             lang: string | null;
             contentHash: string;
         }>, "many">>>;
-        factsByCluster: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        factsByCluster: z.ZodOptional<z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             id: z.ZodString;
             topic: z.ZodString;
             clusterId: z.ZodString;
@@ -645,7 +645,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             } | undefined;
         }>, "many">>>;
     }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
-        itemsByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        itemsByTopic: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             id: z.ZodString;
             topic: z.ZodString;
             topicLabel: z.ZodString;
@@ -775,7 +775,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             fingerprint: z.ZodString;
             claims: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, z.ZodTypeAny, "passthrough">>, "many">>;
-        clustersByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        clustersByTopic: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             clusterId: z.ZodString;
             topic: z.ZodString;
             topicLabel: z.ZodString;
@@ -863,7 +863,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             earliestPublishedAt: z.ZodString;
             latestPublishedAt: z.ZodString;
         }, z.ZodTypeAny, "passthrough">>, "many">>;
-        coverageByTopic: z.ZodRecord<z.ZodString, z.ZodObject<{
+        coverageByTopic: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodObject<{
             sourcesConfigured: z.ZodNumber;
             sourcesQueried: z.ZodNumber;
             sourcesResponded: z.ZodNumber;
@@ -882,7 +882,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             sourcesResponded: number;
             degraded: boolean;
         }>>;
-        documentsByTopic: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        documentsByTopic: z.ZodOptional<z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             id: z.ZodString;
             url: z.ZodString;
             source: z.ZodString;
@@ -925,7 +925,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             lang: string | null;
             contentHash: string;
         }>, "many">>>;
-        factsByCluster: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        factsByCluster: z.ZodOptional<z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             id: z.ZodString;
             topic: z.ZodString;
             clusterId: z.ZodString;
@@ -1040,7 +1040,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             } | undefined;
         }>, "many">>>;
     }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
-        itemsByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        itemsByTopic: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             id: z.ZodString;
             topic: z.ZodString;
             topicLabel: z.ZodString;
@@ -1170,7 +1170,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             fingerprint: z.ZodString;
             claims: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, z.ZodTypeAny, "passthrough">>, "many">>;
-        clustersByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        clustersByTopic: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             clusterId: z.ZodString;
             topic: z.ZodString;
             topicLabel: z.ZodString;
@@ -1258,7 +1258,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             earliestPublishedAt: z.ZodString;
             latestPublishedAt: z.ZodString;
         }, z.ZodTypeAny, "passthrough">>, "many">>;
-        coverageByTopic: z.ZodRecord<z.ZodString, z.ZodObject<{
+        coverageByTopic: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodObject<{
             sourcesConfigured: z.ZodNumber;
             sourcesQueried: z.ZodNumber;
             sourcesResponded: z.ZodNumber;
@@ -1277,7 +1277,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             sourcesResponded: number;
             degraded: boolean;
         }>>;
-        documentsByTopic: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        documentsByTopic: z.ZodOptional<z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             id: z.ZodString;
             url: z.ZodString;
             source: z.ZodString;
@@ -1320,7 +1320,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             lang: string | null;
             contentHash: string;
         }>, "many">>>;
-        factsByCluster: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        factsByCluster: z.ZodOptional<z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             id: z.ZodString;
             topic: z.ZodString;
             clusterId: z.ZodString;
@@ -1489,7 +1489,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
     }>>;
     warnings: z.ZodArray<z.ZodString, "many">;
     data: z.ZodObject<{
-        itemsByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        itemsByTopic: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             id: z.ZodString;
             topic: z.ZodString;
             topicLabel: z.ZodString;
@@ -1619,7 +1619,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             fingerprint: z.ZodString;
             claims: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, z.ZodTypeAny, "passthrough">>, "many">>;
-        clustersByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        clustersByTopic: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             clusterId: z.ZodString;
             topic: z.ZodString;
             topicLabel: z.ZodString;
@@ -1707,7 +1707,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             earliestPublishedAt: z.ZodString;
             latestPublishedAt: z.ZodString;
         }, z.ZodTypeAny, "passthrough">>, "many">>;
-        coverageByTopic: z.ZodRecord<z.ZodString, z.ZodObject<{
+        coverageByTopic: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodObject<{
             sourcesConfigured: z.ZodNumber;
             sourcesQueried: z.ZodNumber;
             sourcesResponded: z.ZodNumber;
@@ -1726,7 +1726,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             sourcesResponded: number;
             degraded: boolean;
         }>>;
-        documentsByTopic: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        documentsByTopic: z.ZodOptional<z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             id: z.ZodString;
             url: z.ZodString;
             source: z.ZodString;
@@ -1769,7 +1769,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             lang: string | null;
             contentHash: string;
         }>, "many">>>;
-        factsByCluster: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        factsByCluster: z.ZodOptional<z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             id: z.ZodString;
             topic: z.ZodString;
             clusterId: z.ZodString;
@@ -1884,7 +1884,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             } | undefined;
         }>, "many">>>;
     }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
-        itemsByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        itemsByTopic: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             id: z.ZodString;
             topic: z.ZodString;
             topicLabel: z.ZodString;
@@ -2014,7 +2014,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             fingerprint: z.ZodString;
             claims: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, z.ZodTypeAny, "passthrough">>, "many">>;
-        clustersByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        clustersByTopic: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             clusterId: z.ZodString;
             topic: z.ZodString;
             topicLabel: z.ZodString;
@@ -2102,7 +2102,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             earliestPublishedAt: z.ZodString;
             latestPublishedAt: z.ZodString;
         }, z.ZodTypeAny, "passthrough">>, "many">>;
-        coverageByTopic: z.ZodRecord<z.ZodString, z.ZodObject<{
+        coverageByTopic: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodObject<{
             sourcesConfigured: z.ZodNumber;
             sourcesQueried: z.ZodNumber;
             sourcesResponded: z.ZodNumber;
@@ -2121,7 +2121,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             sourcesResponded: number;
             degraded: boolean;
         }>>;
-        documentsByTopic: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        documentsByTopic: z.ZodOptional<z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             id: z.ZodString;
             url: z.ZodString;
             source: z.ZodString;
@@ -2164,7 +2164,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             lang: string | null;
             contentHash: string;
         }>, "many">>>;
-        factsByCluster: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        factsByCluster: z.ZodOptional<z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             id: z.ZodString;
             topic: z.ZodString;
             clusterId: z.ZodString;
@@ -2279,7 +2279,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             } | undefined;
         }>, "many">>>;
     }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
-        itemsByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        itemsByTopic: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             id: z.ZodString;
             topic: z.ZodString;
             topicLabel: z.ZodString;
@@ -2409,7 +2409,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             fingerprint: z.ZodString;
             claims: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, z.ZodTypeAny, "passthrough">>, "many">>;
-        clustersByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        clustersByTopic: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             clusterId: z.ZodString;
             topic: z.ZodString;
             topicLabel: z.ZodString;
@@ -2497,7 +2497,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             earliestPublishedAt: z.ZodString;
             latestPublishedAt: z.ZodString;
         }, z.ZodTypeAny, "passthrough">>, "many">>;
-        coverageByTopic: z.ZodRecord<z.ZodString, z.ZodObject<{
+        coverageByTopic: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodObject<{
             sourcesConfigured: z.ZodNumber;
             sourcesQueried: z.ZodNumber;
             sourcesResponded: z.ZodNumber;
@@ -2516,7 +2516,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             sourcesResponded: number;
             degraded: boolean;
         }>>;
-        documentsByTopic: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        documentsByTopic: z.ZodOptional<z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             id: z.ZodString;
             url: z.ZodString;
             source: z.ZodString;
@@ -2559,7 +2559,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             lang: string | null;
             contentHash: string;
         }>, "many">>>;
-        factsByCluster: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        factsByCluster: z.ZodOptional<z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             id: z.ZodString;
             topic: z.ZodString;
             clusterId: z.ZodString;
@@ -2728,7 +2728,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
     }>>;
     warnings: z.ZodArray<z.ZodString, "many">;
     data: z.ZodObject<{
-        itemsByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        itemsByTopic: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             id: z.ZodString;
             topic: z.ZodString;
             topicLabel: z.ZodString;
@@ -2858,7 +2858,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             fingerprint: z.ZodString;
             claims: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, z.ZodTypeAny, "passthrough">>, "many">>;
-        clustersByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        clustersByTopic: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             clusterId: z.ZodString;
             topic: z.ZodString;
             topicLabel: z.ZodString;
@@ -2946,7 +2946,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             earliestPublishedAt: z.ZodString;
             latestPublishedAt: z.ZodString;
         }, z.ZodTypeAny, "passthrough">>, "many">>;
-        coverageByTopic: z.ZodRecord<z.ZodString, z.ZodObject<{
+        coverageByTopic: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodObject<{
             sourcesConfigured: z.ZodNumber;
             sourcesQueried: z.ZodNumber;
             sourcesResponded: z.ZodNumber;
@@ -2965,7 +2965,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             sourcesResponded: number;
             degraded: boolean;
         }>>;
-        documentsByTopic: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        documentsByTopic: z.ZodOptional<z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             id: z.ZodString;
             url: z.ZodString;
             source: z.ZodString;
@@ -3008,7 +3008,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             lang: string | null;
             contentHash: string;
         }>, "many">>>;
-        factsByCluster: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        factsByCluster: z.ZodOptional<z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             id: z.ZodString;
             topic: z.ZodString;
             clusterId: z.ZodString;
@@ -3123,7 +3123,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             } | undefined;
         }>, "many">>>;
     }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
-        itemsByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        itemsByTopic: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             id: z.ZodString;
             topic: z.ZodString;
             topicLabel: z.ZodString;
@@ -3253,7 +3253,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             fingerprint: z.ZodString;
             claims: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, z.ZodTypeAny, "passthrough">>, "many">>;
-        clustersByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        clustersByTopic: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             clusterId: z.ZodString;
             topic: z.ZodString;
             topicLabel: z.ZodString;
@@ -3341,7 +3341,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             earliestPublishedAt: z.ZodString;
             latestPublishedAt: z.ZodString;
         }, z.ZodTypeAny, "passthrough">>, "many">>;
-        coverageByTopic: z.ZodRecord<z.ZodString, z.ZodObject<{
+        coverageByTopic: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodObject<{
             sourcesConfigured: z.ZodNumber;
             sourcesQueried: z.ZodNumber;
             sourcesResponded: z.ZodNumber;
@@ -3360,7 +3360,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             sourcesResponded: number;
             degraded: boolean;
         }>>;
-        documentsByTopic: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        documentsByTopic: z.ZodOptional<z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             id: z.ZodString;
             url: z.ZodString;
             source: z.ZodString;
@@ -3403,7 +3403,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             lang: string | null;
             contentHash: string;
         }>, "many">>>;
-        factsByCluster: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        factsByCluster: z.ZodOptional<z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             id: z.ZodString;
             topic: z.ZodString;
             clusterId: z.ZodString;
@@ -3518,7 +3518,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             } | undefined;
         }>, "many">>>;
     }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
-        itemsByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        itemsByTopic: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             id: z.ZodString;
             topic: z.ZodString;
             topicLabel: z.ZodString;
@@ -3648,7 +3648,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             fingerprint: z.ZodString;
             claims: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, z.ZodTypeAny, "passthrough">>, "many">>;
-        clustersByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        clustersByTopic: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             clusterId: z.ZodString;
             topic: z.ZodString;
             topicLabel: z.ZodString;
@@ -3736,7 +3736,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             earliestPublishedAt: z.ZodString;
             latestPublishedAt: z.ZodString;
         }, z.ZodTypeAny, "passthrough">>, "many">>;
-        coverageByTopic: z.ZodRecord<z.ZodString, z.ZodObject<{
+        coverageByTopic: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodObject<{
             sourcesConfigured: z.ZodNumber;
             sourcesQueried: z.ZodNumber;
             sourcesResponded: z.ZodNumber;
@@ -3755,7 +3755,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             sourcesResponded: number;
             degraded: boolean;
         }>>;
-        documentsByTopic: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        documentsByTopic: z.ZodOptional<z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             id: z.ZodString;
             url: z.ZodString;
             source: z.ZodString;
@@ -3798,7 +3798,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             lang: string | null;
             contentHash: string;
         }>, "many">>>;
-        factsByCluster: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        factsByCluster: z.ZodOptional<z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             id: z.ZodString;
             topic: z.ZodString;
             clusterId: z.ZodString;
@@ -3969,7 +3969,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
     }>>;
     warnings: z.ZodArray<z.ZodString, "many">;
     data: z.ZodObject<{
-        rankedByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        rankedByTopic: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             clusterId: z.ZodString;
             topic: z.ZodString;
             topicLabel: z.ZodString;
@@ -3983,7 +3983,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -3992,7 +3992,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -4001,7 +4001,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -4069,7 +4069,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -4078,7 +4078,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -4087,7 +4087,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -4155,7 +4155,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -4164,7 +4164,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -4173,7 +4173,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -4232,8 +4232,8 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             auditId: z.ZodString;
             clusterId: z.ZodString;
             topic: z.ZodString;
-            inputs: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            inputs: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
+            weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             computed: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -4242,7 +4242,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -4251,7 +4251,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -4260,7 +4260,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             rationale: z.ZodString;
             weightProfile: z.ZodString;
@@ -4325,7 +4325,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -4334,7 +4334,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -4343,7 +4343,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -4436,7 +4436,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -4445,7 +4445,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -4454,7 +4454,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -4586,7 +4586,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
     }>>;
     warnings: z.ZodArray<z.ZodString, "many">;
     data: z.ZodObject<{
-        rankedByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        rankedByTopic: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             clusterId: z.ZodString;
             topic: z.ZodString;
             topicLabel: z.ZodString;
@@ -4600,7 +4600,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -4609,7 +4609,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -4618,7 +4618,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -4686,7 +4686,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -4695,7 +4695,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -4704,7 +4704,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -4772,7 +4772,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -4781,7 +4781,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -4790,7 +4790,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -4849,8 +4849,8 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             auditId: z.ZodString;
             clusterId: z.ZodString;
             topic: z.ZodString;
-            inputs: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            inputs: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
+            weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             computed: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -4859,7 +4859,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -4868,7 +4868,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -4877,7 +4877,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             rationale: z.ZodString;
             weightProfile: z.ZodString;
@@ -4942,7 +4942,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -4951,7 +4951,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -4960,7 +4960,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -5053,7 +5053,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -5062,7 +5062,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -5071,7 +5071,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -5203,7 +5203,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
     }>>;
     warnings: z.ZodArray<z.ZodString, "many">;
     data: z.ZodObject<{
-        rankedByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        rankedByTopic: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             clusterId: z.ZodString;
             topic: z.ZodString;
             topicLabel: z.ZodString;
@@ -5217,7 +5217,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -5226,7 +5226,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -5235,7 +5235,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -5303,7 +5303,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -5312,7 +5312,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -5321,7 +5321,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -5389,7 +5389,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -5398,7 +5398,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -5407,7 +5407,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -5466,8 +5466,8 @@ export declare const RankingArtifactSchema: z.ZodObject<{
             auditId: z.ZodString;
             clusterId: z.ZodString;
             topic: z.ZodString;
-            inputs: z.ZodRecord<z.ZodString, z.ZodNumber>;
-            weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+            inputs: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
+            weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             computed: z.ZodObject<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -5476,7 +5476,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -5485,7 +5485,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -5494,7 +5494,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             rationale: z.ZodString;
             weightProfile: z.ZodString;
@@ -5559,7 +5559,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -5568,7 +5568,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -5577,7 +5577,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -5670,7 +5670,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -5679,7 +5679,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -5688,7 +5688,7 @@ export declare const RankingArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -5824,7 +5824,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
     data: z.ZodObject<{
         nextRefreshAt: z.ZodString;
         topicsCovered: z.ZodArray<z.ZodString, "many">;
-        top10ByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        top10ByTopic: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
             topic: z.ZodString;
@@ -5838,7 +5838,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -5847,7 +5847,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -5856,7 +5856,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -5908,7 +5908,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -5917,7 +5917,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -5926,7 +5926,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -5978,7 +5978,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -5987,7 +5987,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -5996,7 +5996,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -6049,7 +6049,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -6058,7 +6058,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -6067,7 +6067,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -6119,7 +6119,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -6128,7 +6128,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -6137,7 +6137,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -6189,7 +6189,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -6198,7 +6198,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -6207,7 +6207,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -6276,7 +6276,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -6285,7 +6285,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -6294,7 +6294,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -6347,7 +6347,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -6356,7 +6356,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -6365,7 +6365,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -6426,7 +6426,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -6435,7 +6435,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -6444,7 +6444,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -6497,7 +6497,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -6506,7 +6506,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -6515,7 +6515,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -6616,7 +6616,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
     data: z.ZodObject<{
         nextRefreshAt: z.ZodString;
         topicsCovered: z.ZodArray<z.ZodString, "many">;
-        top10ByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        top10ByTopic: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
             topic: z.ZodString;
@@ -6630,7 +6630,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -6639,7 +6639,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -6648,7 +6648,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -6700,7 +6700,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -6709,7 +6709,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -6718,7 +6718,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -6770,7 +6770,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -6779,7 +6779,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -6788,7 +6788,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -6841,7 +6841,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -6850,7 +6850,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -6859,7 +6859,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -6911,7 +6911,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -6920,7 +6920,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -6929,7 +6929,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -6981,7 +6981,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -6990,7 +6990,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -6999,7 +6999,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -7068,7 +7068,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -7077,7 +7077,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -7086,7 +7086,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -7139,7 +7139,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -7148,7 +7148,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -7157,7 +7157,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -7218,7 +7218,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -7227,7 +7227,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -7236,7 +7236,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -7289,7 +7289,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -7298,7 +7298,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -7307,7 +7307,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -7408,7 +7408,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
     data: z.ZodObject<{
         nextRefreshAt: z.ZodString;
         topicsCovered: z.ZodArray<z.ZodString, "many">;
-        top10ByTopic: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodObject<{
+        top10ByTopic: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodArray<z.ZodObject<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
             topic: z.ZodString;
@@ -7422,7 +7422,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -7431,7 +7431,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -7440,7 +7440,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -7492,7 +7492,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -7501,7 +7501,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -7510,7 +7510,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -7562,7 +7562,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -7571,7 +7571,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -7580,7 +7580,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -7633,7 +7633,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -7642,7 +7642,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -7651,7 +7651,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -7703,7 +7703,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -7712,7 +7712,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -7721,7 +7721,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -7773,7 +7773,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -7782,7 +7782,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -7791,7 +7791,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -7860,7 +7860,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -7869,7 +7869,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -7878,7 +7878,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -7931,7 +7931,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -7940,7 +7940,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -7949,7 +7949,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -8010,7 +8010,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -8019,7 +8019,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -8028,7 +8028,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
@@ -8081,7 +8081,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -8090,7 +8090,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
                 interaction: z.ZodNumber;
                 credibility: z.ZodNumber;
@@ -8099,7 +8099,7 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
                 recency: z.ZodNumber;
                 diversity: z.ZodNumber;
                 total: z.ZodNumber;
-                weights: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                weights: z.ZodRecord<z.ZodEffects<z.ZodString, string, string>, z.ZodNumber>;
             }, z.ZodTypeAny, "passthrough">>;
             sourceQuality: z.ZodEnum<["corroborated", "multi-source", "single trusted source", "single source"]>;
             confidence: z.ZodEnum<["high", "medium", "low"]>;

@@ -24,6 +24,15 @@ import { SCHEMA_VERSION, assertCompatibleArtifact } from "./index.js";
 // Shared primitives
 // ---------------------------------------------------------------------------
 const sourceTier = z.enum(['primary', 'paper', 'news', 'technical-news', 'security-news']);
+/**
+ * Safe record key — rejects JavaScript prototype-chain property names that can
+ * pollute Object.prototype when used as keys in downstream `obj[key] = value`
+ * assignments. Fixes the __proto__/constructor class of bugs (top10 #13).
+ */
+const RESERVED_PROTO_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+const safeKey = z
+    .string()
+    .refine((k) => !RESERVED_PROTO_KEYS.has(k), { message: 'reserved prototype key' });
 const confidence = z.enum(['high', 'medium', 'low']);
 const sourceQuality = z.enum([
     'corroborated',
@@ -73,12 +82,12 @@ function makeEnvelopeSchema(artifactLiteral, dataSchema) {
 // Stage 1 — AggregationArtifact
 // ---------------------------------------------------------------------------
 const interactionMetrics = z.object({
-    feedRank: z.number().nullable(),
-    shares: z.number().nullable(),
-    comments: z.number().nullable(),
-    reactions: z.number().nullable(),
-    crossSourceMentions: z.number(),
-    velocity: z.number().nullable(),
+    feedRank: z.number().finite().nullable(),
+    shares: z.number().finite().nullable(),
+    comments: z.number().finite().nullable(),
+    reactions: z.number().finite().nullable(),
+    crossSourceMentions: z.number().int().min(0),
+    velocity: z.number().finite().nullable(),
     capturedAt: z.string(),
     provenance: z.string(),
 });
@@ -108,15 +117,15 @@ const cluster = z
     topicLabel: z.string(),
     headline: z.string(),
     memberIds: z.array(z.string()),
-    sourceCount: z.number(),
-    distinctDomains: z.number(),
+    sourceCount: z.number().int().min(0),
+    distinctDomains: z.number().int().min(0),
     tierHistogram: z
         .object({
-        primary: z.number().optional(),
-        paper: z.number().optional(),
-        news: z.number().optional(),
-        'technical-news': z.number().optional(),
-        'security-news': z.number().optional(),
+        primary: z.number().int().min(0).optional(),
+        paper: z.number().int().min(0).optional(),
+        news: z.number().int().min(0).optional(),
+        'technical-news': z.number().int().min(0).optional(),
+        'security-news': z.number().int().min(0).optional(),
     })
         .passthrough(),
     earliestPublishedAt: z.string(),
@@ -124,10 +133,10 @@ const cluster = z
 })
     .passthrough();
 const sourceCoverage = z.object({
-    sourcesConfigured: z.number(),
-    sourcesQueried: z.number(),
-    sourcesResponded: z.number(),
-    distinctDomains: z.number(),
+    sourcesConfigured: z.number().int().min(0),
+    sourcesQueried: z.number().int().min(0),
+    sourcesResponded: z.number().int().min(0),
+    distinctDomains: z.number().int().min(0),
     degraded: z.boolean(),
 });
 // Rev 3 — read/extract layer
@@ -144,7 +153,7 @@ export const SourceDocumentSchema = z.object({
     fetchedAt: z.string(),
     extraction: extractionStatus,
     accessPolicy: accessPolicy,
-    wordCount: z.number().nullable(),
+    wordCount: z.number().int().min(0).nullable(),
     lang: z.string().nullable(),
     contentHash: z.string(),
 });
@@ -162,7 +171,7 @@ export const ExtractedFactSchema = z.object({
     quantity: z
         .object({
         metric: z.string(),
-        value: z.number(),
+        value: z.number().finite(),
         unit: z.string().optional(),
         asOf: z.string().optional(),
     })
@@ -175,12 +184,12 @@ export const ExtractedFactSchema = z.object({
 });
 const aggregationData = z
     .object({
-    itemsByTopic: z.record(z.string(), z.array(aggregatedItem)),
-    clustersByTopic: z.record(z.string(), z.array(cluster)),
-    coverageByTopic: z.record(z.string(), sourceCoverage),
+    itemsByTopic: z.record(safeKey, z.array(aggregatedItem)),
+    clustersByTopic: z.record(safeKey, z.array(cluster)),
+    coverageByTopic: z.record(safeKey, sourceCoverage),
     // Rev 3 additive fields
-    documentsByTopic: z.record(z.string(), z.array(SourceDocumentSchema)).optional(),
-    factsByCluster: z.record(z.string(), z.array(ExtractedFactSchema)).optional(),
+    documentsByTopic: z.record(safeKey, z.array(SourceDocumentSchema)).optional(),
+    factsByCluster: z.record(safeKey, z.array(ExtractedFactSchema)).optional(),
 })
     .passthrough();
 export const AggregationArtifactSchema = makeEnvelopeSchema('aggregation', aggregationData);
@@ -196,16 +205,16 @@ const scoreBreakdown = z
     recency: z.number().finite(),
     diversity: z.number().finite(),
     total: z.number().finite(), // NaN serialises as null in JSON — both are rejected here
-    weights: z.record(z.string(), z.number().finite()),
+    weights: z.record(safeKey, z.number().finite()),
 })
     .passthrough();
 const tierHistogram = z
     .object({
-    primary: z.number().optional(),
-    paper: z.number().optional(),
-    news: z.number().optional(),
-    'technical-news': z.number().optional(),
-    'security-news': z.number().optional(),
+    primary: z.number().int().min(0).optional(),
+    paper: z.number().int().min(0).optional(),
+    news: z.number().int().min(0).optional(),
+    'technical-news': z.number().int().min(0).optional(),
+    'security-news': z.number().int().min(0).optional(),
 })
     .passthrough();
 const sourceRef = z.object({
@@ -222,13 +231,13 @@ const rankedCluster = z
     topic: z.string(),
     topicLabel: z.string(),
     headline: z.string(),
-    rank: z.number(),
+    rank: z.number().int().min(1),
     score: scoreBreakdown,
     sourceQuality,
     confidence,
     verification,
-    sourceCount: z.number(),
-    distinctDomains: z.number(),
+    sourceCount: z.number().int().min(0),
+    distinctDomains: z.number().int().min(0),
     tierHistogram,
     memberIds: z.array(z.string()),
     earliestPublishedAt: z.string(),
@@ -244,15 +253,15 @@ const auditEntry = z.object({
     auditId: z.string(),
     clusterId: z.string(),
     topic: z.string(),
-    inputs: z.record(z.string(), z.number()),
-    weights: z.record(z.string(), z.number()),
+    inputs: z.record(safeKey, z.number().finite()),
+    weights: z.record(safeKey, z.number().finite()),
     computed: scoreBreakdown,
     rationale: z.string(),
     weightProfile: z.string(),
     rankedAt: z.string(),
 });
 const rankingData = z.object({
-    rankedByTopic: z.record(z.string(), z.array(rankedCluster)),
+    rankedByTopic: z.record(safeKey, z.array(rankedCluster)),
     audit: z.array(auditEntry),
     weightProfile: z.string(),
 });
@@ -272,7 +281,7 @@ const top10Entry = z
     confidence,
     references: z.array(sourceRef),
     delta: z.object({
-        previousRank: z.number().nullable(),
+        previousRank: z.number().int().min(1).nullable(),
         movement: z.enum(['new', 'up', 'down', 'same']),
     }),
     carriedOver: z.boolean(),
@@ -281,14 +290,14 @@ const top10Entry = z
 })
     .passthrough();
 const stabilityReport = z.object({
-    carriedOver: z.number(),
-    fresh: z.number(),
-    churnRate: z.number().min(0).max(1),
+    carriedOver: z.number().int().min(0),
+    fresh: z.number().int().min(0),
+    churnRate: z.number().finite().min(0).max(1),
 });
 const top10Data = z.object({
     nextRefreshAt: z.string(),
     topicsCovered: z.array(z.string()),
-    top10ByTopic: z.record(z.string(), z.array(top10Entry)),
+    top10ByTopic: z.record(safeKey, z.array(top10Entry)),
     global: z.array(top10Entry),
     stability: stabilityReport,
 });
@@ -324,7 +333,7 @@ export const ChartBlockSchema = z
     title: z.string(),
     series: z.array(z.object({
         label: z.string(),
-        value: z.number(),
+        value: z.number().finite(),
         unit: z.string().optional(),
     })),
     factIds: z.array(z.string()),
@@ -394,7 +403,7 @@ const articleReference = z.object({
 const synthesizedArticle = z
     .object({
     id: z.string(),
-    rank: z.number(),
+    rank: z.number().int().min(1),
     topic: z.string(),
     topicLabel: z.string(),
     headline: z.string(),
@@ -409,14 +418,14 @@ const synthesizedArticle = z
     references: z.array(articleReference),
     provenance: z.object({
         clusterId: z.string(),
-        sourceCount: z.number(),
-        distinctDomains: z.number(),
+        sourceCount: z.number().int().min(0),
+        distinctDomains: z.number().int().min(0),
         upstreamRunId: z.string(),
     }),
     ai: providerMeta,
     legalNote: z.string(),
-    wordCount: z.number(),
-    readingTimeMinutes: z.number(),
+    wordCount: z.number().int().min(0),
+    readingTimeMinutes: z.number().finite(),
     generatedAt: z.string(),
     // Rev 3 additive fields
     editorialStatus: z.enum(['published', 'held', 'draft']).optional(),
@@ -426,7 +435,7 @@ const synthesizedArticle = z
     .passthrough();
 const copyrightPolicy = z.object({
     originalTextOnly: z.literal(true),
-    maxQuoteWords: z.number(),
+    maxQuoteWords: z.number().int().min(1),
     reproduceArticleBody: z.literal(false),
     requireAttribution: z.literal(true),
     requireCanonicalLinks: z.literal(true),

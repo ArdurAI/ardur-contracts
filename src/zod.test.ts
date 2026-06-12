@@ -1577,3 +1577,492 @@ describe('per-stage convenience parsers', () => {
     assert.throws(() => parseRankingArtifact(raw), 'NaN score.total must throw');
   });
 });
+
+// ---------------------------------------------------------------------------
+// QA #3 — consistent .finite() on every plain z.number() field
+// ---------------------------------------------------------------------------
+
+describe('interactionMetrics — NaN/Infinity rejection on nullable numeric fields', () => {
+  const validItem = {
+    id: 'item-1',
+    topic: 'ai',
+    topicLabel: 'AI',
+    title: 'Title',
+    source: 'Reuters',
+    sourceDomain: 'reuters.com',
+    sourceUrl: 'https://reuters.com',
+    url: 'https://reuters.com/a',
+    tier: 'news',
+    publishedAt: '2026-06-11T04:00:00.000Z',
+    summaryHint: 'Hint',
+    interaction: {
+      feedRank: 0,
+      shares: null,
+      comments: null,
+      reactions: null,
+      crossSourceMentions: 3,
+      velocity: 1.5,
+      capturedAt: '2026-06-11T05:00:00.000Z',
+      provenance: 'rss-position',
+    },
+    clusterId: 'c-1',
+    fingerprint: 'fp-1',
+  };
+  const makeAgg = (interaction: Record<string, unknown>) =>
+    makeAggArtifact({
+      data: {
+        itemsByTopic: { ai: [{ ...validItem, interaction }] },
+        clustersByTopic: {},
+        coverageByTopic: {},
+      },
+    });
+
+  it('rejects NaN in feedRank', () => {
+    const result = AggregationArtifactSchema.safeParse(
+      makeAgg({ ...validItem.interaction, feedRank: NaN }),
+    );
+    assert.ok(!result.success, 'NaN feedRank should be rejected');
+  });
+
+  it('rejects NaN in shares', () => {
+    const result = AggregationArtifactSchema.safeParse(
+      makeAgg({ ...validItem.interaction, shares: NaN }),
+    );
+    assert.ok(!result.success, 'NaN shares should be rejected');
+  });
+
+  it('rejects NaN in velocity', () => {
+    const result = AggregationArtifactSchema.safeParse(
+      makeAgg({ ...validItem.interaction, velocity: NaN }),
+    );
+    assert.ok(!result.success, 'NaN velocity should be rejected');
+  });
+
+  it('rejects Infinity in velocity', () => {
+    const result = AggregationArtifactSchema.safeParse(
+      makeAgg({ ...validItem.interaction, velocity: Infinity }),
+    );
+    assert.ok(!result.success, 'Infinity velocity should be rejected');
+  });
+
+  it('rejects NaN in crossSourceMentions (int field)', () => {
+    const result = AggregationArtifactSchema.safeParse(
+      makeAgg({ ...validItem.interaction, crossSourceMentions: NaN }),
+    );
+    assert.ok(!result.success, 'NaN crossSourceMentions should be rejected');
+  });
+
+  it('rejects negative crossSourceMentions', () => {
+    const result = AggregationArtifactSchema.safeParse(
+      makeAgg({ ...validItem.interaction, crossSourceMentions: -1 }),
+    );
+    assert.ok(!result.success, 'Negative crossSourceMentions should be rejected');
+  });
+
+  it('accepts valid interaction metrics (null-able fields as null)', () => {
+    const result = AggregationArtifactSchema.safeParse(makeAgg(validItem.interaction));
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+});
+
+describe('sourceCoverage — count field NaN rejection', () => {
+  const validCoverage = {
+    sourcesConfigured: 20,
+    sourcesQueried: 18,
+    sourcesResponded: 15,
+    distinctDomains: 12,
+    degraded: false,
+  };
+  const makeAgg = (coverage: Record<string, unknown>) =>
+    makeAggArtifact({
+      data: {
+        itemsByTopic: {},
+        clustersByTopic: {},
+        coverageByTopic: { ai: coverage },
+      },
+    });
+
+  it('rejects NaN in sourcesResponded', () => {
+    const result = AggregationArtifactSchema.safeParse(
+      makeAgg({ ...validCoverage, sourcesResponded: NaN }),
+    );
+    assert.ok(!result.success, 'NaN sourcesResponded should be rejected');
+  });
+
+  it('rejects negative distinctDomains', () => {
+    const result = AggregationArtifactSchema.safeParse(
+      makeAgg({ ...validCoverage, distinctDomains: -1 }),
+    );
+    assert.ok(!result.success, 'Negative distinctDomains should be rejected');
+  });
+
+  it('accepts valid coverage', () => {
+    const result = AggregationArtifactSchema.safeParse(makeAgg(validCoverage));
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+});
+
+describe('ExtractedFactSchema — quantity.value NaN rejection', () => {
+  const validProvenance = {
+    sourceDocId: 'doc-1',
+    sourceDomain: 'reuters.com',
+    url: 'https://reuters.com/article',
+  };
+  const baseFact = {
+    id: 'fact-1',
+    topic: 'ai',
+    clusterId: 'c-1',
+    statement: 'AI improved.',
+    entities: [],
+    provenance: [validProvenance],
+    corroboration: 1,
+    confidence: 'high',
+    extractedBy: {
+      provider: 'deterministic',
+      model: 'd@v1',
+      status: 'fallback',
+      generatedAt: '2026-06-11T06:00:00.000Z',
+    },
+  };
+
+  it('rejects NaN in quantity.value', () => {
+    const result = ExtractedFactSchema.safeParse({
+      ...baseFact,
+      quantity: { metric: 'efficiency', value: NaN },
+    });
+    assert.ok(!result.success, 'NaN quantity.value should be rejected');
+  });
+
+  it('rejects Infinity in quantity.value', () => {
+    const result = ExtractedFactSchema.safeParse({
+      ...baseFact,
+      quantity: { metric: 'efficiency', value: Infinity },
+    });
+    assert.ok(!result.success, 'Infinity quantity.value should be rejected');
+  });
+
+  it('accepts a valid finite quantity value', () => {
+    const result = ExtractedFactSchema.safeParse({
+      ...baseFact,
+      quantity: { metric: 'efficiency', value: 40 },
+    });
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+});
+
+describe('auditEntry — inputs/weights NaN rejection', () => {
+  const makeRanking = (
+    auditInputs: Record<string, unknown>,
+    auditWeights: Record<string, unknown>,
+  ) =>
+    makeRankingArtifact({
+      data: {
+        rankedByTopic: {},
+        audit: [
+          {
+            auditId: 'a-1',
+            clusterId: 'c-1',
+            topic: 'ai',
+            inputs: auditInputs,
+            weights: auditWeights,
+            computed: {
+              interaction: 0.8,
+              credibility: 0.9,
+              corroboration: 0.75,
+              recency: 0.7,
+              diversity: 0.85,
+              total: 0.8,
+              weights: {},
+            },
+            rationale: 'test',
+            weightProfile: 'balanced@v1',
+            rankedAt: '2026-06-11T06:00:00.000Z',
+          },
+        ],
+        weightProfile: 'balanced@v1',
+      },
+    });
+
+  it('rejects NaN in auditEntry.inputs value', () => {
+    const result = RankingArtifactSchema.safeParse(
+      makeRanking({ signal_a: NaN }, { signal_a: 0.2 }),
+    );
+    assert.ok(!result.success, 'NaN audit input value should be rejected');
+  });
+
+  it('rejects NaN in auditEntry.weights value', () => {
+    const result = RankingArtifactSchema.safeParse(
+      makeRanking({ signal_a: 0.8 }, { signal_a: NaN }),
+    );
+    assert.ok(!result.success, 'NaN audit weight value should be rejected');
+  });
+
+  it('accepts valid finite inputs and weights', () => {
+    const result = RankingArtifactSchema.safeParse(
+      makeRanking({ signal_a: 0.8 }, { signal_a: 0.2 }),
+    );
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+});
+
+describe('stabilityReport — NaN/Infinity rejection', () => {
+  const makeTop10 = (stability: Record<string, unknown>) =>
+    makeTop10Artifact({
+      data: {
+        nextRefreshAt: '2026-06-11T12:00:00.000Z',
+        topicsCovered: [],
+        top10ByTopic: {},
+        global: [],
+        stability,
+      },
+    });
+
+  it('rejects NaN in churnRate', () => {
+    const result = Top10ArtifactSchema.safeParse(
+      makeTop10({ carriedOver: 0, fresh: 0, churnRate: NaN }),
+    );
+    assert.ok(!result.success, 'NaN churnRate should be rejected');
+  });
+
+  it('rejects NaN in carriedOver', () => {
+    const result = Top10ArtifactSchema.safeParse(
+      makeTop10({ carriedOver: NaN, fresh: 0, churnRate: 0 }),
+    );
+    assert.ok(!result.success, 'NaN carriedOver should be rejected');
+  });
+
+  it('rejects negative carriedOver', () => {
+    const result = Top10ArtifactSchema.safeParse(
+      makeTop10({ carriedOver: -1, fresh: 0, churnRate: 0 }),
+    );
+    assert.ok(!result.success, 'Negative carriedOver should be rejected');
+  });
+
+  it('accepts valid stability report', () => {
+    const result = Top10ArtifactSchema.safeParse(
+      makeTop10({ carriedOver: 5, fresh: 5, churnRate: 0.5 }),
+    );
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+});
+
+describe('ChartBlockSchema — series value NaN/Infinity rejection', () => {
+  const validChart = {
+    type: 'chart',
+    chartType: 'bar',
+    title: 'Efficiency',
+    series: [{ label: '2025', value: 30, unit: '%' }],
+    factIds: ['fact-1'],
+    attribution: { sources: [{ source: 'Reuters', url: 'https://reuters.com/a' }] },
+  };
+
+  it('rejects NaN in series value', () => {
+    const result = ChartBlockSchema.safeParse({
+      ...validChart,
+      series: [{ label: '2025', value: NaN }],
+    });
+    assert.ok(!result.success, 'NaN series value should be rejected');
+  });
+
+  it('rejects Infinity in series value', () => {
+    const result = ChartBlockSchema.safeParse({
+      ...validChart,
+      series: [{ label: '2025', value: Infinity }],
+    });
+    assert.ok(!result.success, 'Infinity series value should be rejected');
+  });
+
+  it('accepts valid finite series value', () => {
+    const result = ChartBlockSchema.safeParse(validChart);
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+});
+
+// ---------------------------------------------------------------------------
+// QA #3 — reserved-key filter on z.record fields (__proto__ / constructor)
+// ---------------------------------------------------------------------------
+
+describe('reserved-key rejection — aggregation topic maps', () => {
+  it('rejects __proto__ as a topic key in itemsByTopic (via JSON.parse)', () => {
+    // Object literal { __proto__: [] } sets the prototype, not an own property — use
+    // JSON.parse to produce an object where __proto__ IS an own enumerable key, which
+    // is how it arrives from an attacker-crafted JSON payload.
+    const result = AggregationArtifactSchema.safeParse(
+      makeAggArtifact({
+        data: {
+          itemsByTopic: JSON.parse('{"__proto__":[]}') as Record<string, unknown>,
+          clustersByTopic: {},
+          coverageByTopic: {},
+        },
+      }),
+    );
+    assert.ok(!result.success, '__proto__ topic key should be rejected');
+  });
+
+  it('rejects constructor as a topic key in clustersByTopic', () => {
+    const result = AggregationArtifactSchema.safeParse(
+      makeAggArtifact({
+        data: {
+          itemsByTopic: {},
+          clustersByTopic: { constructor: [] },
+          coverageByTopic: {},
+        },
+      }),
+    );
+    assert.ok(!result.success, 'constructor topic key should be rejected');
+  });
+
+  it('rejects prototype as a topic key in coverageByTopic', () => {
+    const result = AggregationArtifactSchema.safeParse(
+      makeAggArtifact({
+        data: {
+          itemsByTopic: {},
+          clustersByTopic: {},
+          coverageByTopic: {
+            prototype: {
+              sourcesConfigured: 20,
+              sourcesQueried: 18,
+              sourcesResponded: 15,
+              distinctDomains: 12,
+              degraded: false,
+            },
+          },
+        },
+      }),
+    );
+    assert.ok(!result.success, 'prototype topic key should be rejected');
+  });
+
+  it('accepts a normal topic key (ai, security, etc.)', () => {
+    const result = AggregationArtifactSchema.safeParse(makeAggArtifact());
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+});
+
+describe('reserved-key rejection — ranking rankedByTopic', () => {
+  it('rejects __proto__ as a topic key in rankedByTopic (via JSON.parse)', () => {
+    const result = RankingArtifactSchema.safeParse(
+      makeRankingArtifact({
+        data: {
+          rankedByTopic: JSON.parse('{"__proto__":[]}') as Record<string, unknown>,
+          audit: [],
+          weightProfile: 'balanced@v1',
+        },
+      }),
+    );
+    assert.ok(!result.success, '__proto__ rankedByTopic key should be rejected');
+  });
+
+  it('rejects __proto__ as a key in auditEntry.inputs (via JSON.parse)', () => {
+    const result = RankingArtifactSchema.safeParse(
+      makeRankingArtifact({
+        data: {
+          rankedByTopic: {},
+          audit: [
+            {
+              auditId: 'a-1',
+              clusterId: 'c-1',
+              topic: 'ai',
+              inputs: JSON.parse('{"__proto__":0.8}') as Record<string, unknown>,
+              weights: { signal: 0.2 },
+              computed: {
+                interaction: 0.8,
+                credibility: 0.9,
+                corroboration: 0.75,
+                recency: 0.7,
+                diversity: 0.85,
+                total: 0.8,
+                weights: {},
+              },
+              rationale: 'test',
+              weightProfile: 'balanced@v1',
+              rankedAt: '2026-06-11T06:00:00.000Z',
+            },
+          ],
+          weightProfile: 'balanced@v1',
+        },
+      }),
+    );
+    assert.ok(!result.success, '__proto__ auditEntry.inputs key should be rejected');
+  });
+
+  it('rejects constructor as a key in scoreBreakdown.weights', () => {
+    const badScore = {
+      interaction: 0.8,
+      credibility: 0.9,
+      corroboration: 0.75,
+      recency: 0.7,
+      diversity: 0.85,
+      total: 0.8,
+      weights: { constructor: 0.2 },
+    };
+    const result = RankingArtifactSchema.safeParse(
+      makeRankingArtifact({
+        data: {
+          rankedByTopic: {
+            ai: [
+              {
+                clusterId: 'c-1',
+                topic: 'ai',
+                topicLabel: 'AI',
+                headline: 'h',
+                rank: 1,
+                score: badScore,
+                sourceQuality: 'corroborated',
+                confidence: 'high',
+                verification: 'multi-source',
+                sourceCount: 1,
+                distinctDomains: 1,
+                tierHistogram: {},
+                memberIds: [],
+                earliestPublishedAt: '2026-06-11T03:00:00.000Z',
+                latestPublishedAt: '2026-06-11T05:00:00.000Z',
+                auditId: 'a-1',
+              },
+            ],
+          },
+          audit: [],
+          weightProfile: 'balanced@v1',
+        },
+      }),
+    );
+    assert.ok(!result.success, 'constructor weights key should be rejected');
+  });
+});
+
+describe('reserved-key rejection — top10 top10ByTopic', () => {
+  it('rejects __proto__ as a topic key in top10ByTopic (via JSON.parse)', () => {
+    const result = Top10ArtifactSchema.safeParse(
+      makeTop10Artifact({
+        data: {
+          nextRefreshAt: '2026-06-11T12:00:00.000Z',
+          topicsCovered: [],
+          top10ByTopic: JSON.parse('{"__proto__":[]}') as Record<string, unknown>,
+          global: [],
+          stability: { carriedOver: 0, fresh: 0, churnRate: 0 },
+        },
+      }),
+    );
+    assert.ok(!result.success, '__proto__ top10ByTopic key should be rejected');
+  });
+
+  it('rejects constructor as a topic key in top10ByTopic', () => {
+    const result = Top10ArtifactSchema.safeParse(
+      makeTop10Artifact({
+        data: {
+          nextRefreshAt: '2026-06-11T12:00:00.000Z',
+          topicsCovered: [],
+          top10ByTopic: { constructor: [] },
+          global: [],
+          stability: { carriedOver: 0, fresh: 0, churnRate: 0 },
+        },
+      }),
+    );
+    assert.ok(!result.success, 'constructor top10ByTopic key should be rejected');
+  });
+
+  it('accepts normal topic keys (ai, security)', () => {
+    const result = Top10ArtifactSchema.safeParse(makeTop10Artifact());
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+});
