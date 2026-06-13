@@ -1,5 +1,12 @@
 name: Publish
 
+# Fires only on version tags (v1.2.3). Never runs on branch pushes.
+# Prerequisites:
+#   - GitHub Environment named "npm-publish" must exist (settings > environments)
+#   - That environment must have secret NPM_TOKEN set to a valid npm token with
+#     publish rights to @ardurai/contracts
+#   - id-token: write is required for npm provenance attestation
+
 on:
   push:
     tags:
@@ -7,21 +14,21 @@ on:
 
 permissions:
   contents: read
-  id-token: write # for npm provenance
+  id-token: write
 
 jobs:
   publish:
-    name: Build and publish to npm
+    name: Publish to npm
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     environment: npm-publish
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: npm
@@ -29,6 +36,15 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Verify npm auth token
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "::error::NPM_TOKEN secret is not set in the 'npm-publish' GitHub Environment. Add it under repo Settings > Environments > npm-publish > secrets."
+            exit 1
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Typecheck
         run: npm run typecheck
@@ -39,7 +55,7 @@ jobs:
       - name: Test
         run: npm test
 
-      - name: Publish to npm
+      - name: Publish
         run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
