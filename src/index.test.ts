@@ -410,6 +410,101 @@ describe('assertCompatibleArtifact — tightened required envelope fields', () =
       );
     }
   });
+
+  // #6 — array as .data must throw
+  it('throws when data is an array (not a plain object)', () => {
+    assert.throws(
+      () =>
+        assertCompatibleArtifact(
+          makeEnvelope({ data: [] as unknown as AggregationData }),
+          'aggregation',
+        ),
+      (err: unknown) => err instanceof SchemaVersionError,
+    );
+  });
+
+  // #14 — whitespace-only runId must throw
+  it('throws when runId is whitespace-only', () => {
+    assert.throws(
+      () => assertCompatibleArtifact(makeEnvelope({ runId: '   ' }), 'aggregation'),
+      (err: unknown) => err instanceof SchemaVersionError,
+    );
+  });
+
+  // #14 — upstreamRunId must be string or null, not object/number
+  it('throws when upstreamRunId is an object', () => {
+    assert.throws(
+      () =>
+        assertCompatibleArtifact(
+          makeEnvelope({ upstreamRunId: {} as unknown as null }),
+          'aggregation',
+        ),
+      (err: unknown) => err instanceof SchemaVersionError,
+    );
+  });
+
+  it('throws when upstreamRunId is a number', () => {
+    assert.throws(
+      () =>
+        assertCompatibleArtifact(
+          makeEnvelope({ upstreamRunId: 42 as unknown as null }),
+          'aggregation',
+        ),
+      (err: unknown) => err instanceof SchemaVersionError,
+    );
+  });
+
+  it('passes when upstreamRunId is null (aggregation stage)', () => {
+    const result = assertCompatibleArtifact(makeEnvelope({ upstreamRunId: null }), 'aggregation');
+    assert.strictEqual(result.warnings.length, 0);
+  });
+
+  it('passes when upstreamRunId is a non-empty string (downstream stages)', () => {
+    const result = assertCompatibleArtifact(
+      makeEnvelope({ artifact: 'ranking', upstreamRunId: 'run-agg-1' }),
+      'ranking',
+    );
+    assert.strictEqual(result.warnings.length, 0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// assertCompatibleArtifact — contractRevision validation (#10)
+// ---------------------------------------------------------------------------
+
+describe('assertCompatibleArtifact — contractRevision validation', () => {
+  it('throws when contractRevision is Infinity', () => {
+    assert.throws(
+      () => assertCompatibleArtifact(makeEnvelope({ contractRevision: Infinity }), 'aggregation'),
+      (err: unknown) => err instanceof SchemaVersionError,
+    );
+  });
+
+  it('throws when contractRevision is 0', () => {
+    assert.throws(
+      () => assertCompatibleArtifact(makeEnvelope({ contractRevision: 0 }), 'aggregation'),
+      (err: unknown) => err instanceof SchemaVersionError,
+    );
+  });
+
+  it('throws when contractRevision is negative', () => {
+    assert.throws(
+      () => assertCompatibleArtifact(makeEnvelope({ contractRevision: -1 }), 'aggregation'),
+      (err: unknown) => err instanceof SchemaVersionError,
+    );
+  });
+
+  it('throws when contractRevision is a non-integer float', () => {
+    assert.throws(
+      () => assertCompatibleArtifact(makeEnvelope({ contractRevision: 1.5 }), 'aggregation'),
+      (err: unknown) => err instanceof SchemaVersionError,
+    );
+  });
+
+  it('passes when contractRevision is a positive integer', () => {
+    const result = assertCompatibleArtifact(makeEnvelope({ contractRevision: 1 }), 'aggregation');
+    assert.strictEqual(result.warnings.length, 0);
+  });
 });
 
 // ---------------------------------------------------------------------------

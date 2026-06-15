@@ -2066,3 +2066,539 @@ describe('reserved-key rejection — top10 top10ByTopic', () => {
     assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
   });
 });
+
+// ---------------------------------------------------------------------------
+// #4 — forward-compat passthrough on RankingData / Top10Data / ArticleData
+// ---------------------------------------------------------------------------
+
+describe('passthrough — RankingData, Top10Data, ArticleData preserve unknown fields', () => {
+  it('RankingArtifactSchema preserves unknown data fields', () => {
+    const artifact = makeRankingArtifact({
+      data: {
+        rankedByTopic: {},
+        audit: [],
+        weightProfile: 'balanced@v1',
+        futureRankingField: 'preserved',
+      },
+    });
+    const result = RankingArtifactSchema.safeParse(artifact);
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+    assert.strictEqual(
+      (result.data?.data as Record<string, unknown>)['futureRankingField'],
+      'preserved',
+    );
+  });
+
+  it('Top10ArtifactSchema preserves unknown data fields', () => {
+    const artifact = makeTop10Artifact({
+      data: {
+        nextRefreshAt: '2026-06-11T12:00:00.000Z',
+        topicsCovered: [],
+        top10ByTopic: {},
+        global: [],
+        stability: { carriedOver: 0, fresh: 0, churnRate: 0 },
+        futureTop10Field: 'preserved',
+      },
+    });
+    const result = Top10ArtifactSchema.safeParse(artifact);
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+    assert.strictEqual(
+      (result.data?.data as Record<string, unknown>)['futureTop10Field'],
+      'preserved',
+    );
+  });
+
+  it('ArticleArtifactSchema preserves unknown data fields', () => {
+    const artifact = makeArticleArtifact({
+      data: {
+        articles: [],
+        copyrightPolicy: {
+          originalTextOnly: true,
+          maxQuoteWords: 25,
+          reproduceArticleBody: false,
+          requireAttribution: true,
+          requireCanonicalLinks: true,
+        },
+        futureArticleField: 'preserved',
+      },
+    });
+    const result = ArticleArtifactSchema.safeParse(artifact);
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+    assert.strictEqual(
+      (result.data?.data as Record<string, unknown>)['futureArticleField'],
+      'preserved',
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// #5 — URL scheme validation (javascript:/data: rejected)
+// ---------------------------------------------------------------------------
+
+describe('URL scheme validation — unsafe schemes rejected', () => {
+  it('rejects javascript: URL in AggregatedItem.url', () => {
+    const item = {
+      id: 'i-1',
+      topic: 'ai',
+      topicLabel: 'AI',
+      title: 'T',
+      source: 'S',
+      sourceDomain: 's.com',
+      sourceUrl: '',
+      url: 'javascript:alert(1)',
+      tier: 'news',
+      publishedAt: '2026-06-11T04:00:00.000Z',
+      summaryHint: 'h',
+      interaction: {
+        feedRank: 0,
+        shares: null,
+        comments: null,
+        reactions: null,
+        crossSourceMentions: 1,
+        velocity: null,
+        capturedAt: '2026-06-11T05:00:00.000Z',
+        provenance: 'rss',
+      },
+      clusterId: 'c-1',
+      fingerprint: 'fp-1',
+    };
+    const result = AggregationArtifactSchema.safeParse(
+      makeAggArtifact({
+        data: { itemsByTopic: { ai: [item] }, clustersByTopic: {}, coverageByTopic: {} },
+      }),
+    );
+    assert.ok(!result.success, 'javascript: URL should be rejected');
+  });
+
+  it('rejects data: URL in AggregatedItem.sourceUrl', () => {
+    const item = {
+      id: 'i-1',
+      topic: 'ai',
+      topicLabel: 'AI',
+      title: 'T',
+      source: 'S',
+      sourceDomain: 's.com',
+      sourceUrl: 'data:text/html,<script>evil</script>',
+      url: 'https://safe.com/article',
+      tier: 'news',
+      publishedAt: '2026-06-11T04:00:00.000Z',
+      summaryHint: 'h',
+      interaction: {
+        feedRank: 0,
+        shares: null,
+        comments: null,
+        reactions: null,
+        crossSourceMentions: 1,
+        velocity: null,
+        capturedAt: '2026-06-11T05:00:00.000Z',
+        provenance: 'rss',
+      },
+      clusterId: 'c-1',
+      fingerprint: 'fp-1',
+    };
+    const result = AggregationArtifactSchema.safeParse(
+      makeAggArtifact({
+        data: { itemsByTopic: { ai: [item] }, clustersByTopic: {}, coverageByTopic: {} },
+      }),
+    );
+    assert.ok(!result.success, 'data: sourceUrl should be rejected');
+  });
+
+  it('rejects javascript: URL in EmbedBlockSchema.url', () => {
+    const result = EmbedBlockSchema.safeParse({
+      type: 'embed',
+      provider: 'yt',
+      url: 'javascript:void(0)',
+    });
+    assert.ok(!result.success, 'javascript: embed URL should be rejected');
+  });
+
+  it('rejects javascript: URL in ImageBlockSchema.src', () => {
+    const result = ImageBlockSchema.safeParse({
+      type: 'image',
+      src: 'javascript:1',
+      alt: 'x',
+      media: { origin: 'generated' },
+    });
+    assert.ok(!result.success, 'javascript: image src should be rejected');
+  });
+
+  it('accepts a normal https URL', () => {
+    const result = EmbedBlockSchema.safeParse({
+      type: 'embed',
+      provider: 'yt',
+      url: 'https://youtube.com/watch?v=abc',
+    });
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+
+  it('accepts empty sourceUrl (sourceUrl may be "")', () => {
+    const item = {
+      id: 'i-1',
+      topic: 'ai',
+      topicLabel: 'AI',
+      title: 'T',
+      source: 'S',
+      sourceDomain: 's.com',
+      sourceUrl: '',
+      url: 'https://safe.com/article',
+      tier: 'news',
+      publishedAt: '2026-06-11T04:00:00.000Z',
+      summaryHint: 'h',
+      interaction: {
+        feedRank: 0,
+        shares: null,
+        comments: null,
+        reactions: null,
+        crossSourceMentions: 1,
+        velocity: null,
+        capturedAt: '2026-06-11T05:00:00.000Z',
+        provenance: 'rss',
+      },
+      clusterId: 'c-1',
+      fingerprint: 'fp-1',
+    };
+    const result = AggregationArtifactSchema.safeParse(
+      makeAggArtifact({
+        data: { itemsByTopic: { ai: [item] }, clustersByTopic: {}, coverageByTopic: {} },
+      }),
+    );
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+});
+
+// ---------------------------------------------------------------------------
+// #7 — reserved prototype key in passthrough objects
+// ---------------------------------------------------------------------------
+
+describe('reserved-key rejection — passthrough objects (not just z.record)', () => {
+  it('rejects constructor key in AggregatedItem passthrough fields', () => {
+    const item = {
+      id: 'i-1',
+      topic: 'ai',
+      topicLabel: 'AI',
+      title: 'T',
+      source: 'S',
+      sourceDomain: 's.com',
+      sourceUrl: '',
+      url: 'https://safe.com/a',
+      tier: 'news',
+      publishedAt: '2026-06-11T04:00:00.000Z',
+      summaryHint: 'h',
+      interaction: {
+        feedRank: 0,
+        shares: null,
+        comments: null,
+        reactions: null,
+        crossSourceMentions: 1,
+        velocity: null,
+        capturedAt: '2026-06-11T05:00:00.000Z',
+        provenance: 'rss',
+      },
+      clusterId: 'c-1',
+      fingerprint: 'fp-1',
+      constructor: 'evil',
+    };
+    const result = AggregationArtifactSchema.safeParse(
+      makeAggArtifact({
+        data: { itemsByTopic: { ai: [item] }, clustersByTopic: {}, coverageByTopic: {} },
+      }),
+    );
+    assert.ok(!result.success, 'constructor key in passthrough object should be rejected');
+  });
+
+  it('rejects constructor key in TextBlockSchema passthrough fields', () => {
+    const result = TextBlockSchema.safeParse({
+      type: 'paragraph',
+      text: 'Hello.',
+      constructor: 'evil',
+    });
+    assert.ok(!result.success, 'constructor key in TextBlock should be rejected');
+  });
+
+  it('rejects prototype key in ChartBlockSchema passthrough fields', () => {
+    const result = ChartBlockSchema.safeParse({
+      type: 'chart',
+      chartType: 'bar',
+      title: 'T',
+      series: [{ label: 'A', value: 1 }],
+      factIds: ['f-1'],
+      attribution: { sources: [{ source: 'S', url: 'https://safe.com' }] },
+      prototype: 'evil',
+    });
+    assert.ok(!result.success, 'prototype key in ChartBlock should be rejected');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// #8 — ISO datetime validation on date string fields
+// ---------------------------------------------------------------------------
+
+describe('ISO datetime validation — garbage timestamps rejected', () => {
+  it('rejects garbage generatedAt in envelope', () => {
+    const result = AggregationArtifactSchema.safeParse(
+      makeAggArtifact({ generatedAt: 'not-a-date' }),
+    );
+    assert.ok(!result.success, 'garbage generatedAt should be rejected');
+  });
+
+  it('rejects garbage windowStart in cycle', () => {
+    const result = AggregationArtifactSchema.safeParse(
+      makeAggArtifact({
+        cycle: {
+          id: '2026-06-11T06:00:00.000Z',
+          windowStart: '20260611',
+          windowEnd: '2026-06-11T12:00:00.000Z',
+        },
+      }),
+    );
+    assert.ok(!result.success, 'non-ISO windowStart should be rejected');
+  });
+
+  it('rejects garbage publishedAt in SourceDocumentSchema', () => {
+    const result = SourceDocumentSchema.safeParse({
+      id: 'd-1',
+      url: 'https://example.com',
+      source: 'S',
+      sourceDomain: 's.com',
+      tier: 'news',
+      title: 'T',
+      publishedAt: '2026-06-11',
+      fetchedAt: '2026-06-11T05:00:00.000Z',
+      extraction: 'full',
+      accessPolicy: 'allowed',
+      wordCount: 100,
+      lang: 'en',
+      contentHash: 'abc',
+    });
+    assert.ok(!result.success, 'date-only publishedAt should be rejected (must be full datetime)');
+  });
+
+  it('accepts valid ISO 8601 UTC datetime strings', () => {
+    const result = AggregationArtifactSchema.safeParse(makeAggArtifact());
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+});
+
+// ---------------------------------------------------------------------------
+// #9 — fact-grounding invariants
+// ---------------------------------------------------------------------------
+
+describe('ChartBlock.factIds must be non-empty (#9a)', () => {
+  const validChart = {
+    type: 'chart',
+    chartType: 'bar',
+    title: 'T',
+    series: [{ label: 'A', value: 1 }],
+    attribution: { sources: [{ source: 'S', url: 'https://safe.com' }] },
+  };
+
+  it('rejects ChartBlock with empty factIds', () => {
+    const result = ChartBlockSchema.safeParse({ ...validChart, factIds: [] });
+    assert.ok(!result.success, 'empty factIds should be rejected');
+  });
+
+  it('accepts ChartBlock with non-empty factIds', () => {
+    const result = ChartBlockSchema.safeParse({ ...validChart, factIds: ['fact-1'] });
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+});
+
+describe('ClaimProvenance non-editorial factIds (#9b)', () => {
+  it('rejects non-editorial claim with empty factIds', () => {
+    const result = ClaimProvenanceSchema.safeParse({
+      blockIndex: 2,
+      text: 'AI efficiency improved 40%.',
+      isEditorial: false,
+      factIds: [],
+      corroboration: 0,
+      confidence: 'high',
+    });
+    assert.ok(!result.success, 'non-editorial claim with empty factIds should be rejected');
+  });
+
+  it('accepts editorial claim with empty factIds (editorial lines are not fact-gated)', () => {
+    const result = ClaimProvenanceSchema.safeParse({
+      blockIndex: 0,
+      text: 'The story does not end there.',
+      isEditorial: true,
+      factIds: [],
+      corroboration: 0,
+      confidence: 'low',
+    });
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+});
+
+describe('MediaProvenance openly-licensed requires license (#9c)', () => {
+  it('rejects openly-licensed MediaProvenance without license', () => {
+    const result = MediaProvenanceSchema.safeParse({ origin: 'openly-licensed' });
+    assert.ok(!result.success, 'openly-licensed without license should be rejected');
+  });
+
+  it('rejects openly-licensed MediaProvenance with empty license', () => {
+    const result = MediaProvenanceSchema.safeParse({ origin: 'openly-licensed', license: '   ' });
+    assert.ok(!result.success, 'openly-licensed with blank license should be rejected');
+  });
+
+  it('accepts generated origin without license', () => {
+    const result = MediaProvenanceSchema.safeParse({ origin: 'generated' });
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+
+  it('accepts openly-licensed origin with license', () => {
+    const result = MediaProvenanceSchema.safeParse({ origin: 'openly-licensed', license: 'CC0' });
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+});
+
+// ---------------------------------------------------------------------------
+// #11 — ArticleBlock union catch-all no longer lets malformed known blocks through
+// ---------------------------------------------------------------------------
+
+describe('ArticleBlockSchema — malformed known-type blocks are rejected (#11)', () => {
+  it('rejects a chart block with invalid chartType (was silently accepted before)', () => {
+    const result = ArticleBlockSchema.safeParse({
+      type: 'chart',
+      chartType: 'donut', // not in enum
+      title: 'T',
+      series: [],
+      factIds: ['f-1'],
+      attribution: { sources: [] },
+    });
+    assert.ok(!result.success, 'malformed chart block must not fall through to catch-all');
+  });
+
+  it('rejects an image block missing required media field', () => {
+    const result = ArticleBlockSchema.safeParse({
+      type: 'image',
+      src: 'https://example.com/img.jpg',
+      alt: 'Alt',
+      // media is missing
+    });
+    assert.ok(!result.success, 'image block without media must be rejected');
+  });
+
+  it('still accepts a genuinely unknown future block type', () => {
+    const result = ArticleBlockSchema.safeParse({ type: 'future-hologram-block', data: 'xyz' });
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+});
+
+// ---------------------------------------------------------------------------
+// #13 — quote word count enforcement
+// ---------------------------------------------------------------------------
+
+describe('FactProvenance quote word-count limit (<= 25 words)', () => {
+  const base = { sourceDocId: 'doc-1', sourceDomain: 'reuters.com', url: 'https://reuters.com/a' };
+
+  it('rejects a quote exceeding 25 words', () => {
+    const longQuote =
+      'one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty twenty-one twenty-two twenty-three twenty-four twenty-five twenty-six';
+    const result = FactProvenanceSchema.safeParse({ ...base, quote: longQuote });
+    assert.ok(!result.success, 'quote over 25 words should be rejected');
+  });
+
+  it('accepts a quote of exactly 25 words', () => {
+    const exactly25 =
+      'one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty twenty-one twenty-two twenty-three twenty-four twenty-five';
+    const result = FactProvenanceSchema.safeParse({ ...base, quote: exactly25 });
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+
+  it('accepts absent quote (optional field)', () => {
+    const result = FactProvenanceSchema.safeParse(base);
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+});
+
+// ---------------------------------------------------------------------------
+// #15 — FORBIDDEN_METRIC_KEY_FRAGMENTS enforced in score/audit keys
+// ---------------------------------------------------------------------------
+
+describe('FORBIDDEN_METRIC_KEY_FRAGMENTS enforced in metric keys (#15)', () => {
+  const baseScore = {
+    interaction: 0.8,
+    credibility: 0.9,
+    corroboration: 0.75,
+    recency: 0.7,
+    diversity: 0.85,
+    total: 0.8,
+  };
+
+  it('rejects PII fragment "email" in scoreBreakdown.weights key', () => {
+    // Trigger through auditEntry.weights (cleaner path)
+    const result2 = RankingArtifactSchema.safeParse(
+      makeRankingArtifact({
+        data: {
+          rankedByTopic: {},
+          audit: [
+            {
+              auditId: 'a-1',
+              clusterId: 'c-1',
+              topic: 'ai',
+              inputs: { normal_signal: 0.8 },
+              weights: { email_score: 0.1 }, // forbidden PII fragment
+              computed: { ...baseScore, weights: {} },
+              rationale: 'test',
+              weightProfile: 'balanced@v1',
+              rankedAt: '2026-06-11T06:00:00.000Z',
+            },
+          ],
+          weightProfile: 'balanced@v1',
+        },
+      }),
+    );
+    assert.ok(!result2.success, 'PII fragment "email" in weights key should be rejected');
+  });
+
+  it('rejects PII fragment "session" in auditEntry.inputs key', () => {
+    const result = RankingArtifactSchema.safeParse(
+      makeRankingArtifact({
+        data: {
+          rankedByTopic: {},
+          audit: [
+            {
+              auditId: 'a-1',
+              clusterId: 'c-1',
+              topic: 'ai',
+              inputs: { session_clicks: 0.5 }, // forbidden PII fragment
+              weights: { interaction: 0.2 },
+              computed: { ...baseScore, weights: {} },
+              rationale: 'test',
+              weightProfile: 'balanced@v1',
+              rankedAt: '2026-06-11T06:00:00.000Z',
+            },
+          ],
+          weightProfile: 'balanced@v1',
+        },
+      }),
+    );
+    assert.ok(!result.success, 'PII fragment "session" in inputs key should be rejected');
+  });
+
+  it('accepts safe metric key names', () => {
+    const result = RankingArtifactSchema.safeParse(
+      makeRankingArtifact({
+        data: {
+          rankedByTopic: {},
+          audit: [
+            {
+              auditId: 'a-1',
+              clusterId: 'c-1',
+              topic: 'ai',
+              inputs: { cross_source_mentions: 3 },
+              weights: { credibility_score: 0.3 },
+              computed: { ...baseScore, weights: {} },
+              rationale: 'test',
+              weightProfile: 'balanced@v1',
+              rankedAt: '2026-06-11T06:00:00.000Z',
+            },
+          ],
+          weightProfile: 'balanced@v1',
+        },
+      }),
+    );
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+});

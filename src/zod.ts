@@ -20,7 +20,12 @@
  */
 
 import { z } from 'zod';
-import { SCHEMA_VERSION, assertCompatibleArtifact, type PipelineStage } from './index.ts';
+import {
+  SCHEMA_VERSION,
+  assertCompatibleArtifact,
+  FORBIDDEN_METRIC_KEY_FRAGMENTS,
+  type PipelineStage,
+} from './index.ts';
 
 // ---------------------------------------------------------------------------
 // Shared primitives
@@ -38,6 +43,33 @@ const safeKey = z
   .string()
   .refine((k) => !RESERVED_PROTO_KEYS.has(k), { message: 'reserved prototype key' });
 
+/** PII-safe metric key: additionally rejects keys containing forbidden PII fragments. */
+const safeMetricKey = safeKey.refine(
+  (k) => !FORBIDDEN_METRIC_KEY_FRAGMENTS.some((f) => k.toLowerCase().includes(f)),
+  { message: 'metric key contains a forbidden PII fragment' },
+);
+
+/** ISO 8601 UTC datetime string (e.g. "2026-06-11T06:00:00.000Z"). */
+const isoDatetime = z.string().datetime();
+
+/** Rejects unsafe URL schemes (javascript:, data:, vbscript:) in a non-empty URL. */
+const UNSAFE_URL_SCHEME_RE = /^(javascript|data|vbscript):/i;
+const safeRequiredUrl = z
+  .string()
+  .min(1, { message: 'URL must be non-empty' })
+  .refine((s) => !UNSAFE_URL_SCHEME_RE.test(s), { message: 'unsafe URL scheme' });
+
+/** Like safeRequiredUrl but allows empty string (e.g. sourceUrl "may be ''"). */
+const safeUrl = z
+  .string()
+  .refine((s) => s === '' || !UNSAFE_URL_SCHEME_RE.test(s), { message: 'unsafe URL scheme' });
+
+/** Refine predicate: rejects objects that contain a reserved prototype key as an own key. */
+const noReservedProtoKeys = (val: unknown): boolean => {
+  if (typeof val !== 'object' || val === null) return true;
+  return !Object.keys(val as Record<string, unknown>).some((k) => RESERVED_PROTO_KEYS.has(k));
+};
+
 const confidence = z.enum(['high', 'medium', 'low']);
 
 const sourceQuality = z.enum([
@@ -54,13 +86,13 @@ const providerMeta = z.object({
   model: z.string(),
   status: z.enum(['generated', 'fallback']),
   reason: z.string().optional(),
-  generatedAt: z.string(),
+  generatedAt: isoDatetime,
 });
 
 const cycleMeta = z.object({
-  id: z.string(),
-  windowStart: z.string(),
-  windowEnd: z.string(),
+  id: isoDatetime,
+  windowStart: isoDatetime,
+  windowEnd: isoDatetime,
 });
 
 const topicMeta = z.object({
@@ -84,7 +116,7 @@ function makeEnvelopeSchema<TStage extends string, TData extends z.ZodTypeAny>(
       artifact: z.literal(artifactLiteral),
       runId: z.string(),
       upstreamRunId: z.string().nullable(),
-      generatedAt: z.string(),
+      generatedAt: isoDatetime,
       cycle: cycleMeta,
       topics: z.array(topicMeta),
       provider: providerMeta.optional(),
@@ -105,7 +137,7 @@ const interactionMetrics = z.object({
   reactions: z.number().finite().nullable(),
   crossSourceMentions: z.number().int().min(0),
   velocity: z.number().finite().nullable(),
-  capturedAt: z.string(),
+  capturedAt: isoDatetime,
   provenance: z.string(),
 });
 
@@ -117,17 +149,18 @@ const aggregatedItem = z
     title: z.string(),
     source: z.string(),
     sourceDomain: z.string(),
-    sourceUrl: z.string(),
-    url: z.string(),
+    sourceUrl: safeUrl,
+    url: safeRequiredUrl,
     tier: sourceTier,
-    publishedAt: z.string(),
+    publishedAt: isoDatetime,
     summaryHint: z.string(),
     interaction: interactionMetrics,
     clusterId: z.string(),
     fingerprint: z.string(),
     claims: z.array(z.string()).optional(), // rev 2 additive field
   })
-  .passthrough();
+  .passthrough()
+  .refine(noReservedProtoKeys, { message: 'reserved prototype key found in item' });
 
 const cluster = z
   .object({
@@ -146,11 +179,13 @@ const cluster = z
         'technical-news': z.number().int().min(0).optional(),
         'security-news': z.number().int().min(0).optional(),
       })
-      .passthrough(),
-    earliestPublishedAt: z.string(),
-    latestPublishedAt: z.string(),
+      .passthrough()
+      .refine(noReservedProtoKeys, { message: 'reserved prototype key found in tierHistogram' }),
+    earliestPublishedAt: isoDatetime,
+    latestPublishedAt: isoDatetime,
   })
-  .passthrough();
+  .passthrough()
+  .refine(noReservedProtoKeys, { message: 'reserved prototype key found in cluster' });
 
 const sourceCoverage = z.object({
   sourcesConfigured: z.number().int().min(0),
@@ -167,13 +202,13 @@ const accessPolicy = z.enum(['allowed', 'paywalled', 'robots-disallowed', 'tos-r
 
 export const SourceDocumentSchema = z.object({
   id: z.string(),
-  url: z.string(),
+  url: safeRequiredUrl,
   source: z.string(),
   sourceDomain: z.string(),
   tier: sourceTier,
   title: z.string(),
-  publishedAt: z.string(),
-  fetchedAt: z.string(),
+  publishedAt: isoDatetime,
+  fetchedAt: isoDatetime,
   extraction: extractionStatus,
   accessPolicy: accessPolicy,
   wordCount: z.number().int().min(0).nullable(),
@@ -185,8 +220,13 @@ export type SourceDocumentInput = z.input<typeof SourceDocumentSchema>;
 export const FactProvenanceSchema = z.object({
   sourceDocId: z.string(),
   sourceDomain: z.string(),
-  url: z.string(),
-  quote: z.string().optional(),
+  url: safeRequiredUrl,
+  quote: z
+    .string()
+    .refine((q) => q.trim().split(/\s+/).filter(Boolean).length <= 25, {
+      message: 'quote must be at most 25 words',
+    })
+    .optional(),
 });
 export type FactProvenanceInput = z.input<typeof FactProvenanceSchema>;
 
@@ -238,9 +278,10 @@ const scoreBreakdown = z
     recency: z.number().finite(),
     diversity: z.number().finite(),
     total: z.number().finite(), // NaN serialises as null in JSON — both are rejected here
-    weights: z.record(safeKey, z.number().finite()),
+    weights: z.record(safeMetricKey, z.number().finite()),
   })
-  .passthrough();
+  .passthrough()
+  .refine(noReservedProtoKeys, { message: 'reserved prototype key found in scoreBreakdown' });
 
 const tierHistogram = z
   .object({
@@ -256,9 +297,9 @@ const sourceRef = z.object({
   source: z.string(),
   sourceDomain: z.string(),
   tier: sourceTier,
-  url: z.string(),
+  url: safeRequiredUrl,
   title: z.string(),
-  publishedAt: z.string(),
+  publishedAt: isoDatetime,
 });
 
 const rankedCluster = z
@@ -276,33 +317,36 @@ const rankedCluster = z
     distinctDomains: z.number().int().min(0),
     tierHistogram,
     memberIds: z.array(z.string()),
-    earliestPublishedAt: z.string(),
-    latestPublishedAt: z.string(),
+    earliestPublishedAt: isoDatetime,
+    latestPublishedAt: isoDatetime,
     auditId: z.string(),
     // Rev 3 additive fields
     references: z.array(sourceRef).optional(),
     sourceDocIds: z.array(z.string()).optional(),
     gateStatus: z.enum(['auto', 'flagged', 'hold']).optional(),
   })
-  .passthrough();
+  .passthrough()
+  .refine(noReservedProtoKeys, { message: 'reserved prototype key found in rankedCluster' });
 
 const auditEntry = z.object({
   auditId: z.string(),
   clusterId: z.string(),
   topic: z.string(),
-  inputs: z.record(safeKey, z.number().finite()),
-  weights: z.record(safeKey, z.number().finite()),
+  inputs: z.record(safeMetricKey, z.number().finite()),
+  weights: z.record(safeMetricKey, z.number().finite()),
   computed: scoreBreakdown,
   rationale: z.string(),
   weightProfile: z.string(),
-  rankedAt: z.string(),
+  rankedAt: isoDatetime,
 });
 
-const rankingData = z.object({
-  rankedByTopic: z.record(safeKey, z.array(rankedCluster)),
-  audit: z.array(auditEntry),
-  weightProfile: z.string(),
-});
+const rankingData = z
+  .object({
+    rankedByTopic: z.record(safeKey, z.array(rankedCluster)),
+    audit: z.array(auditEntry),
+    weightProfile: z.string(),
+  })
+  .passthrough();
 
 export const RankingArtifactSchema = makeEnvelopeSchema('ranking', rankingData);
 export type RankingArtifactInput = z.input<typeof RankingArtifactSchema>;
@@ -330,7 +374,8 @@ const top10Entry = z
     // Rev 3 additive field
     sourceDocIds: z.array(z.string()).optional(),
   })
-  .passthrough();
+  .passthrough()
+  .refine(noReservedProtoKeys, { message: 'reserved prototype key found in top10Entry' });
 
 const stabilityReport = z.object({
   carriedOver: z.number().int().min(0),
@@ -338,13 +383,15 @@ const stabilityReport = z.object({
   churnRate: z.number().finite().min(0).max(1),
 });
 
-const top10Data = z.object({
-  nextRefreshAt: z.string(),
-  topicsCovered: z.array(z.string()),
-  top10ByTopic: z.record(safeKey, z.array(top10Entry)),
-  global: z.array(top10Entry),
-  stability: stabilityReport,
-});
+const top10Data = z
+  .object({
+    nextRefreshAt: isoDatetime,
+    topicsCovered: z.array(z.string()),
+    top10ByTopic: z.record(safeKey, z.array(top10Entry)),
+    global: z.array(top10Entry),
+    stability: stabilityReport,
+  })
+  .passthrough();
 
 export const Top10ArtifactSchema = makeEnvelopeSchema('top10', top10Data);
 export type Top10ArtifactInput = z.input<typeof Top10ArtifactSchema>;
@@ -355,12 +402,17 @@ export type Top10ArtifactInput = z.input<typeof Top10ArtifactSchema>;
 
 // Rev 3 — visual render blocks
 
-export const MediaProvenanceSchema = z.object({
-  origin: z.enum(['generated', 'openly-licensed']),
-  license: z.string().optional(),
-  creator: z.string().optional(),
-  sourceUrl: z.string().optional(),
-});
+export const MediaProvenanceSchema = z
+  .object({
+    origin: z.enum(['generated', 'openly-licensed']),
+    license: z.string().optional(),
+    creator: z.string().optional(),
+    sourceUrl: safeRequiredUrl.optional(),
+  })
+  .refine(
+    (m) => m.origin !== 'openly-licensed' || (m.license !== undefined && m.license.trim() !== ''),
+    { message: 'license is required when origin is openly-licensed', path: ['license'] },
+  );
 export type MediaProvenanceInput = z.input<typeof MediaProvenanceSchema>;
 
 // Individual block schemas (exported for renderer use)
@@ -373,11 +425,12 @@ export const TextBlockSchema = z
     attribution: z
       .object({
         source: z.string(),
-        url: z.string(),
+        url: safeRequiredUrl,
       })
       .optional(),
   })
-  .passthrough();
+  .passthrough()
+  .refine(noReservedProtoKeys, { message: 'reserved prototype key found in TextBlock' });
 
 export const ChartBlockSchema = z
   .object({
@@ -391,49 +444,77 @@ export const ChartBlockSchema = z
         unit: z.string().optional(),
       }),
     ),
-    factIds: z.array(z.string()),
+    factIds: z
+      .array(z.string())
+      .min(1, { message: 'ChartBlock must reference at least one factId' }),
     caption: z.string().optional(),
     attribution: z.object({
-      sources: z.array(z.object({ source: z.string(), url: z.string() })),
+      sources: z.array(z.object({ source: z.string(), url: safeRequiredUrl })),
     }),
   })
-  .passthrough();
+  .passthrough()
+  .refine(noReservedProtoKeys, { message: 'reserved prototype key found in ChartBlock' });
 
 export const ImageBlockSchema = z
   .object({
     type: z.literal('image'),
-    src: z.string(),
+    src: safeRequiredUrl,
     alt: z.string(),
     caption: z.string().optional(),
     media: MediaProvenanceSchema,
   })
-  .passthrough();
+  .passthrough()
+  .refine(noReservedProtoKeys, { message: 'reserved prototype key found in ImageBlock' });
 
 export const GifBlockSchema = z
   .object({
     type: z.literal('gif'),
-    src: z.string(),
+    src: safeRequiredUrl,
     alt: z.string(),
-    poster: z.string().optional(),
+    poster: safeRequiredUrl.optional(),
     media: MediaProvenanceSchema,
   })
-  .passthrough();
+  .passthrough()
+  .refine(noReservedProtoKeys, { message: 'reserved prototype key found in GifBlock' });
 
 export const EmbedBlockSchema = z
   .object({
     type: z.literal('embed'),
     provider: z.string(),
-    url: z.string(),
+    url: safeRequiredUrl,
     title: z.string().optional(),
+  })
+  .passthrough()
+  .refine(noReservedProtoKeys, { message: 'reserved prototype key found in EmbedBlock' });
+
+/**
+ * Catch-all for forward-compat unknown block types (renderer must skip, never throw).
+ * Explicitly rejects known type names so that a malformed chart/image/etc. block
+ * (which fails its specific schema) cannot silently fall through here.
+ */
+const KNOWN_BLOCK_TYPES = new Set([
+  'paragraph',
+  'heading',
+  'list',
+  'quote',
+  'callout',
+  'chart',
+  'image',
+  'gif',
+  'embed',
+]);
+const unknownBlockSchema = z
+  .object({
+    type: z.string().refine((t) => !KNOWN_BLOCK_TYPES.has(t), {
+      message: 'block with a known type failed its specific schema',
+    }),
   })
   .passthrough();
 
-// Catch-all for forward-compat unknown block types (renderer must skip, never throw)
-const unknownBlockSchema = z.object({ type: z.string() }).passthrough();
-
 /**
- * ArticleBlock union — tries each specific variant in order; unknown types fall
- * through to the catch-all so they are preserved rather than rejected.
+ * ArticleBlock union — tries each specific variant in order; truly-unknown types
+ * fall through to the catch-all so they are preserved rather than rejected.
+ * Malformed blocks with a known type (e.g. chart with bad chartType) are rejected.
  */
 export const ArticleBlockSchema = z.union([
   TextBlockSchema,
@@ -446,23 +527,28 @@ export const ArticleBlockSchema = z.union([
 
 // Rev 3 — claim provenance
 
-export const ClaimProvenanceSchema = z.object({
-  blockIndex: z.number().int().min(0),
-  text: z.string(),
-  isEditorial: z.boolean(),
-  factIds: z.array(z.string()),
-  corroboration: z.number().int().min(0),
-  confidence,
-});
+export const ClaimProvenanceSchema = z
+  .object({
+    blockIndex: z.number().int().min(0),
+    text: z.string(),
+    isEditorial: z.boolean(),
+    factIds: z.array(z.string()),
+    corroboration: z.number().int().min(0),
+    confidence,
+  })
+  .refine((c) => c.isEditorial || c.factIds.length >= 1, {
+    message: 'non-editorial claims must reference at least one factId',
+    path: ['factIds'],
+  });
 export type ClaimProvenanceInput = z.input<typeof ClaimProvenanceSchema>;
 
 const articleReference = z.object({
   source: z.string(),
   sourceDomain: z.string(),
   tier: sourceTier,
-  url: z.string(),
+  url: safeRequiredUrl,
   title: z.string(),
-  publishedAt: z.string(),
+  publishedAt: isoDatetime,
 });
 
 const synthesizedArticle = z
@@ -491,7 +577,7 @@ const synthesizedArticle = z
     legalNote: z.string(),
     wordCount: z.number().int().min(0),
     readingTimeMinutes: z.number().finite(),
-    generatedAt: z.string(),
+    generatedAt: isoDatetime,
     // Rev 3 additive fields
     editorialStatus: z.enum(['published', 'held', 'draft']).optional(),
     facts: z.array(ExtractedFactSchema).optional(),
@@ -507,10 +593,12 @@ const copyrightPolicy = z.object({
   requireCanonicalLinks: z.literal(true),
 });
 
-const articleData = z.object({
-  articles: z.array(synthesizedArticle),
-  copyrightPolicy,
-});
+const articleData = z
+  .object({
+    articles: z.array(synthesizedArticle),
+    copyrightPolicy,
+  })
+  .passthrough();
 
 export const ArticleArtifactSchema = makeEnvelopeSchema('articles', articleData);
 export type ArticleArtifactInput = z.input<typeof ArticleArtifactSchema>;

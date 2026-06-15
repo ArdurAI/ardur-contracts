@@ -128,17 +128,25 @@ export function assertCompatibleArtifact(raw, expectedStage) {
             stage: expectedStage,
         });
     }
-    if (typeof env.data !== 'object' || env.data === null) {
+    if (typeof env.data !== 'object' || env.data === null || Array.isArray(env.data)) {
         throw new SchemaVersionError({
             expected: 'non-null object at .data',
             received: env.data,
             stage: expectedStage,
         });
     }
-    if (typeof env.runId !== 'string' || env.runId === '') {
+    if (typeof env.runId !== 'string' || env.runId.trim() === '') {
         throw new SchemaVersionError({
             expected: 'non-empty string at .runId',
             received: env.runId,
+            stage: expectedStage,
+        });
+    }
+    const upId = env.upstreamRunId;
+    if (upId !== null && upId !== undefined && (typeof upId !== 'string' || upId.trim() === '')) {
+        throw new SchemaVersionError({
+            expected: 'non-empty string or null at .upstreamRunId',
+            received: upId,
             stage: expectedStage,
         });
     }
@@ -179,6 +187,19 @@ export function assertCompatibleArtifact(raw, expectedStage) {
             received: env.warnings,
             stage: expectedStage,
         });
+    }
+    if (env.contractRevision !== undefined) {
+        const cr = env.contractRevision;
+        if (typeof cr !== 'number' ||
+            !Number.isFinite(cr) ||
+            !Number.isInteger(cr) ||
+            cr < 1) {
+            throw new SchemaVersionError({
+                expected: 'positive integer at .contractRevision',
+                received: cr,
+                stage: expectedStage,
+            });
+        }
     }
     const warnings = [];
     const rev = typeof env.contractRevision === 'number' ? env.contractRevision : 1;
