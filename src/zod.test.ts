@@ -500,6 +500,64 @@ describe('ArticleArtifactSchema', () => {
     assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
   });
 
+  it('parses Hermes as a valid article synthesis provider', () => {
+    const article = {
+      id: 'article-hermes-1',
+      rank: 1,
+      topic: 'ai',
+      topicLabel: 'AI',
+      headline: 'Hermes-powered AI brief',
+      dek: 'A contract-valid Hermes-generated article.',
+      body: [{ type: 'paragraph', text: 'Hermes output was validated before publication.' }],
+      keyPoints: ['Hermes provider metadata is contract-valid'],
+      whyItMatters: 'Provider provenance stays explicit.',
+      readerAction: 'Inspect the source trail.',
+      tags: ['ai', 'hermes'],
+      confidence: 'high',
+      sourceQuality: 'corroborated',
+      references: [],
+      provenance: {
+        clusterId: 'cluster-ai-1',
+        sourceCount: 2,
+        distinctDomains: 2,
+        upstreamRunId: 'run-top10-1',
+      },
+      ai: {
+        provider: 'hermes',
+        model: 'hermes-agent',
+        status: 'generated',
+        generatedAt: '2026-06-11T06:04:00.000Z',
+      },
+      legalNote: 'Original text only.',
+      wordCount: 120,
+      readingTimeMinutes: 1,
+      generatedAt: '2026-06-11T06:04:00.000Z',
+    };
+
+    const result = ArticleArtifactSchema.safeParse(
+      makeArticleArtifact({
+        provider: {
+          provider: 'hermes',
+          model: 'hermes-agent',
+          status: 'generated',
+          generatedAt: '2026-06-11T06:04:00.000Z',
+        },
+        data: {
+          articles: [article],
+          copyrightPolicy: {
+            originalTextOnly: true,
+            maxQuoteWords: 25,
+            reproduceArticleBody: false,
+            requireAttribution: true,
+            requireCanonicalLinks: true,
+          },
+        },
+      }),
+    );
+
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+
   it('rejects invalid copyrightPolicy (reproduceArticleBody = true)', () => {
     const result = ArticleArtifactSchema.safeParse(
       makeArticleArtifact({
@@ -642,6 +700,34 @@ describe('ExtractedFactSchema', () => {
   it('parses a valid ExtractedFact without quantity', () => {
     const result = ExtractedFactSchema.safeParse(validFact);
     assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+
+  it('parses Hermes as a valid fact extraction provider', () => {
+    const result = ExtractedFactSchema.safeParse({
+      ...validFact,
+      extractedBy: {
+        provider: 'hermes',
+        model: 'hermes-agent',
+        status: 'generated',
+        generatedAt: '2026-06-11T05:30:00.000Z',
+      },
+    });
+
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+
+  it('rejects an unknown fact extraction provider', () => {
+    const result = ExtractedFactSchema.safeParse({
+      ...validFact,
+      extractedBy: {
+        provider: 'not-a-provider',
+        model: 'unknown',
+        status: 'generated',
+        generatedAt: '2026-06-11T05:30:00.000Z',
+      },
+    });
+
+    assert.ok(!result.success);
   });
 
   it('parses a valid ExtractedFact with quantity', () => {

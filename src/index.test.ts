@@ -24,6 +24,7 @@ import {
   type RankedCluster,
   type Top10Entry,
   type SynthesizedArticle,
+  type ProviderMeta,
 } from './index.ts';
 
 // ---------------------------------------------------------------------------
@@ -62,8 +63,21 @@ describe('SCHEMA_VERSION', () => {
 });
 
 describe('CONTRACT_REVISION', () => {
-  it('is 4 (rev 4 adds signalId + summary on Top10Entry, SignalLink, Top10Data.links)', () => {
-    assert.strictEqual(CONTRACT_REVISION, 4);
+  it('is 5 (rev 5 adds Hermes provider metadata compatibility)', () => {
+    assert.strictEqual(CONTRACT_REVISION, 5);
+  });
+});
+
+describe('ProviderMeta', () => {
+  it('allows Hermes as a first-class provider value', () => {
+    const meta: ProviderMeta = {
+      provider: 'hermes',
+      model: 'hermes-agent',
+      status: 'generated',
+      generatedAt: '2026-06-11T06:00:00.000Z',
+    };
+
+    assert.strictEqual(meta.provider, 'hermes');
   });
 });
 
