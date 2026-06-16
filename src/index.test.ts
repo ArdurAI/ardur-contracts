@@ -9,6 +9,7 @@ import {
   SchemaVersionError,
   type ArtifactEnvelope,
   type AggregationData,
+  type ProviderMeta,
   type ExtractedFact,
   type FactProvenance,
   type SourceDocument,
@@ -62,14 +63,27 @@ describe('SCHEMA_VERSION', () => {
 });
 
 describe('CONTRACT_REVISION', () => {
-  it('is 3 (rev 3 adds fact/provenance layer, visual blocks, uncapped source set)', () => {
-    assert.strictEqual(CONTRACT_REVISION, 3);
+  it('is 4 (rev 4 ratifies hermes as a first-class provider metadata value)', () => {
+    assert.strictEqual(CONTRACT_REVISION, 4);
   });
 });
 
 describe('CYCLE_INTERVAL_MS', () => {
   it('is 6 hours in milliseconds', () => {
     assert.strictEqual(CYCLE_INTERVAL_MS, 6 * 60 * 60 * 1000);
+  });
+});
+
+describe('ProviderMeta', () => {
+  it('accepts hermes as a first-class provider in TypeScript contracts', () => {
+    const meta: ProviderMeta = {
+      provider: 'hermes',
+      model: 'hermes-default',
+      status: 'generated',
+      generatedAt: '2026-06-16T00:00:00.000Z',
+    };
+
+    assert.strictEqual(meta.provider, 'hermes');
   });
 });
 

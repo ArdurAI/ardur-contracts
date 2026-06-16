@@ -1,6 +1,6 @@
 {
   "name": "@ardurai/contracts",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Shared wire contract for the Ardur AI content pipeline",
   "license": "MIT",
   "type": "module",

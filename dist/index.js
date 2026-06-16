@@ -2,8 +2,10 @@
  * @ardurai/contracts — Shared wire contract for the Ardur AI content pipeline.
  *
  * Schema:           ardur-content-pipeline/v1
- * Contract revision: 3  (rev 3 adds fact/provenance layer, visual ArticleBlock union,
- *                        uncapped source set, ScoreBreakdown.technicalSignificance,
+ * Contract revision: 4  (rev 4 ratifies `hermes` as a first-class ProviderMeta
+ *                        provider value; rev 3 added fact/provenance layer,
+ *                        visual ArticleBlock union, uncapped source set,
+ *                        ScoreBreakdown.technicalSignificance,
  *                        RankedCluster.gateStatus/references, ClaimProvenance)
  *
  * The four engines exchange data through typed, versioned envelopes:
@@ -41,8 +43,9 @@ export const SCHEMA_VERSION = 'ardur-content-pipeline/v1';
  *        visual ArticleBlock union (chart/image/gif/embed); TextBlock named export;
  *        ScoreBreakdown.technicalSignificance?; RankedCluster.references?/sourceDocIds?/gateStatus?;
  *        Top10Entry.sourceDocIds?; ClaimProvenance + SynthesizedArticle.claims?/facts?/editorialStatus?
+ * Rev 4: ratifies `hermes` as a first-class ProviderMeta.provider value.
  */
-export const CONTRACT_REVISION = 3;
+export const CONTRACT_REVISION = 4;
 // ---------------------------------------------------------------------------
 // Cross-stage constants
 // ---------------------------------------------------------------------------

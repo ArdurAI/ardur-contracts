@@ -103,6 +103,120 @@ function makeArticleArtifact(overrides: Record<string, unknown> = {}) {
   };
 }
 
+function hermesProviderMeta(overrides: Record<string, unknown> = {}) {
+  return {
+    provider: 'hermes',
+    model: 'hermes-default',
+    status: 'generated',
+    generatedAt: '2026-06-16T00:00:00.000Z',
+    ...overrides,
+  };
+}
+
+function minimalExtractedFact(overrides: Record<string, unknown> = {}) {
+  return {
+    id: 'fact-hermes-1',
+    topic: 'ai',
+    clusterId: 'cluster-hermes-1',
+    statement: 'Hermes provider metadata is contract-valid.',
+    entities: ['Hermes'],
+    provenance: [
+      {
+        sourceDocId: 'doc-1',
+        sourceDomain: 'example.com',
+        url: 'https://example.com/hermes-provider',
+      },
+    ],
+    corroboration: 1,
+    confidence: 'high',
+    extractedBy: hermesProviderMeta(),
+    ...overrides,
+  };
+}
+
+function minimalSynthesizedArticle(overrides: Record<string, unknown> = {}) {
+  return {
+    id: 'article-hermes-1',
+    rank: 1,
+    topic: 'ai',
+    topicLabel: 'AI',
+    headline: 'Hermes provider support lands in Ardur contracts',
+    dek: 'Hermes is now a first-class provider metadata value.',
+    body: [{ type: 'paragraph', text: 'Hermes provider metadata validates.' }],
+    keyPoints: ['Hermes is contract-valid.'],
+    whyItMatters: 'Downstream engines can record Hermes provenance without casts.',
+    readerAction: 'Validate artifacts before rendering.',
+    tags: ['hermes', 'contracts'],
+    confidence: 'high',
+    sourceQuality: 'single source',
+    references: [
+      {
+        source: 'Example',
+        sourceDomain: 'example.com',
+        tier: 'technical-news',
+        url: 'https://example.com/hermes-provider',
+        title: 'Hermes Provider',
+        publishedAt: '2026-06-16T00:00:00.000Z',
+      },
+    ],
+    provenance: {
+      clusterId: 'cluster-hermes-1',
+      sourceCount: 1,
+      distinctDomains: 1,
+      upstreamRunId: 'run-top10-1',
+    },
+    ai: hermesProviderMeta(),
+    legalNote: 'Original text only.',
+    wordCount: 42,
+    readingTimeMinutes: 1,
+    generatedAt: '2026-06-16T00:01:00.000Z',
+    ...overrides,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// ProviderMeta
+// ---------------------------------------------------------------------------
+
+describe('ProviderMeta', () => {
+  it('accepts hermes on artifact envelope provider metadata', () => {
+    const result = AggregationArtifactSchema.safeParse(
+      makeAggArtifact({ provider: hermesProviderMeta() }),
+    );
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+
+  it('accepts hermes on extracted fact metadata', () => {
+    const result = ExtractedFactSchema.safeParse(minimalExtractedFact());
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+
+  it('accepts hermes on synthesized article AI metadata', () => {
+    const result = ArticleArtifactSchema.safeParse(
+      makeArticleArtifact({
+        data: {
+          articles: [minimalSynthesizedArticle()],
+          copyrightPolicy: {
+            originalTextOnly: true,
+            maxQuoteWords: 25,
+            reproduceArticleBody: false,
+            requireAttribution: true,
+            requireCanonicalLinks: true,
+          },
+        },
+      }),
+    );
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+
+  it('still rejects unknown provider strings', () => {
+    const result = AggregationArtifactSchema.safeParse(
+      makeAggArtifact({ provider: hermesProviderMeta({ provider: 'not-a-provider' }) }),
+    );
+    assert.ok(!result.success);
+  });
+});
+
 // ---------------------------------------------------------------------------
 // AggregationArtifactSchema
 // ---------------------------------------------------------------------------

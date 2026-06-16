@@ -120,7 +120,7 @@ context for logging.
 | Export | Value | Description |
 |--------|-------|-------------|
 | `SCHEMA_VERSION` | `'ardur-content-pipeline/v1'` | Major compatibility key. Hard-fail gate if mismatched. |
-| `CONTRACT_REVISION` | `3` | Monotonic additive counter. Rev 3 adds fact/provenance + visual blocks. |
+| `CONTRACT_REVISION` | `4` | Monotonic additive counter. Rev 4 adds `hermes` as a first-class ProviderMeta provider value. |
 | `CYCLE_INTERVAL_MS` | `21600000` | 6-hour cycle length in milliseconds. |
 | `FORBIDDEN_METRIC_KEY_FRAGMENTS` | `readonly string[]` | Privacy guard: reject metric keys containing these substrings. |
 
@@ -177,8 +177,8 @@ Major version is locked to the `schemaVersion` major line:
 | `2.x` (future) | `ardur-content-pipeline/v2` | Breaking change |
 
 **Release cadence:**
-- **Additive field** (new optional key) → `MINOR` bump + `CONTRACT_REVISION++`  
-  e.g. `claims?` added → `1.1.0`, `CONTRACT_REVISION = 2`; rev 3 types → `1.2.0`, `CONTRACT_REVISION = 3`
+- **Additive field/value** (new optional key or enum value) → `MINOR` bump + `CONTRACT_REVISION++`.
+  Example: `claims?` added → `1.1.0`, `CONTRACT_REVISION = 2`; rev 3 types → `1.2.0`, `CONTRACT_REVISION = 3`; `hermes` provider metadata → `1.3.0`, `CONTRACT_REVISION = 4`
 - **Breaking change** → `MAJOR` bump + `SCHEMA_VERSION` → `v2`  
   The gate fails loud on any un-upgraded consumer.
 - **Doc / no-shape change** → `PATCH` bump
