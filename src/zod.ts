@@ -374,8 +374,14 @@ const top10Entry = z
     // Rev 3 additive field
     sourceDocIds: z.array(z.string()).optional(),
     // Rev 4 additive fields
-    signalId: z.string().optional(),
-    summary: z.string().optional(),
+    signalId: z.string().regex(/^[0-9a-f]{8}$/, 'signalId must be 8 lowercase hex chars').optional(),
+    summary: z
+      .string()
+      .refine(
+        (s) => s.trim().split(/\s+/).filter(Boolean).length <= 20,
+        { message: 'summary must be ≤20 words' },
+      )
+      .optional(),
   })
   .passthrough()
   .refine(noReservedProtoKeys, { message: 'reserved prototype key found in top10Entry' });

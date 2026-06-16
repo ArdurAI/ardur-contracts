@@ -16,6 +16,7 @@ import {
   GifBlockSchema,
   EmbedBlockSchema,
   ArticleBlockSchema,
+  SignalLinkSchema,
   parseArtifact,
   parseAggregationArtifact,
   parseRankingArtifact,
@@ -2682,6 +2683,219 @@ describe('FORBIDDEN_METRIC_KEY_FRAGMENTS enforced in metric keys (#15)', () => {
             },
           ],
           weightProfile: 'balanced@v1',
+        },
+      }),
+    );
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Rev-4 field constraints — signalId, summary, SignalLink weight
+// ---------------------------------------------------------------------------
+
+const BASE_ENTRY_REV4 = {
+  rank: 1,
+  clusterId: 'cluster-ai-1',
+  topic: 'ai',
+  topicLabel: 'AI',
+  headline: 'AI advances in 2026',
+  score: {
+    interaction: 0.8,
+    credibility: 0.9,
+    recency: 0.7,
+    diversity: 0.85,
+    corroboration: 0.75,
+    total: 0.8,
+    weights: {},
+  },
+  sourceQuality: 'corroborated',
+  confidence: 'high',
+  references: [],
+  delta: { previousRank: null, movement: 'new' },
+  carriedOver: false,
+};
+
+function makeRev4Artifact(entryExtra: Record<string, unknown> = {}, dataExtra: Record<string, unknown> = {}) {
+  const entry = { ...BASE_ENTRY_REV4, ...entryExtra };
+  return makeTop10Artifact({
+    data: {
+      nextRefreshAt: '2026-06-11T12:00:00.000Z',
+      topicsCovered: ['ai'],
+      top10ByTopic: { ai: [entry] },
+      global: [entry],
+      stability: { carriedOver: 0, fresh: 1, churnRate: 0 },
+      ...dataExtra,
+    },
+  });
+}
+
+describe('Rev-4 field constraints — signalId', () => {
+  it('accepts a valid 8-char lowercase hex signalId', () => {
+    const result = Top10ArtifactSchema.safeParse(makeRev4Artifact({ signalId: 'ab12cd34' }));
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+
+  it('rejects signalId that is too short (7 chars)', () => {
+    const result = Top10ArtifactSchema.safeParse(makeRev4Artifact({ signalId: 'ab12cd3' }));
+    assert.ok(!result.success, 'signalId shorter than 8 chars should be rejected');
+  });
+
+  it('rejects signalId that is too long (9 chars)', () => {
+    const result = Top10ArtifactSchema.safeParse(makeRev4Artifact({ signalId: 'ab12cd345' }));
+    assert.ok(!result.success, 'signalId longer than 8 chars should be rejected');
+  });
+
+  it('rejects signalId with uppercase hex chars', () => {
+    const result = Top10ArtifactSchema.safeParse(makeRev4Artifact({ signalId: 'AB12CD34' }));
+    assert.ok(!result.success, 'uppercase signalId should be rejected');
+  });
+
+  it('rejects signalId with non-hex chars', () => {
+    const result = Top10ArtifactSchema.safeParse(makeRev4Artifact({ signalId: 'xyz1gz34' }));
+    assert.ok(!result.success, 'non-hex signalId should be rejected');
+  });
+
+  it('accepts entry without signalId (optional, rev-3 back-compat)', () => {
+    const result = Top10ArtifactSchema.safeParse(makeRev4Artifact());
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+});
+
+describe('Rev-4 field constraints — summary <=20 words', () => {
+  const exactly20 = Array.from({ length: 20 }, (_, i) => `word${i + 1}`).join(' ');
+  const twentyOne = exactly20 + ' extra';
+
+  it('accepts a short one-sentence summary', () => {
+    const result = Top10ArtifactSchema.safeParse(
+      makeRev4Artifact({ summary: 'AI advances with new open source models.' }),
+    );
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+
+  it('accepts a summary with exactly 20 words', () => {
+    const result = Top10ArtifactSchema.safeParse(makeRev4Artifact({ summary: exactly20 }));
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+
+  it('rejects a summary with 21 words', () => {
+    const result = Top10ArtifactSchema.safeParse(makeRev4Artifact({ summary: twentyOne }));
+    assert.ok(!result.success, 'summary with 21 words should be rejected');
+  });
+
+  it('accepts entry without summary (optional, rev-3 back-compat)', () => {
+    const result = Top10ArtifactSchema.safeParse(makeRev4Artifact());
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+});
+
+describe('Rev-4 field constraints — SignalLink.weight (.min(0).max(1))', () => {
+  const validLink = { a: 'ab12cd34', b: 'ef56ab78', relation: 'similar_to', weight: 0.75 };
+
+  it('accepts a valid SignalLink with weight in [0, 1]', () => {
+    const result = SignalLinkSchema.safeParse(validLink);
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+
+  it('accepts SignalLink.weight of exactly 0', () => {
+    const result = SignalLinkSchema.safeParse({ ...validLink, weight: 0 });
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+
+  it('accepts SignalLink.weight of exactly 1', () => {
+    const result = SignalLinkSchema.safeParse({ ...validLink, weight: 1 });
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+
+  it('rejects SignalLink.weight below 0', () => {
+    const result = SignalLinkSchema.safeParse({ ...validLink, weight: -0.01 });
+    assert.ok(!result.success, 'weight < 0 should be rejected');
+  });
+
+  it('rejects SignalLink.weight above 1', () => {
+    const result = SignalLinkSchema.safeParse({ ...validLink, weight: 1.01 });
+    assert.ok(!result.success, 'weight > 1 should be rejected');
+  });
+
+  it('rejects SignalLink.weight of NaN', () => {
+    const result = SignalLinkSchema.safeParse({ ...validLink, weight: NaN });
+    assert.ok(!result.success, 'NaN weight should be rejected');
+  });
+
+  it('rejects SignalLink.weight of Infinity', () => {
+    const result = SignalLinkSchema.safeParse({ ...validLink, weight: Infinity });
+    assert.ok(!result.success, 'Infinity weight should be rejected');
+  });
+
+  it('accepts links array in Top10ArtifactSchema when links are valid', () => {
+    const result = Top10ArtifactSchema.safeParse(
+      makeRev4Artifact({ signalId: 'ab12cd34' }, { links: [validLink] }),
+    );
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+  });
+
+  it('rejects links array when one link has out-of-range weight', () => {
+    const result = Top10ArtifactSchema.safeParse(
+      makeRev4Artifact({}, { links: [{ ...validLink, weight: 2.0 }] }),
+    );
+    assert.ok(!result.success, 'links with out-of-range weight should be rejected');
+  });
+});
+
+describe('Rev-4 full round-trip and back-compat', () => {
+  it('parses a complete Rev-4 Top10Artifact with signalId, summary, and links', () => {
+    const entry = {
+      ...BASE_ENTRY_REV4,
+      signalId: 'b7601769',
+      summary: 'OpenTofu v1.11.9 patch release.',
+    };
+    const artifact = makeTop10Artifact({
+      contractRevision: 4,
+      data: {
+        nextRefreshAt: '2026-06-11T12:00:00.000Z',
+        topicsCovered: ['kubernetes'],
+        top10ByTopic: { kubernetes: [entry] },
+        global: [entry],
+        stability: { carriedOver: 5, fresh: 5, churnRate: 0.5 },
+        links: [{ a: 'b7601769', b: 'ef56ab78', relation: 'similar_to', weight: 0.6 }],
+      },
+    });
+    const result = Top10ArtifactSchema.safeParse(artifact);
+    assert.ok(result.success, JSON.stringify((result as { error?: unknown }).error));
+    if (result.success) {
+      const data = result.data.data as {
+        global: { signalId?: string; summary?: string }[];
+        links?: unknown[];
+      };
+      assert.strictEqual(data.global[0]?.signalId, 'b7601769');
+      assert.strictEqual(data.global[0]?.summary, 'OpenTofu v1.11.9 patch release.');
+      assert.ok(Array.isArray(data.links) && data.links.length === 1);
+    }
+  });
+
+  it('parses a Rev-3 Top10Artifact (no signalId, no summary, no links) — back-compat', () => {
+    const entry = {
+      rank: 3,
+      clusterId: 'cluster-security-1',
+      topic: 'security',
+      topicLabel: 'Security',
+      headline: 'Critical vulnerability in popular library',
+      score: { interaction: 0.4, credibility: 0.95, recency: 0.8, diversity: 0.7, corroboration: 0.6, total: 0.7, weights: {} },
+      sourceQuality: 'multi-source',
+      confidence: 'high',
+      references: [],
+      delta: { previousRank: 2, movement: 'down' },
+      carriedOver: true,
+      sourceDocIds: ['doc-a', 'doc-b'],
+    };
+    const result = Top10ArtifactSchema.safeParse(
+      makeTop10Artifact({
+        data: {
+          nextRefreshAt: '2026-06-11T12:00:00.000Z',
+          topicsCovered: ['security'],
+          top10ByTopic: { security: [entry] },
+          global: [entry],
+          stability: { carriedOver: 3, fresh: 7, churnRate: 0.7 },
         },
       }),
     );

@@ -350,7 +350,10 @@ export interface Top10Entry {
   sourceDocIds?: string[];
   /** Rev 4: stable 8-char hex prefix of SHA-256(headline) — survives re-aggregation. */
   signalId?: string;
-  /** Rev 4: story-specific one-sentence lede (≤ 20 words). Deterministic, 0 AI tokens. */
+  /**
+   * Rev 4: story-specific one-sentence lede (≤ 20 words). Deterministic, 0 AI tokens.
+   * Subsumes the `tickerSummary` role — use this field for all ticker / kicker / lede rendering.
+   */
   summary?: string;
 }
 
