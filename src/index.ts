@@ -44,8 +44,11 @@ export const SCHEMA_VERSION = 'ardur-content-pipeline/v1' as const;
  *        visual ArticleBlock union (chart/image/gif/embed); TextBlock named export;
  *        ScoreBreakdown.technicalSignificance?; RankedCluster.references?/sourceDocIds?/gateStatus?;
  *        Top10Entry.sourceDocIds?; ClaimProvenance + SynthesizedArticle.claims?/facts?/editorialStatus?
+ * Rev 4: Top10Entry.signalId? (stable 8-char SHA-256 of headline) + Top10Entry.summary?
+ *        (story-specific one-sentence lede, deterministic, 0 AI tokens);
+ *        SignalLink type + Top10Data.links? (ENGINE-008 co-mention graph edges).
  */
-export const CONTRACT_REVISION = 3 as const;
+export const CONTRACT_REVISION = 4 as const;
 
 // ---------------------------------------------------------------------------
 // Primitive union types
@@ -342,6 +345,10 @@ export interface Top10Entry {
   carriedOver: boolean; // present in the previous cycle's Top-10
   /** Rev 3: SourceDocument.id values for the full provenance set. */
   sourceDocIds?: string[];
+  /** Rev 4: stable 8-char hex prefix of SHA-256(headline) — survives re-aggregation. */
+  signalId?: string;
+  /** Rev 4: story-specific one-sentence lede (≤ 20 words). Deterministic, 0 AI tokens. */
+  summary?: string;
 }
 
 export interface StabilityReport {
@@ -350,12 +357,28 @@ export interface StabilityReport {
   churnRate: number; // 0..1 fraction replaced vs previous cycle
 }
 
+/**
+ * Rev 4: directed co-mention edge between two Top-10 signals.
+ * Produced by the ENGINE-008 graph pass from shared `factsByCluster` entities.
+ */
+export interface SignalLink {
+  /** signalId (rev 4) or clusterId of signal A. */
+  a: string;
+  /** signalId (rev 4) or clusterId of signal B. */
+  b: string;
+  relation: 'same_project' | 'similar_to' | 'follows_up' | 'competes_with';
+  /** 0..1 — proportional to shared-entity overlap. */
+  weight: number;
+}
+
 export interface Top10Data {
   nextRefreshAt: string; // generatedAt + 6 h
   topicsCovered: string[];
   top10ByTopic: Record<string, Top10Entry[]>;
   global: Top10Entry[]; // the "all" Top-10
   stability: StabilityReport;
+  /** Rev 4: co-mention graph edges from ENGINE-008 pass. Empty when no factsByCluster. */
+  links?: SignalLink[];
 }
 
 export type Top10Artifact = ArtifactEnvelope<Top10Data>;

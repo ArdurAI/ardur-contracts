@@ -319,6 +319,9 @@ const top10Entry = z
     carriedOver: z.boolean(),
     // Rev 3 additive field
     sourceDocIds: z.array(z.string()).optional(),
+    // Rev 4 additive fields
+    signalId: z.string().optional(),
+    summary: z.string().optional(),
 })
     .passthrough()
     .refine(noReservedProtoKeys, { message: 'reserved prototype key found in top10Entry' });
@@ -327,6 +330,13 @@ const stabilityReport = z.object({
     fresh: z.number().int().min(0),
     churnRate: z.number().finite().min(0).max(1),
 });
+const signalLink = z.object({
+    a: z.string(),
+    b: z.string(),
+    relation: z.enum(['same_project', 'similar_to', 'follows_up', 'competes_with']),
+    weight: z.number().finite().min(0).max(1),
+});
+export const SignalLinkSchema = signalLink;
 const top10Data = z
     .object({
     nextRefreshAt: isoDatetime,
@@ -334,6 +344,8 @@ const top10Data = z
     top10ByTopic: z.record(safeKey, z.array(top10Entry)),
     global: z.array(top10Entry),
     stability: stabilityReport,
+    // Rev 4 additive field
+    links: z.array(signalLink).optional(),
 })
     .passthrough();
 export const Top10ArtifactSchema = makeEnvelopeSchema('top10', top10Data);

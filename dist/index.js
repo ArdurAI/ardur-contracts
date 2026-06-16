@@ -41,8 +41,11 @@ export const SCHEMA_VERSION = 'ardur-content-pipeline/v1';
  *        visual ArticleBlock union (chart/image/gif/embed); TextBlock named export;
  *        ScoreBreakdown.technicalSignificance?; RankedCluster.references?/sourceDocIds?/gateStatus?;
  *        Top10Entry.sourceDocIds?; ClaimProvenance + SynthesizedArticle.claims?/facts?/editorialStatus?
+ * Rev 4: Top10Entry.signalId? (stable 8-char SHA-256 of headline) + Top10Entry.summary?
+ *        (story-specific one-sentence lede, deterministic, 0 AI tokens);
+ *        SignalLink type + Top10Data.links? (ENGINE-008 co-mention graph edges).
  */
-export const CONTRACT_REVISION = 3;
+export const CONTRACT_REVISION = 4;
 // ---------------------------------------------------------------------------
 // Cross-stage constants
 // ---------------------------------------------------------------------------

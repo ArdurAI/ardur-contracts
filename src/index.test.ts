@@ -62,8 +62,8 @@ describe('SCHEMA_VERSION', () => {
 });
 
 describe('CONTRACT_REVISION', () => {
-  it('is 3 (rev 3 adds fact/provenance layer, visual blocks, uncapped source set)', () => {
-    assert.strictEqual(CONTRACT_REVISION, 3);
+  it('is 4 (rev 4 adds signalId + summary on Top10Entry, SignalLink, Top10Data.links)', () => {
+    assert.strictEqual(CONTRACT_REVISION, 4);
   });
 });
 

@@ -11504,6 +11504,23 @@ export declare const RankingArtifactSchema: z.ZodObject<{
     }, z.ZodTypeAny, "passthrough">>;
 }, z.ZodTypeAny, "passthrough">>;
 export type RankingArtifactInput = z.input<typeof RankingArtifactSchema>;
+export declare const SignalLinkSchema: z.ZodObject<{
+    a: z.ZodString;
+    b: z.ZodString;
+    relation: z.ZodEnum<["same_project", "similar_to", "follows_up", "competes_with"]>;
+    weight: z.ZodNumber;
+}, "strip", z.ZodTypeAny, {
+    a: string;
+    b: string;
+    relation: "same_project" | "similar_to" | "follows_up" | "competes_with";
+    weight: number;
+}, {
+    a: string;
+    b: string;
+    relation: "same_project" | "similar_to" | "follows_up" | "competes_with";
+    weight: number;
+}>;
+export type SignalLinkInput = z.input<typeof SignalLinkSchema>;
 export declare const Top10ArtifactSchema: z.ZodObject<{
     schemaVersion: z.ZodLiteral<"ardur-content-pipeline/v1">;
     contractRevision: z.ZodOptional<z.ZodNumber>;
@@ -11648,6 +11665,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -11736,6 +11755,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -11824,6 +11845,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -11912,6 +11935,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -12000,6 +12025,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, "many">>;
         global: z.ZodArray<z.ZodEffects<z.ZodObject<{
             rank: z.ZodNumber;
@@ -12089,6 +12116,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -12177,6 +12206,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -12265,6 +12296,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -12353,6 +12386,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -12441,6 +12476,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, "many">;
         stability: z.ZodObject<{
             carriedOver: z.ZodNumber;
@@ -12455,6 +12492,22 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             fresh: number;
             churnRate: number;
         }>;
+        links: z.ZodOptional<z.ZodArray<z.ZodObject<{
+            a: z.ZodString;
+            b: z.ZodString;
+            relation: z.ZodEnum<["same_project", "similar_to", "follows_up", "competes_with"]>;
+            weight: z.ZodNumber;
+        }, "strip", z.ZodTypeAny, {
+            a: string;
+            b: string;
+            relation: "same_project" | "similar_to" | "follows_up" | "competes_with";
+            weight: number;
+        }, {
+            a: string;
+            b: string;
+            relation: "same_project" | "similar_to" | "follows_up" | "competes_with";
+            weight: number;
+        }>, "many">>;
     }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
         nextRefreshAt: z.ZodString;
         topicsCovered: z.ZodArray<z.ZodString, "many">;
@@ -12546,6 +12599,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -12634,6 +12689,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -12722,6 +12779,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -12810,6 +12869,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -12898,6 +12959,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, "many">>;
         global: z.ZodArray<z.ZodEffects<z.ZodObject<{
             rank: z.ZodNumber;
@@ -12987,6 +13050,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -13075,6 +13140,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -13163,6 +13230,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -13251,6 +13320,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -13339,6 +13410,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, "many">;
         stability: z.ZodObject<{
             carriedOver: z.ZodNumber;
@@ -13353,6 +13426,22 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             fresh: number;
             churnRate: number;
         }>;
+        links: z.ZodOptional<z.ZodArray<z.ZodObject<{
+            a: z.ZodString;
+            b: z.ZodString;
+            relation: z.ZodEnum<["same_project", "similar_to", "follows_up", "competes_with"]>;
+            weight: z.ZodNumber;
+        }, "strip", z.ZodTypeAny, {
+            a: string;
+            b: string;
+            relation: "same_project" | "similar_to" | "follows_up" | "competes_with";
+            weight: number;
+        }, {
+            a: string;
+            b: string;
+            relation: "same_project" | "similar_to" | "follows_up" | "competes_with";
+            weight: number;
+        }>, "many">>;
     }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
         nextRefreshAt: z.ZodString;
         topicsCovered: z.ZodArray<z.ZodString, "many">;
@@ -13444,6 +13533,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -13532,6 +13623,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -13620,6 +13713,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -13708,6 +13803,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -13796,6 +13893,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, "many">>;
         global: z.ZodArray<z.ZodEffects<z.ZodObject<{
             rank: z.ZodNumber;
@@ -13885,6 +13984,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -13973,6 +14074,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -14061,6 +14164,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -14149,6 +14254,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -14237,6 +14344,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, "many">;
         stability: z.ZodObject<{
             carriedOver: z.ZodNumber;
@@ -14251,6 +14360,22 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             fresh: number;
             churnRate: number;
         }>;
+        links: z.ZodOptional<z.ZodArray<z.ZodObject<{
+            a: z.ZodString;
+            b: z.ZodString;
+            relation: z.ZodEnum<["same_project", "similar_to", "follows_up", "competes_with"]>;
+            weight: z.ZodNumber;
+        }, "strip", z.ZodTypeAny, {
+            a: string;
+            b: string;
+            relation: "same_project" | "similar_to" | "follows_up" | "competes_with";
+            weight: number;
+        }, {
+            a: string;
+            b: string;
+            relation: "same_project" | "similar_to" | "follows_up" | "competes_with";
+            weight: number;
+        }>, "many">>;
     }, z.ZodTypeAny, "passthrough">>;
 }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
     schemaVersion: z.ZodLiteral<"ardur-content-pipeline/v1">;
@@ -14396,6 +14521,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -14484,6 +14611,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -14572,6 +14701,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -14660,6 +14791,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -14748,6 +14881,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, "many">>;
         global: z.ZodArray<z.ZodEffects<z.ZodObject<{
             rank: z.ZodNumber;
@@ -14837,6 +14972,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -14925,6 +15062,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -15013,6 +15152,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -15101,6 +15242,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -15189,6 +15332,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, "many">;
         stability: z.ZodObject<{
             carriedOver: z.ZodNumber;
@@ -15203,6 +15348,22 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             fresh: number;
             churnRate: number;
         }>;
+        links: z.ZodOptional<z.ZodArray<z.ZodObject<{
+            a: z.ZodString;
+            b: z.ZodString;
+            relation: z.ZodEnum<["same_project", "similar_to", "follows_up", "competes_with"]>;
+            weight: z.ZodNumber;
+        }, "strip", z.ZodTypeAny, {
+            a: string;
+            b: string;
+            relation: "same_project" | "similar_to" | "follows_up" | "competes_with";
+            weight: number;
+        }, {
+            a: string;
+            b: string;
+            relation: "same_project" | "similar_to" | "follows_up" | "competes_with";
+            weight: number;
+        }>, "many">>;
     }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
         nextRefreshAt: z.ZodString;
         topicsCovered: z.ZodArray<z.ZodString, "many">;
@@ -15294,6 +15455,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -15382,6 +15545,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -15470,6 +15635,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -15558,6 +15725,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -15646,6 +15815,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, "many">>;
         global: z.ZodArray<z.ZodEffects<z.ZodObject<{
             rank: z.ZodNumber;
@@ -15735,6 +15906,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -15823,6 +15996,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -15911,6 +16086,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -15999,6 +16176,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -16087,6 +16266,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, "many">;
         stability: z.ZodObject<{
             carriedOver: z.ZodNumber;
@@ -16101,6 +16282,22 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             fresh: number;
             churnRate: number;
         }>;
+        links: z.ZodOptional<z.ZodArray<z.ZodObject<{
+            a: z.ZodString;
+            b: z.ZodString;
+            relation: z.ZodEnum<["same_project", "similar_to", "follows_up", "competes_with"]>;
+            weight: z.ZodNumber;
+        }, "strip", z.ZodTypeAny, {
+            a: string;
+            b: string;
+            relation: "same_project" | "similar_to" | "follows_up" | "competes_with";
+            weight: number;
+        }, {
+            a: string;
+            b: string;
+            relation: "same_project" | "similar_to" | "follows_up" | "competes_with";
+            weight: number;
+        }>, "many">>;
     }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
         nextRefreshAt: z.ZodString;
         topicsCovered: z.ZodArray<z.ZodString, "many">;
@@ -16192,6 +16389,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -16280,6 +16479,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -16368,6 +16569,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -16456,6 +16659,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -16544,6 +16749,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, "many">>;
         global: z.ZodArray<z.ZodEffects<z.ZodObject<{
             rank: z.ZodNumber;
@@ -16633,6 +16840,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -16721,6 +16930,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -16809,6 +17020,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -16897,6 +17110,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -16985,6 +17200,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, "many">;
         stability: z.ZodObject<{
             carriedOver: z.ZodNumber;
@@ -16999,6 +17216,22 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             fresh: number;
             churnRate: number;
         }>;
+        links: z.ZodOptional<z.ZodArray<z.ZodObject<{
+            a: z.ZodString;
+            b: z.ZodString;
+            relation: z.ZodEnum<["same_project", "similar_to", "follows_up", "competes_with"]>;
+            weight: z.ZodNumber;
+        }, "strip", z.ZodTypeAny, {
+            a: string;
+            b: string;
+            relation: "same_project" | "similar_to" | "follows_up" | "competes_with";
+            weight: number;
+        }, {
+            a: string;
+            b: string;
+            relation: "same_project" | "similar_to" | "follows_up" | "competes_with";
+            weight: number;
+        }>, "many">>;
     }, z.ZodTypeAny, "passthrough">>;
 }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
     schemaVersion: z.ZodLiteral<"ardur-content-pipeline/v1">;
@@ -17144,6 +17377,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -17232,6 +17467,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -17320,6 +17557,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -17408,6 +17647,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -17496,6 +17737,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, "many">>;
         global: z.ZodArray<z.ZodEffects<z.ZodObject<{
             rank: z.ZodNumber;
@@ -17585,6 +17828,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -17673,6 +17918,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -17761,6 +18008,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -17849,6 +18098,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -17937,6 +18188,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, "many">;
         stability: z.ZodObject<{
             carriedOver: z.ZodNumber;
@@ -17951,6 +18204,22 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             fresh: number;
             churnRate: number;
         }>;
+        links: z.ZodOptional<z.ZodArray<z.ZodObject<{
+            a: z.ZodString;
+            b: z.ZodString;
+            relation: z.ZodEnum<["same_project", "similar_to", "follows_up", "competes_with"]>;
+            weight: z.ZodNumber;
+        }, "strip", z.ZodTypeAny, {
+            a: string;
+            b: string;
+            relation: "same_project" | "similar_to" | "follows_up" | "competes_with";
+            weight: number;
+        }, {
+            a: string;
+            b: string;
+            relation: "same_project" | "similar_to" | "follows_up" | "competes_with";
+            weight: number;
+        }>, "many">>;
     }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
         nextRefreshAt: z.ZodString;
         topicsCovered: z.ZodArray<z.ZodString, "many">;
@@ -18042,6 +18311,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -18130,6 +18401,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -18218,6 +18491,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -18306,6 +18581,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -18394,6 +18671,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, "many">>;
         global: z.ZodArray<z.ZodEffects<z.ZodObject<{
             rank: z.ZodNumber;
@@ -18483,6 +18762,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -18571,6 +18852,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -18659,6 +18942,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -18747,6 +19032,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -18835,6 +19122,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, "many">;
         stability: z.ZodObject<{
             carriedOver: z.ZodNumber;
@@ -18849,6 +19138,22 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             fresh: number;
             churnRate: number;
         }>;
+        links: z.ZodOptional<z.ZodArray<z.ZodObject<{
+            a: z.ZodString;
+            b: z.ZodString;
+            relation: z.ZodEnum<["same_project", "similar_to", "follows_up", "competes_with"]>;
+            weight: z.ZodNumber;
+        }, "strip", z.ZodTypeAny, {
+            a: string;
+            b: string;
+            relation: "same_project" | "similar_to" | "follows_up" | "competes_with";
+            weight: number;
+        }, {
+            a: string;
+            b: string;
+            relation: "same_project" | "similar_to" | "follows_up" | "competes_with";
+            weight: number;
+        }>, "many">>;
     }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
         nextRefreshAt: z.ZodString;
         topicsCovered: z.ZodArray<z.ZodString, "many">;
@@ -18940,6 +19245,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -19028,6 +19335,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -19116,6 +19425,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -19204,6 +19515,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -19292,6 +19605,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, "many">>;
         global: z.ZodArray<z.ZodEffects<z.ZodObject<{
             rank: z.ZodNumber;
@@ -19381,6 +19696,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -19469,6 +19786,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -19557,6 +19876,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, z.objectOutputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -19645,6 +19966,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
             rank: z.ZodNumber;
             clusterId: z.ZodString;
@@ -19733,6 +20056,8 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             }>;
             carriedOver: z.ZodBoolean;
             sourceDocIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            signalId: z.ZodOptional<z.ZodString>;
+            summary: z.ZodOptional<z.ZodString>;
         }, z.ZodTypeAny, "passthrough">>, "many">;
         stability: z.ZodObject<{
             carriedOver: z.ZodNumber;
@@ -19747,6 +20072,22 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
             fresh: number;
             churnRate: number;
         }>;
+        links: z.ZodOptional<z.ZodArray<z.ZodObject<{
+            a: z.ZodString;
+            b: z.ZodString;
+            relation: z.ZodEnum<["same_project", "similar_to", "follows_up", "competes_with"]>;
+            weight: z.ZodNumber;
+        }, "strip", z.ZodTypeAny, {
+            a: string;
+            b: string;
+            relation: "same_project" | "similar_to" | "follows_up" | "competes_with";
+            weight: number;
+        }, {
+            a: string;
+            b: string;
+            relation: "same_project" | "similar_to" | "follows_up" | "competes_with";
+            weight: number;
+        }>, "many">>;
     }, z.ZodTypeAny, "passthrough">>;
 }, z.ZodTypeAny, "passthrough">>;
 export type Top10ArtifactInput = z.input<typeof Top10ArtifactSchema>;
