@@ -75,15 +75,24 @@ describe('CYCLE_INTERVAL_MS', () => {
 });
 
 describe('ProviderMeta', () => {
-  it('accepts hermes as a first-class provider in TypeScript contracts', () => {
-    const meta: ProviderMeta = {
-      provider: 'hermes',
-      model: 'hermes-default',
-      status: 'generated',
-      generatedAt: '2026-06-16T00:00:00.000Z',
-    };
+  it('accepts every supported provider value in TypeScript contracts', () => {
+    const supportedProviders: ProviderMeta['provider'][] = [
+      'deterministic',
+      'ollama',
+      'openai',
+      'hermes',
+    ];
 
-    assert.strictEqual(meta.provider, 'hermes');
+    for (const provider of supportedProviders) {
+      const meta: ProviderMeta = {
+        provider,
+        model: `${provider}-model`,
+        status: provider === 'deterministic' ? 'fallback' : 'generated',
+        generatedAt: '2026-06-16T00:00:00.000Z',
+      };
+
+      assert.strictEqual(meta.provider, provider);
+    }
   });
 });
 

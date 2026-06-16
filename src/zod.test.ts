@@ -113,6 +113,15 @@ function hermesProviderMeta(overrides: Record<string, unknown> = {}) {
   };
 }
 
+function providerMeta(provider: 'deterministic' | 'ollama' | 'openai' | 'hermes') {
+  return {
+    provider,
+    model: `${provider}-model`,
+    status: provider === 'deterministic' ? 'fallback' : 'generated',
+    generatedAt: '2026-06-16T00:00:00.000Z',
+  };
+}
+
 function minimalExtractedFact(overrides: Record<string, unknown> = {}) {
   return {
     id: 'fact-hermes-1',
@@ -179,6 +188,18 @@ function minimalSynthesizedArticle(overrides: Record<string, unknown> = {}) {
 // ---------------------------------------------------------------------------
 
 describe('ProviderMeta', () => {
+  it('accepts every supported provider value on artifact envelope provider metadata', () => {
+    for (const provider of ['deterministic', 'ollama', 'openai', 'hermes'] as const) {
+      const result = AggregationArtifactSchema.safeParse(
+        makeAggArtifact({ provider: providerMeta(provider) }),
+      );
+      assert.ok(
+        result.success,
+        `${provider}: ${JSON.stringify((result as { error?: unknown }).error)}`,
+      );
+    }
+  });
+
   it('accepts hermes on artifact envelope provider metadata', () => {
     const result = AggregationArtifactSchema.safeParse(
       makeAggArtifact({ provider: hermesProviderMeta() }),
