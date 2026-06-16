@@ -2,7 +2,9 @@
  * @ardurai/contracts — Shared wire contract for the Ardur AI content pipeline.
  *
  * Schema:           ardur-content-pipeline/v1
- * Contract revision: 3  (rev 3 adds fact/provenance layer, visual ArticleBlock union,
+ * Contract revision: 5  (rev 5 adds Hermes as a first-class ProviderMeta.provider;
+ *                        rev 4 adds Top10 signal IDs, summaries, and SignalLink graph edges;
+ *                        rev 3 adds fact/provenance layer, visual ArticleBlock union,
  *                        uncapped source set, ScoreBreakdown.technicalSignificance,
  *                        RankedCluster.gateStatus/references, ClaimProvenance)
  *
@@ -47,8 +49,9 @@ export const SCHEMA_VERSION = 'ardur-content-pipeline/v1' as const;
  * Rev 4: Top10Entry.signalId? (stable 8-char SHA-256 of headline) + Top10Entry.summary?
  *        (story-specific one-sentence lede, deterministic, 0 AI tokens);
  *        SignalLink type + Top10Data.links? (ENGINE-008 co-mention graph edges).
+ * Rev 5: ProviderMeta.provider accepts `hermes` for Hermes-powered engine outputs.
  */
-export const CONTRACT_REVISION = 4 as const;
+export const CONTRACT_REVISION = 5 as const;
 
 // ---------------------------------------------------------------------------
 // Primitive union types
@@ -86,7 +89,7 @@ export type AccessPolicy = 'allowed' | 'paywalled' | 'robots-disallowed' | 'tos-
 
 /** Provenance for any AI-assisted field. Deterministic fallback always populated. */
 export interface ProviderMeta {
-  provider: 'deterministic' | 'ollama' | 'openai';
+  provider: 'deterministic' | 'ollama' | 'openai' | 'hermes';
   model: string;
   status: 'generated' | 'fallback';
   reason?: string;

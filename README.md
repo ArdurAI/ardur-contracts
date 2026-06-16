@@ -9,7 +9,7 @@ ardur-news-aggregator → ardur-ranking-engine → ardur-top10-engine → ardur-
 ```
 
 **Schema:** `ardur-content-pipeline/v1`  
-**Contract revision:** `3` (rev 3 adds fact/provenance layer, visual blocks, uncapped sources)  
+**Contract revision:** `5` (rev 5 adds Hermes provider metadata compatibility; rev 4 adds Top-10 signal IDs, summaries, and graph links; rev 3 adds fact/provenance layer, visual blocks, uncapped sources)
 **npm:** `@ardurai/contracts`
 
 ---

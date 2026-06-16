@@ -122,20 +122,20 @@ export declare const ExtractedFactSchema: z.ZodObject<{
     corroboration: z.ZodNumber;
     confidence: z.ZodEnum<["high", "medium", "low"]>;
     extractedBy: z.ZodObject<{
-        provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+        provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
         model: z.ZodString;
         status: z.ZodEnum<["generated", "fallback"]>;
         reason: z.ZodOptional<z.ZodString>;
         generatedAt: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         generatedAt: string;
-        provider: "deterministic" | "ollama" | "openai";
+        provider: "deterministic" | "ollama" | "openai" | "hermes";
         status: "generated" | "fallback";
         model: string;
         reason?: string | undefined;
     }, {
         generatedAt: string;
-        provider: "deterministic" | "ollama" | "openai";
+        provider: "deterministic" | "ollama" | "openai" | "hermes";
         status: "generated" | "fallback";
         model: string;
         reason?: string | undefined;
@@ -156,7 +156,7 @@ export declare const ExtractedFactSchema: z.ZodObject<{
     confidence: "high" | "medium" | "low";
     extractedBy: {
         generatedAt: string;
-        provider: "deterministic" | "ollama" | "openai";
+        provider: "deterministic" | "ollama" | "openai" | "hermes";
         status: "generated" | "fallback";
         model: string;
         reason?: string | undefined;
@@ -183,7 +183,7 @@ export declare const ExtractedFactSchema: z.ZodObject<{
     confidence: "high" | "medium" | "low";
     extractedBy: {
         generatedAt: string;
-        provider: "deterministic" | "ollama" | "openai";
+        provider: "deterministic" | "ollama" | "openai" | "hermes";
         status: "generated" | "fallback";
         model: string;
         reason?: string | undefined;
@@ -230,20 +230,20 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
         description: string;
     }>, "many">;
     provider: z.ZodOptional<z.ZodObject<{
-        provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+        provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
         model: z.ZodString;
         status: z.ZodEnum<["generated", "fallback"]>;
         reason: z.ZodOptional<z.ZodString>;
         generatedAt: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         generatedAt: string;
-        provider: "deterministic" | "ollama" | "openai";
+        provider: "deterministic" | "ollama" | "openai" | "hermes";
         status: "generated" | "fallback";
         model: string;
         reason?: string | undefined;
     }, {
         generatedAt: string;
-        provider: "deterministic" | "ollama" | "openai";
+        provider: "deterministic" | "ollama" | "openai" | "hermes";
         status: "generated" | "fallback";
         model: string;
         reason?: string | undefined;
@@ -775,20 +775,20 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             corroboration: z.ZodNumber;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             extractedBy: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -809,7 +809,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             confidence: "high" | "medium" | "low";
             extractedBy: {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -836,7 +836,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             confidence: "high" | "medium" | "low";
             extractedBy: {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -1374,20 +1374,20 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             corroboration: z.ZodNumber;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             extractedBy: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -1408,7 +1408,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             confidence: "high" | "medium" | "low";
             extractedBy: {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -1435,7 +1435,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             confidence: "high" | "medium" | "low";
             extractedBy: {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -1973,20 +1973,20 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             corroboration: z.ZodNumber;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             extractedBy: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -2007,7 +2007,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             confidence: "high" | "medium" | "low";
             extractedBy: {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -2034,7 +2034,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             confidence: "high" | "medium" | "low";
             extractedBy: {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -2081,20 +2081,20 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
         description: string;
     }>, "many">;
     provider: z.ZodOptional<z.ZodObject<{
-        provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+        provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
         model: z.ZodString;
         status: z.ZodEnum<["generated", "fallback"]>;
         reason: z.ZodOptional<z.ZodString>;
         generatedAt: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         generatedAt: string;
-        provider: "deterministic" | "ollama" | "openai";
+        provider: "deterministic" | "ollama" | "openai" | "hermes";
         status: "generated" | "fallback";
         model: string;
         reason?: string | undefined;
     }, {
         generatedAt: string;
-        provider: "deterministic" | "ollama" | "openai";
+        provider: "deterministic" | "ollama" | "openai" | "hermes";
         status: "generated" | "fallback";
         model: string;
         reason?: string | undefined;
@@ -2626,20 +2626,20 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             corroboration: z.ZodNumber;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             extractedBy: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -2660,7 +2660,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             confidence: "high" | "medium" | "low";
             extractedBy: {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -2687,7 +2687,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             confidence: "high" | "medium" | "low";
             extractedBy: {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -3225,20 +3225,20 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             corroboration: z.ZodNumber;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             extractedBy: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -3259,7 +3259,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             confidence: "high" | "medium" | "low";
             extractedBy: {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -3286,7 +3286,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             confidence: "high" | "medium" | "low";
             extractedBy: {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -3824,20 +3824,20 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             corroboration: z.ZodNumber;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             extractedBy: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -3858,7 +3858,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             confidence: "high" | "medium" | "low";
             extractedBy: {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -3885,7 +3885,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             confidence: "high" | "medium" | "low";
             extractedBy: {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -3932,20 +3932,20 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
         description: string;
     }>, "many">;
     provider: z.ZodOptional<z.ZodObject<{
-        provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+        provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
         model: z.ZodString;
         status: z.ZodEnum<["generated", "fallback"]>;
         reason: z.ZodOptional<z.ZodString>;
         generatedAt: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         generatedAt: string;
-        provider: "deterministic" | "ollama" | "openai";
+        provider: "deterministic" | "ollama" | "openai" | "hermes";
         status: "generated" | "fallback";
         model: string;
         reason?: string | undefined;
     }, {
         generatedAt: string;
-        provider: "deterministic" | "ollama" | "openai";
+        provider: "deterministic" | "ollama" | "openai" | "hermes";
         status: "generated" | "fallback";
         model: string;
         reason?: string | undefined;
@@ -4477,20 +4477,20 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             corroboration: z.ZodNumber;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             extractedBy: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -4511,7 +4511,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             confidence: "high" | "medium" | "low";
             extractedBy: {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -4538,7 +4538,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             confidence: "high" | "medium" | "low";
             extractedBy: {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -5076,20 +5076,20 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             corroboration: z.ZodNumber;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             extractedBy: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -5110,7 +5110,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             confidence: "high" | "medium" | "low";
             extractedBy: {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -5137,7 +5137,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             confidence: "high" | "medium" | "low";
             extractedBy: {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -5675,20 +5675,20 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             corroboration: z.ZodNumber;
             confidence: z.ZodEnum<["high", "medium", "low"]>;
             extractedBy: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -5709,7 +5709,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             confidence: "high" | "medium" | "low";
             extractedBy: {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -5736,7 +5736,7 @@ export declare const AggregationArtifactSchema: z.ZodObject<{
             confidence: "high" | "medium" | "low";
             extractedBy: {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -5785,20 +5785,20 @@ export declare const RankingArtifactSchema: z.ZodObject<{
         description: string;
     }>, "many">;
     provider: z.ZodOptional<z.ZodObject<{
-        provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+        provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
         model: z.ZodString;
         status: z.ZodEnum<["generated", "fallback"]>;
         reason: z.ZodOptional<z.ZodString>;
         generatedAt: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         generatedAt: string;
-        provider: "deterministic" | "ollama" | "openai";
+        provider: "deterministic" | "ollama" | "openai" | "hermes";
         status: "generated" | "fallback";
         model: string;
         reason?: string | undefined;
     }, {
         generatedAt: string;
-        provider: "deterministic" | "ollama" | "openai";
+        provider: "deterministic" | "ollama" | "openai" | "hermes";
         status: "generated" | "fallback";
         model: string;
         reason?: string | undefined;
@@ -7702,20 +7702,20 @@ export declare const RankingArtifactSchema: z.ZodObject<{
         description: string;
     }>, "many">;
     provider: z.ZodOptional<z.ZodObject<{
-        provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+        provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
         model: z.ZodString;
         status: z.ZodEnum<["generated", "fallback"]>;
         reason: z.ZodOptional<z.ZodString>;
         generatedAt: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         generatedAt: string;
-        provider: "deterministic" | "ollama" | "openai";
+        provider: "deterministic" | "ollama" | "openai" | "hermes";
         status: "generated" | "fallback";
         model: string;
         reason?: string | undefined;
     }, {
         generatedAt: string;
-        provider: "deterministic" | "ollama" | "openai";
+        provider: "deterministic" | "ollama" | "openai" | "hermes";
         status: "generated" | "fallback";
         model: string;
         reason?: string | undefined;
@@ -9619,20 +9619,20 @@ export declare const RankingArtifactSchema: z.ZodObject<{
         description: string;
     }>, "many">;
     provider: z.ZodOptional<z.ZodObject<{
-        provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+        provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
         model: z.ZodString;
         status: z.ZodEnum<["generated", "fallback"]>;
         reason: z.ZodOptional<z.ZodString>;
         generatedAt: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         generatedAt: string;
-        provider: "deterministic" | "ollama" | "openai";
+        provider: "deterministic" | "ollama" | "openai" | "hermes";
         status: "generated" | "fallback";
         model: string;
         reason?: string | undefined;
     }, {
         generatedAt: string;
-        provider: "deterministic" | "ollama" | "openai";
+        provider: "deterministic" | "ollama" | "openai" | "hermes";
         status: "generated" | "fallback";
         model: string;
         reason?: string | undefined;
@@ -11555,20 +11555,20 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
         description: string;
     }>, "many">;
     provider: z.ZodOptional<z.ZodObject<{
-        provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+        provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
         model: z.ZodString;
         status: z.ZodEnum<["generated", "fallback"]>;
         reason: z.ZodOptional<z.ZodString>;
         generatedAt: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         generatedAt: string;
-        provider: "deterministic" | "ollama" | "openai";
+        provider: "deterministic" | "ollama" | "openai" | "hermes";
         status: "generated" | "fallback";
         model: string;
         reason?: string | undefined;
     }, {
         generatedAt: string;
-        provider: "deterministic" | "ollama" | "openai";
+        provider: "deterministic" | "ollama" | "openai" | "hermes";
         status: "generated" | "fallback";
         model: string;
         reason?: string | undefined;
@@ -14411,20 +14411,20 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
         description: string;
     }>, "many">;
     provider: z.ZodOptional<z.ZodObject<{
-        provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+        provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
         model: z.ZodString;
         status: z.ZodEnum<["generated", "fallback"]>;
         reason: z.ZodOptional<z.ZodString>;
         generatedAt: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         generatedAt: string;
-        provider: "deterministic" | "ollama" | "openai";
+        provider: "deterministic" | "ollama" | "openai" | "hermes";
         status: "generated" | "fallback";
         model: string;
         reason?: string | undefined;
     }, {
         generatedAt: string;
-        provider: "deterministic" | "ollama" | "openai";
+        provider: "deterministic" | "ollama" | "openai" | "hermes";
         status: "generated" | "fallback";
         model: string;
         reason?: string | undefined;
@@ -17267,20 +17267,20 @@ export declare const Top10ArtifactSchema: z.ZodObject<{
         description: string;
     }>, "many">;
     provider: z.ZodOptional<z.ZodObject<{
-        provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+        provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
         model: z.ZodString;
         status: z.ZodEnum<["generated", "fallback"]>;
         reason: z.ZodOptional<z.ZodString>;
         generatedAt: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         generatedAt: string;
-        provider: "deterministic" | "ollama" | "openai";
+        provider: "deterministic" | "ollama" | "openai" | "hermes";
         status: "generated" | "fallback";
         model: string;
         reason?: string | undefined;
     }, {
         generatedAt: string;
-        provider: "deterministic" | "ollama" | "openai";
+        provider: "deterministic" | "ollama" | "openai" | "hermes";
         status: "generated" | "fallback";
         model: string;
         reason?: string | undefined;
@@ -21426,20 +21426,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
         description: string;
     }>, "many">;
     provider: z.ZodOptional<z.ZodObject<{
-        provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+        provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
         model: z.ZodString;
         status: z.ZodEnum<["generated", "fallback"]>;
         reason: z.ZodOptional<z.ZodString>;
         generatedAt: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         generatedAt: string;
-        provider: "deterministic" | "ollama" | "openai";
+        provider: "deterministic" | "ollama" | "openai" | "hermes";
         status: "generated" | "fallback";
         model: string;
         reason?: string | undefined;
     }, {
         generatedAt: string;
-        provider: "deterministic" | "ollama" | "openai";
+        provider: "deterministic" | "ollama" | "openai" | "hermes";
         status: "generated" | "fallback";
         model: string;
         reason?: string | undefined;
@@ -22115,20 +22115,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 distinctDomains: number;
             }>;
             ai: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -22179,20 +22179,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 corroboration: z.ZodNumber;
                 confidence: z.ZodEnum<["high", "medium", "low"]>;
                 extractedBy: z.ZodObject<{
-                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                     model: z.ZodString;
                     status: z.ZodEnum<["generated", "fallback"]>;
                     reason: z.ZodOptional<z.ZodString>;
                     generatedAt: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
                 }, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -22213,7 +22213,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -22240,7 +22240,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -22957,20 +22957,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 distinctDomains: number;
             }>;
             ai: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -23021,20 +23021,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 corroboration: z.ZodNumber;
                 confidence: z.ZodEnum<["high", "medium", "low"]>;
                 extractedBy: z.ZodObject<{
-                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                     model: z.ZodString;
                     status: z.ZodEnum<["generated", "fallback"]>;
                     reason: z.ZodOptional<z.ZodString>;
                     generatedAt: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
                 }, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -23055,7 +23055,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -23082,7 +23082,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -23799,20 +23799,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 distinctDomains: number;
             }>;
             ai: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -23863,20 +23863,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 corroboration: z.ZodNumber;
                 confidence: z.ZodEnum<["high", "medium", "low"]>;
                 extractedBy: z.ZodObject<{
-                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                     model: z.ZodString;
                     status: z.ZodEnum<["generated", "fallback"]>;
                     reason: z.ZodOptional<z.ZodString>;
                     generatedAt: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
                 }, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -23897,7 +23897,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -23924,7 +23924,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -24662,20 +24662,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 distinctDomains: number;
             }>;
             ai: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -24726,20 +24726,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 corroboration: z.ZodNumber;
                 confidence: z.ZodEnum<["high", "medium", "low"]>;
                 extractedBy: z.ZodObject<{
-                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                     model: z.ZodString;
                     status: z.ZodEnum<["generated", "fallback"]>;
                     reason: z.ZodOptional<z.ZodString>;
                     generatedAt: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
                 }, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -24760,7 +24760,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -24787,7 +24787,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -25504,20 +25504,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 distinctDomains: number;
             }>;
             ai: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -25568,20 +25568,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 corroboration: z.ZodNumber;
                 confidence: z.ZodEnum<["high", "medium", "low"]>;
                 extractedBy: z.ZodObject<{
-                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                     model: z.ZodString;
                     status: z.ZodEnum<["generated", "fallback"]>;
                     reason: z.ZodOptional<z.ZodString>;
                     generatedAt: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
                 }, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -25602,7 +25602,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -25629,7 +25629,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -26346,20 +26346,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 distinctDomains: number;
             }>;
             ai: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -26410,20 +26410,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 corroboration: z.ZodNumber;
                 confidence: z.ZodEnum<["high", "medium", "low"]>;
                 extractedBy: z.ZodObject<{
-                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                     model: z.ZodString;
                     status: z.ZodEnum<["generated", "fallback"]>;
                     reason: z.ZodOptional<z.ZodString>;
                     generatedAt: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
                 }, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -26444,7 +26444,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -26471,7 +26471,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -27209,20 +27209,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 distinctDomains: number;
             }>;
             ai: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -27273,20 +27273,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 corroboration: z.ZodNumber;
                 confidence: z.ZodEnum<["high", "medium", "low"]>;
                 extractedBy: z.ZodObject<{
-                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                     model: z.ZodString;
                     status: z.ZodEnum<["generated", "fallback"]>;
                     reason: z.ZodOptional<z.ZodString>;
                     generatedAt: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
                 }, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -27307,7 +27307,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -27334,7 +27334,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -28051,20 +28051,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 distinctDomains: number;
             }>;
             ai: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -28115,20 +28115,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 corroboration: z.ZodNumber;
                 confidence: z.ZodEnum<["high", "medium", "low"]>;
                 extractedBy: z.ZodObject<{
-                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                     model: z.ZodString;
                     status: z.ZodEnum<["generated", "fallback"]>;
                     reason: z.ZodOptional<z.ZodString>;
                     generatedAt: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
                 }, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -28149,7 +28149,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -28176,7 +28176,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -28893,20 +28893,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 distinctDomains: number;
             }>;
             ai: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -28957,20 +28957,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 corroboration: z.ZodNumber;
                 confidence: z.ZodEnum<["high", "medium", "low"]>;
                 extractedBy: z.ZodObject<{
-                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                     model: z.ZodString;
                     status: z.ZodEnum<["generated", "fallback"]>;
                     reason: z.ZodOptional<z.ZodString>;
                     generatedAt: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
                 }, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -28991,7 +28991,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -29018,7 +29018,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -29121,20 +29121,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
         description: string;
     }>, "many">;
     provider: z.ZodOptional<z.ZodObject<{
-        provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+        provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
         model: z.ZodString;
         status: z.ZodEnum<["generated", "fallback"]>;
         reason: z.ZodOptional<z.ZodString>;
         generatedAt: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         generatedAt: string;
-        provider: "deterministic" | "ollama" | "openai";
+        provider: "deterministic" | "ollama" | "openai" | "hermes";
         status: "generated" | "fallback";
         model: string;
         reason?: string | undefined;
     }, {
         generatedAt: string;
-        provider: "deterministic" | "ollama" | "openai";
+        provider: "deterministic" | "ollama" | "openai" | "hermes";
         status: "generated" | "fallback";
         model: string;
         reason?: string | undefined;
@@ -29810,20 +29810,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 distinctDomains: number;
             }>;
             ai: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -29874,20 +29874,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 corroboration: z.ZodNumber;
                 confidence: z.ZodEnum<["high", "medium", "low"]>;
                 extractedBy: z.ZodObject<{
-                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                     model: z.ZodString;
                     status: z.ZodEnum<["generated", "fallback"]>;
                     reason: z.ZodOptional<z.ZodString>;
                     generatedAt: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
                 }, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -29908,7 +29908,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -29935,7 +29935,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -30652,20 +30652,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 distinctDomains: number;
             }>;
             ai: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -30716,20 +30716,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 corroboration: z.ZodNumber;
                 confidence: z.ZodEnum<["high", "medium", "low"]>;
                 extractedBy: z.ZodObject<{
-                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                     model: z.ZodString;
                     status: z.ZodEnum<["generated", "fallback"]>;
                     reason: z.ZodOptional<z.ZodString>;
                     generatedAt: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
                 }, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -30750,7 +30750,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -30777,7 +30777,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -31494,20 +31494,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 distinctDomains: number;
             }>;
             ai: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -31558,20 +31558,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 corroboration: z.ZodNumber;
                 confidence: z.ZodEnum<["high", "medium", "low"]>;
                 extractedBy: z.ZodObject<{
-                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                     model: z.ZodString;
                     status: z.ZodEnum<["generated", "fallback"]>;
                     reason: z.ZodOptional<z.ZodString>;
                     generatedAt: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
                 }, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -31592,7 +31592,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -31619,7 +31619,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -32357,20 +32357,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 distinctDomains: number;
             }>;
             ai: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -32421,20 +32421,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 corroboration: z.ZodNumber;
                 confidence: z.ZodEnum<["high", "medium", "low"]>;
                 extractedBy: z.ZodObject<{
-                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                     model: z.ZodString;
                     status: z.ZodEnum<["generated", "fallback"]>;
                     reason: z.ZodOptional<z.ZodString>;
                     generatedAt: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
                 }, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -32455,7 +32455,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -32482,7 +32482,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -33199,20 +33199,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 distinctDomains: number;
             }>;
             ai: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -33263,20 +33263,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 corroboration: z.ZodNumber;
                 confidence: z.ZodEnum<["high", "medium", "low"]>;
                 extractedBy: z.ZodObject<{
-                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                     model: z.ZodString;
                     status: z.ZodEnum<["generated", "fallback"]>;
                     reason: z.ZodOptional<z.ZodString>;
                     generatedAt: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
                 }, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -33297,7 +33297,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -33324,7 +33324,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -34041,20 +34041,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 distinctDomains: number;
             }>;
             ai: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -34105,20 +34105,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 corroboration: z.ZodNumber;
                 confidence: z.ZodEnum<["high", "medium", "low"]>;
                 extractedBy: z.ZodObject<{
-                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                     model: z.ZodString;
                     status: z.ZodEnum<["generated", "fallback"]>;
                     reason: z.ZodOptional<z.ZodString>;
                     generatedAt: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
                 }, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -34139,7 +34139,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -34166,7 +34166,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -34904,20 +34904,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 distinctDomains: number;
             }>;
             ai: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -34968,20 +34968,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 corroboration: z.ZodNumber;
                 confidence: z.ZodEnum<["high", "medium", "low"]>;
                 extractedBy: z.ZodObject<{
-                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                     model: z.ZodString;
                     status: z.ZodEnum<["generated", "fallback"]>;
                     reason: z.ZodOptional<z.ZodString>;
                     generatedAt: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
                 }, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -35002,7 +35002,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -35029,7 +35029,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -35746,20 +35746,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 distinctDomains: number;
             }>;
             ai: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -35810,20 +35810,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 corroboration: z.ZodNumber;
                 confidence: z.ZodEnum<["high", "medium", "low"]>;
                 extractedBy: z.ZodObject<{
-                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                     model: z.ZodString;
                     status: z.ZodEnum<["generated", "fallback"]>;
                     reason: z.ZodOptional<z.ZodString>;
                     generatedAt: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
                 }, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -35844,7 +35844,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -35871,7 +35871,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -36588,20 +36588,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 distinctDomains: number;
             }>;
             ai: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -36652,20 +36652,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 corroboration: z.ZodNumber;
                 confidence: z.ZodEnum<["high", "medium", "low"]>;
                 extractedBy: z.ZodObject<{
-                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                     model: z.ZodString;
                     status: z.ZodEnum<["generated", "fallback"]>;
                     reason: z.ZodOptional<z.ZodString>;
                     generatedAt: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
                 }, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -36686,7 +36686,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -36713,7 +36713,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -36816,20 +36816,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
         description: string;
     }>, "many">;
     provider: z.ZodOptional<z.ZodObject<{
-        provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+        provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
         model: z.ZodString;
         status: z.ZodEnum<["generated", "fallback"]>;
         reason: z.ZodOptional<z.ZodString>;
         generatedAt: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         generatedAt: string;
-        provider: "deterministic" | "ollama" | "openai";
+        provider: "deterministic" | "ollama" | "openai" | "hermes";
         status: "generated" | "fallback";
         model: string;
         reason?: string | undefined;
     }, {
         generatedAt: string;
-        provider: "deterministic" | "ollama" | "openai";
+        provider: "deterministic" | "ollama" | "openai" | "hermes";
         status: "generated" | "fallback";
         model: string;
         reason?: string | undefined;
@@ -37505,20 +37505,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 distinctDomains: number;
             }>;
             ai: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -37569,20 +37569,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 corroboration: z.ZodNumber;
                 confidence: z.ZodEnum<["high", "medium", "low"]>;
                 extractedBy: z.ZodObject<{
-                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                     model: z.ZodString;
                     status: z.ZodEnum<["generated", "fallback"]>;
                     reason: z.ZodOptional<z.ZodString>;
                     generatedAt: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
                 }, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -37603,7 +37603,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -37630,7 +37630,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -38347,20 +38347,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 distinctDomains: number;
             }>;
             ai: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -38411,20 +38411,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 corroboration: z.ZodNumber;
                 confidence: z.ZodEnum<["high", "medium", "low"]>;
                 extractedBy: z.ZodObject<{
-                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                     model: z.ZodString;
                     status: z.ZodEnum<["generated", "fallback"]>;
                     reason: z.ZodOptional<z.ZodString>;
                     generatedAt: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
                 }, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -38445,7 +38445,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -38472,7 +38472,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -39189,20 +39189,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 distinctDomains: number;
             }>;
             ai: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -39253,20 +39253,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 corroboration: z.ZodNumber;
                 confidence: z.ZodEnum<["high", "medium", "low"]>;
                 extractedBy: z.ZodObject<{
-                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                     model: z.ZodString;
                     status: z.ZodEnum<["generated", "fallback"]>;
                     reason: z.ZodOptional<z.ZodString>;
                     generatedAt: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
                 }, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -39287,7 +39287,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -39314,7 +39314,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -40052,20 +40052,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 distinctDomains: number;
             }>;
             ai: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -40116,20 +40116,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 corroboration: z.ZodNumber;
                 confidence: z.ZodEnum<["high", "medium", "low"]>;
                 extractedBy: z.ZodObject<{
-                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                     model: z.ZodString;
                     status: z.ZodEnum<["generated", "fallback"]>;
                     reason: z.ZodOptional<z.ZodString>;
                     generatedAt: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
                 }, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -40150,7 +40150,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -40177,7 +40177,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -40894,20 +40894,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 distinctDomains: number;
             }>;
             ai: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -40958,20 +40958,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 corroboration: z.ZodNumber;
                 confidence: z.ZodEnum<["high", "medium", "low"]>;
                 extractedBy: z.ZodObject<{
-                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                     model: z.ZodString;
                     status: z.ZodEnum<["generated", "fallback"]>;
                     reason: z.ZodOptional<z.ZodString>;
                     generatedAt: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
                 }, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -40992,7 +40992,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -41019,7 +41019,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -41736,20 +41736,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 distinctDomains: number;
             }>;
             ai: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -41800,20 +41800,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 corroboration: z.ZodNumber;
                 confidence: z.ZodEnum<["high", "medium", "low"]>;
                 extractedBy: z.ZodObject<{
-                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                     model: z.ZodString;
                     status: z.ZodEnum<["generated", "fallback"]>;
                     reason: z.ZodOptional<z.ZodString>;
                     generatedAt: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
                 }, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -41834,7 +41834,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -41861,7 +41861,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -42599,20 +42599,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 distinctDomains: number;
             }>;
             ai: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -42663,20 +42663,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 corroboration: z.ZodNumber;
                 confidence: z.ZodEnum<["high", "medium", "low"]>;
                 extractedBy: z.ZodObject<{
-                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                     model: z.ZodString;
                     status: z.ZodEnum<["generated", "fallback"]>;
                     reason: z.ZodOptional<z.ZodString>;
                     generatedAt: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
                 }, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -42697,7 +42697,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -42724,7 +42724,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -43441,20 +43441,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 distinctDomains: number;
             }>;
             ai: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -43505,20 +43505,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 corroboration: z.ZodNumber;
                 confidence: z.ZodEnum<["high", "medium", "low"]>;
                 extractedBy: z.ZodObject<{
-                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                     model: z.ZodString;
                     status: z.ZodEnum<["generated", "fallback"]>;
                     reason: z.ZodOptional<z.ZodString>;
                     generatedAt: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
                 }, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -43539,7 +43539,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -43566,7 +43566,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -44283,20 +44283,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 distinctDomains: number;
             }>;
             ai: z.ZodObject<{
-                provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                 model: z.ZodString;
                 status: z.ZodEnum<["generated", "fallback"]>;
                 reason: z.ZodOptional<z.ZodString>;
                 generatedAt: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
             }, {
                 generatedAt: string;
-                provider: "deterministic" | "ollama" | "openai";
+                provider: "deterministic" | "ollama" | "openai" | "hermes";
                 status: "generated" | "fallback";
                 model: string;
                 reason?: string | undefined;
@@ -44347,20 +44347,20 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 corroboration: z.ZodNumber;
                 confidence: z.ZodEnum<["high", "medium", "low"]>;
                 extractedBy: z.ZodObject<{
-                    provider: z.ZodEnum<["deterministic", "ollama", "openai"]>;
+                    provider: z.ZodEnum<["deterministic", "ollama", "openai", "hermes"]>;
                     model: z.ZodString;
                     status: z.ZodEnum<["generated", "fallback"]>;
                     reason: z.ZodOptional<z.ZodString>;
                     generatedAt: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
                 }, {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -44381,7 +44381,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;
@@ -44408,7 +44408,7 @@ export declare const ArticleArtifactSchema: z.ZodObject<{
                 confidence: "high" | "medium" | "low";
                 extractedBy: {
                     generatedAt: string;
-                    provider: "deterministic" | "ollama" | "openai";
+                    provider: "deterministic" | "ollama" | "openai" | "hermes";
                     status: "generated" | "fallback";
                     model: string;
                     reason?: string | undefined;

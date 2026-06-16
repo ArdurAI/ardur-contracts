@@ -82,7 +82,7 @@ const sourceQuality = z.enum([
 const verification = z.enum(['multi-source', 'single-source']);
 
 const providerMeta = z.object({
-  provider: z.enum(['deterministic', 'ollama', 'openai']),
+  provider: z.enum(['deterministic', 'ollama', 'openai', 'hermes']),
   model: z.string(),
   status: z.enum(['generated', 'fallback']),
   reason: z.string().optional(),
