@@ -6,6 +6,7 @@ import {
   CYCLE_INTERVAL_MS,
   FORBIDDEN_METRIC_KEY_FRAGMENTS,
   assertCompatibleArtifact,
+  normalizeToIsoDatetime,
   SchemaVersionError,
   type ArtifactEnvelope,
   type AggregationData,
@@ -848,5 +849,63 @@ describe('Rev 3 — exported types are assignable at runtime', () => {
     };
     assert.strictEqual(rev3article.editorialStatus, 'published');
     assert.strictEqual(rev3article.claims?.length, 1);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// normalizeToIsoDatetime — shared date normalization utility
+// ---------------------------------------------------------------------------
+
+describe('normalizeToIsoDatetime', () => {
+  it('passes through valid ISO 8601 with milliseconds', () => {
+    const input = '2026-07-03T12:00:00.000Z';
+    assert.equal(normalizeToIsoDatetime(input), input);
+  });
+
+  it('normalizes ISO 8601 without milliseconds to include .000', () => {
+    assert.equal(
+      normalizeToIsoDatetime('2026-07-03T12:00:00Z'),
+      '2026-07-03T12:00:00.000Z',
+    );
+  });
+
+  it('converts RFC 2822 RSS dates to ISO 8601', () => {
+    const result = normalizeToIsoDatetime('Wed, 02 Jul 2025 14:30:00 GMT');
+    assert.equal(result, '2025-07-02T14:30:00.000Z');
+  });
+
+  it('converts epoch milliseconds to ISO 8601', () => {
+    const result = normalizeToIsoDatetime(1751500000000);
+    assert.match(result, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+  });
+
+  it('converts Date objects to ISO 8601', () => {
+    const d = new Date('2026-01-15T08:30:00Z');
+    assert.equal(normalizeToIsoDatetime(d), '2026-01-15T08:30:00.000Z');
+  });
+
+  it('falls back to current time for unparseable strings', () => {
+    const before = Date.now();
+    const result = normalizeToIsoDatetime('not a date');
+    const after = Date.now();
+    const parsed = new Date(result).valueOf();
+    assert.ok(parsed >= before && parsed <= after, 'fallback should be ~now');
+  });
+
+  it('falls back to explicit fallback for unparseable input', () => {
+    assert.equal(
+      normalizeToIsoDatetime('', '2026-01-01T00:00:00.000Z'),
+      '2026-01-01T00:00:00.000Z',
+    );
+  });
+
+  it('falls back for null/undefined input', () => {
+    const result = normalizeToIsoDatetime(null);
+    assert.match(result, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+  });
+
+  it('falls back for NaN epoch input', () => {
+    const result = normalizeToIsoDatetime(NaN);
+    assert.match(result, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
   });
 });

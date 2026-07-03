@@ -505,3 +505,16 @@ export interface ArtifactCheck<TStage extends PipelineStage> {
  *   import { parseAggregationArtifact } from '@ardurai/contracts/zod';
  */
 export declare function assertCompatibleArtifact<TStage extends PipelineStage>(raw: unknown, expectedStage: TStage): ArtifactCheck<TStage>;
+/**
+ * Normalize any date-like value to a strict ISO 8601 UTC datetime string
+ * (the format required by the Zod schema's `z.string().datetime()` constraint).
+ *
+ * Handles:
+ *   - RFC 2822 dates from RSS feeds ("Wed, 02 Jul 2025 14:30:00 GMT")
+ *   - ISO 8601 strings with or without milliseconds
+ *   - Date objects
+ *   - Epoch numbers
+ *
+ * Falls back to `fallback` (default: current time) when the input is unparseable.
+ */
+export declare function normalizeToIsoDatetime(value: unknown, fallback?: string): string;

@@ -738,3 +738,37 @@ export function assertCompatibleArtifact<TStage extends PipelineStage>(
 
   return { envelope: env as ArtifactEnvelope<unknown>, warnings, stage: expectedStage };
 }
+
+// ---------------------------------------------------------------------------
+// Shared utilities for engine producers
+// ---------------------------------------------------------------------------
+
+/**
+ * Normalize any date-like value to a strict ISO 8601 UTC datetime string
+ * (the format required by the Zod schema's `z.string().datetime()` constraint).
+ *
+ * Handles:
+ *   - RFC 2822 dates from RSS feeds ("Wed, 02 Jul 2025 14:30:00 GMT")
+ *   - ISO 8601 strings with or without milliseconds
+ *   - Date objects
+ *   - Epoch numbers
+ *
+ * Falls back to `fallback` (default: current time) when the input is unparseable.
+ */
+export function normalizeToIsoDatetime(value: unknown, fallback?: string): string {
+  if (typeof value === 'string' && value) {
+    // Fast path: already a valid ISO 8601 datetime
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/.test(value)) {
+      return value.includes('.') ? value : value.replace('Z', '.000Z');
+    }
+    const parsed = new Date(value);
+    if (Number.isFinite(parsed.valueOf())) return parsed.toISOString();
+  }
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return new Date(value).toISOString();
+  }
+  if (value instanceof Date && Number.isFinite(value.valueOf())) {
+    return value.toISOString();
+  }
+  return fallback ?? new Date().toISOString();
+}
