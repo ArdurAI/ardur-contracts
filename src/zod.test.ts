@@ -2716,7 +2716,10 @@ const BASE_ENTRY_REV4 = {
   carriedOver: false,
 };
 
-function makeRev4Artifact(entryExtra: Record<string, unknown> = {}, dataExtra: Record<string, unknown> = {}) {
+function makeRev4Artifact(
+  entryExtra: Record<string, unknown> = {},
+  dataExtra: Record<string, unknown> = {},
+) {
   const entry = { ...BASE_ENTRY_REV4, ...entryExtra };
   return makeTop10Artifact({
     data: {
@@ -2880,7 +2883,15 @@ describe('Rev-4 full round-trip and back-compat', () => {
       topic: 'security',
       topicLabel: 'Security',
       headline: 'Critical vulnerability in popular library',
-      score: { interaction: 0.4, credibility: 0.95, recency: 0.8, diversity: 0.7, corroboration: 0.6, total: 0.7, weights: {} },
+      score: {
+        interaction: 0.4,
+        credibility: 0.95,
+        recency: 0.8,
+        diversity: 0.7,
+        corroboration: 0.6,
+        total: 0.7,
+        weights: {},
+      },
       sourceQuality: 'multi-source',
       confidence: 'high',
       references: [],
