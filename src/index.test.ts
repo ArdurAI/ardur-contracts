@@ -863,10 +863,7 @@ describe('normalizeToIsoDatetime', () => {
   });
 
   it('normalizes ISO 8601 without milliseconds to include .000', () => {
-    assert.equal(
-      normalizeToIsoDatetime('2026-07-03T12:00:00Z'),
-      '2026-07-03T12:00:00.000Z',
-    );
+    assert.equal(normalizeToIsoDatetime('2026-07-03T12:00:00Z'), '2026-07-03T12:00:00.000Z');
   });
 
   it('converts RFC 2822 RSS dates to ISO 8601', () => {
